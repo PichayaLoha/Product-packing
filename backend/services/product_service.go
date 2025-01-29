@@ -8,7 +8,8 @@ import (
 )
 
 func GetProducts(db *sql.DB) ([]models.Product, error) {
-	rows, err := db.Query(`SELECT product_id, product_name, product_height, product_length, product_width, product_time, product_amount, product_weight, user_id FROM products`)
+	rows, err := db.Query(`SELECT product_id, product_name, product_height, product_length, product_width, 
+	product_time, product_amount, product_weight, product_cost, user_id FROM products`)
 	if err != nil {
 		log.Println("Error querying products: ", err)
 		return nil, err
@@ -19,7 +20,8 @@ func GetProducts(db *sql.DB) ([]models.Product, error) {
 
 	for rows.Next() {
 		var product models.Product
-		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth, &product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.UserId); err != nil {
+		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
+			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
 			log.Println("Error scanning product row: ", err)
 			return nil, err
 		}
@@ -29,22 +31,40 @@ func GetProducts(db *sql.DB) ([]models.Product, error) {
 	return products, nil
 }
 
-func GetProductsByID(db *sql.DB, productID string) (*sql.Rows, error) {
-	query := `SELECT product_id, product_name, product_height, product_length, product_width, product_time, product_amount, product_weight, user_id FROM products WHERE product_id = $1;`
+func GetProductsByID(db *sql.DB, productID string) ([]models.Product, error) {
+	query := `SELECT product_id, product_name, product_height, product_length, product_width, product_time, 
+	product_amount, product_weight, product_cost, user_id FROM products WHERE product_id = $1;`
 	rows, err := db.Query(query, productID)
 	if err != nil {
 		log.Println("Error querying products: ", err)
 		return nil, err
 	}
-	return rows, nil
+	defer rows.Close()
+
+	var products []models.Product
+
+	for rows.Next() {
+		var product models.Product
+		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
+			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
+			log.Println("Error scanning product row: ", err)
+			return nil, err
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
 }
 
 func CreateProduct(db *sql.DB, newProduct *models.Product) error {
-	query := `INSERT INTO products (product_name, product_height, product_length, product_width, product_time, product_amount, product_weight, user_id) 
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+	if newProduct.ProductCost <= 0 {
+		return fmt.Errorf("product_cost ต้องมากกว่า 0")
+	}
+	query := `INSERT INTO products (product_name, product_height, product_length, product_width, product_time, product_amount, product_weight, product_cost, user_id) 
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
               RETURNING product_id`
 	err := db.QueryRow(query, newProduct.ProductName, newProduct.ProductHeight, newProduct.ProductLength, newProduct.ProductWidth, newProduct.ProductTime, newProduct.ProductAmount, newProduct.ProductWeight,
-		newProduct.UserId).Scan(&newProduct.ProductID)
+		newProduct.ProductCost, newProduct.UserId).Scan(&newProduct.ProductID)
 
 	if err != nil {
 		log.Println("Error inserting product: ", err)

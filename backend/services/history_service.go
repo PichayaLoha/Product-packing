@@ -2,7 +2,6 @@ package services
 
 import (
 	"database/sql"
-	"fmt"
 	"go-backend/models"
 	"log"
 )
@@ -30,7 +29,7 @@ func GetHistory(db *sql.DB) ([]models.History, error) {
 }
 func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 	query := `
-        SELECT 
+        SELECT
             ho.package_id,
             ho.package_amount,
             ho.package_time,
@@ -42,13 +41,13 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
             bd.package_box_y,
             bd.package_box_z,
 			bd.product_id
-        FROM 
+        FROM
             packages_order ho
-        LEFT JOIN 
+        LEFT JOIN
             package_dels hd ON ho.package_id = hd.package_id
-        LEFT JOIN 
+        LEFT JOIN
             package_box_dels bd ON hd.package_del_id = bd.package_del_id
-        WHERE 
+        WHERE
             ho.package_id = $1;
     `
 
@@ -71,7 +70,7 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			genBoxDelX        sql.NullFloat64
 			genBoxDelY        sql.NullFloat64
 			genBoxDelZ        sql.NullFloat64
-			productID         string
+			productID         sql.NullString // เปลี่ยนจาก string เป็น sql.NullString
 			// genProductName    sql.NullString
 			// genProductHeight  sql.NullFloat64
 			// genProductLength  sql.NullFloat64
@@ -83,7 +82,7 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			&history.HistoryID,
 			&history.HistoryAmount,
 			&history.HistoryTime,
-			&history.HistoryStatus, // เพิ่มตรงนี้
+			&history.HistoryStatus,
 			&historyDelID,
 			&historyDelBoxSize,
 			&genBoxDelID,
@@ -102,70 +101,54 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			return models.History{}, err
 		}
 
-		products, err := GetProductsByID(db, productID)
-		if err != nil {
-			log.Println("Error fetching products: ", err)
-			return models.History{}, err
-		}
-		defer products.Close()
-		var product models.Product
-		for products.Next() {
-
-			if err := products.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth, &product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.UserId); err != nil {
-				log.Println("Error scanning product row: ", err)
+		// ตรวจสอบว่า productID เป็น NULL หรือไม่
+		if productID.Valid {
+			// เรียกฟังก์ชัน GetProductsByID เพื่อดึงข้อมูลสินค้า
+			products, err := GetProductsByID(db, productID.String)
+			if err != nil {
+				log.Println("Error fetching products: ", err)
 				return models.History{}, err
 			}
-			fmt.Printf("Product: ID=%d, Name=%s\n", product.ProductID, product.ProductName)
-		}
-		if _, exists := historyDelsMap[historyDelID]; !exists {
-			historyDelsMap[historyDelID] = &models.HistoryDel{
-				HistoryDelID:      historyDelID,
-				HistoryDelBoxSize: historyDelBoxSize,
-				GenBoxDels:        []models.GenBoxDel{},
+
+			// ตรวจสอบว่ามีสินค้าใน products หรือไม่
+			if len(products) > 0 {
+				product := products[0] // ใช้สินค้าแรกในรายการ (ถ้ามี)
+				if _, exists := historyDelsMap[historyDelID]; !exists {
+					historyDelsMap[historyDelID] = &models.HistoryDel{
+						HistoryDelID:      historyDelID,
+						HistoryDelBoxSize: historyDelBoxSize,
+						GenBoxDels:        []models.GenBoxDel{},
+					}
+				}
+
+				if genBoxDelID.Valid {
+					genBoxDel := models.GenBoxDel{
+						GenBoxDelID:     int(genBoxDelID.Int64),
+						GenBoxDelX:      genBoxDelX.Float64,
+						GenBoxDelY:      genBoxDelY.Float64,
+						GenBoxDelZ:      genBoxDelZ.Float64,
+						GenBoxDelName:   product.ProductName,
+						GenBoxDelHeight: product.ProductHeight,
+						GenBoxDelLength: product.ProductLength,
+						GenBoxDelWidth:  product.ProductWidth,
+					}
+
+					historyDelsMap[historyDelID].GenBoxDels = append(historyDelsMap[historyDelID].GenBoxDels, genBoxDel)
+				}
 			}
-		}
-
-		if genBoxDelID.Valid {
-			genBoxDel := models.GenBoxDel{
-				GenBoxDelID: int(genBoxDelID.Int64),
-
-				GenBoxDelX:      genBoxDelX.Float64,
-				GenBoxDelY:      genBoxDelY.Float64,
-				GenBoxDelZ:      genBoxDelZ.Float64,
-				GenBoxDelName:   product.ProductName,
-				GenBoxDelHeight: product.ProductHeight,
-				GenBoxDelLength: product.ProductLength,
-				GenBoxDelWidth:  product.ProductWidth,
-			}
-
-			// if genProductName.Valid {
-			// 	genBoxDel.GenBoxDelName = genProductName.String
-			// }
-			// if genProductHeight.Valid {
-			// 	genBoxDel.GenBoxDelHeight = genProductHeight.Float64
-			// }
-			// if genProductLength.Valid {
-			// 	genBoxDel.GenBoxDelLength = genProductLength.Float64
-			// }
-			// if genProductWidth.Valid {
-			// 	genBoxDel.GenBoxDelWidth = genProductWidth.Float64
-			// }
-			// if genProductWeight.Valid {
-			// 	genBoxDel.GenBoxDelWeight = genProductWeight.Float64
-			// }
-
-			historyDelsMap[historyDelID].GenBoxDels = append(historyDelsMap[historyDelID].GenBoxDels, genBoxDel)
 		}
 	}
 
+	// เพิ่ม HistoryDel เข้าไปใน History
 	for _, historyDel := range historyDelsMap {
 		history.HistoryDels = append(history.HistoryDels, *historyDel)
 	}
 
 	return history, nil
 }
+
 func UpdateHistory(db *sql.DB, updatedHistory *models.HistoryOrder, historyID string) error {
-	query := `UPDATE package_order 
+	query := `UPDATE package_order
 			  SET history_status = $1
 			  WHERE history_id = $2`
 	_, err := db.Exec(query, updatedHistory.HistoryStatus, historyID)

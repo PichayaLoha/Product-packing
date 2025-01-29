@@ -185,6 +185,8 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) []mo
 	var boxes []models.PackedBox
 	remainingProducts := products
 	currentBoxWeight := 0.0
+	// totalProductCost := 0.0
+	// totalBoxCost := 0.0
 	for len(remainingProducts) > 0 {
 		// ตรวจสอบว่าน้ำหนักของสินค้า
 		product := remainingProducts[0]
@@ -231,6 +233,15 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) []mo
 				break
 			}
 		}
+		// 	for _, box := range boxes {
+		// 		totalBoxCost += box.Size.BoxCost // ราคากล่อง
+		// 		for _, product := range box.Products {
+		// 			totalProductCost += product.ProductCost // ราคาสินค้า
+		// 		}
+		// 	}
+
+		// 	fmt.Printf("ราคารวมของสินค้าทั้งหมด: %.2f\n", totalProductCost)
+		// 	fmt.Printf("ราคารวมของกล่องที่ใช้: %.2f\n", totalBoxCost)
 	}
 
 	return boxes
