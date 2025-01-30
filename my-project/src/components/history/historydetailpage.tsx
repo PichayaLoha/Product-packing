@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import Menupage from './menupage';
-import { Link, useLocation } from 'react-router-dom';
-function Generatepage() {
+import Menupage from '../menupage';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+function Historydetailpage() {
+    const navegate = useNavigate();
     const location = useLocation();
     const { message } = location.state;
     const [order, setOrder] = useState([]);
+    const [check, setcheck] = useState();
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const response = await fetch(`http://localhost:8080/api/history/${message}`);
                 const data = await response.json();
-                console.log("test",data.history_dels);
-                console.log(message);
-
+                console.log("test", data);
+                setcheck(data.history_status)
                 setOrder(data.history_dels || []);
 
-
-
-                // setProduct(data.products);
-                // setSize(data.products.length) // เข้าถึง array orders จาก key 'Products'
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -29,22 +26,43 @@ function Generatepage() {
         fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
-    const test = () => {
-        console.log(order.history_id)
-    }
+    const handleEditItem = async (e) => {
+        const value = e.target.getAttribute('data-value');
+        console.log(message)
+        const updatedItem = {
+            history_status: "Packed",
+        };
+        try {
+            const response = await fetch(`http://localhost:8080/api/history/${message}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedItem),
+            });
+
+            if (response.ok) {
+                alert("อัพเดทสถานะเรียบร้อย")
+                navegate('/History'); // นำทางไปยังหน้าผลลัพธ์เมื่อสำเร็จ
+                window.location.reload();
+            } else {
+                console.error('Error updating item:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
 
 
     return (
         <div className="grid grid-cols-12 h-screen">
             <Menupage />
             <div className="col-span-10 m-5">
-                <div className='mb-5'>
-                    <Link to='/Product'>
-                        <button className='btn'>กลับไปหน้าเพิ่ม Order</button>
-                    </Link>
-                    <p>จำนวนกล่องท้ังหมด : 4</p>
-                    {/* <p>กล่องขนาด F :[4]    E:[4]    D:[4]    G:[4]   S:[4]   M:[4]    L:[4]</p> */}
-
+                <div className='flex mb-5 items-end'>
+                    <p className='text-3xl mr-5'>History</p>
+                    {check == "Unpacked" && (
+                        <button className='btn btn-sm btn-success' data-value="Packed" onClick={handleEditItem}>Packed</button>
+                    )}
                 </div>
                 <div className='flex justify-center' >
                     <div style={{ width: "90%" }}>
@@ -55,7 +73,7 @@ function Generatepage() {
                                         <th>ลำดับ</th>
                                         <th>ขนาดกล่อง</th>
                                         <th>user-id</th>
-                                        <th>ชื่อ<button onClick={test}>232523</button></th>
+                                        <th>ชื่อ</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -63,15 +81,16 @@ function Generatepage() {
                                 {order.map((item, index) => (
                                     <tbody >
 
-                                        <tr key={index} className='bg-stone-400'>
-                                            <th>{item.history_del_id}</th>
+                                        <tr className='bg-stone-400'>
+                                            <th>{index + 1}</th>
                                             <td>{item.history_del_boxsize}</td>
-                                            <td>3</td>
-                                            <td>Blue</td>
+                                            <td>{item.history_del_id}</td>
+                                            <td>Bob</td>
                                             <td>
+                                                {/* <button className='btn btn-sm border-orange-300 bg-orange-300'>แก้ไข</button>
+                                                <button className='btn btn-sm border-red-400 ml-5 bg-red-400'>ลบ</button> */}
                                             </td>
                                         </tr>
-
                                         <tr>
                                             <td colSpan={5} className='bg-stone-500'>
                                                 <div className="p-5 overflow-x-auto bg-white">
@@ -80,9 +99,9 @@ function Generatepage() {
                                                             <tr>
                                                                 <th>Number</th>
                                                                 <th>Product Name</th>
-                                                                <th>Height</th>
-                                                                <th>Length</th>
-                                                                <th>Width</th>
+                                                                <th>High</th>
+                                                                <th>Lenght</th>
+                                                                <th>Widght</th>
                                                                 <th>Weight</th>
                                                                 <th>X</th>
                                                                 <th>Y</th>
@@ -92,8 +111,8 @@ function Generatepage() {
                                                         {/* รายการของในกล่องนั้นๆ */}
                                                         <tbody>
                                                             {item.gen_box_dels.map((item, index) => (
-                                                                <tr >
-                                                                    <th>{index}</th>
+                                                                <tr key={index}>
+                                                                    <th>{index + 1}</th>
                                                                     <td >{item.gen_box_product_name}</td>
                                                                     <td>{item.gen_box_product_height}</td>
                                                                     <td>{item.gen_box_product_length}</td>
@@ -119,8 +138,10 @@ function Generatepage() {
                     </div>
                 </div >
             </div>
+
         </div>
+
     )
 }
 
-export default Generatepage
+export default Historydetailpage
