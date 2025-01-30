@@ -56,7 +56,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 			return boxSizes[i].BoxID < boxSizes[j].BoxID
 
 		})
-		fmt.Println("boxSizes: ", boxSizes)
+		// fmt.Println("boxSizes: ", boxSizes)
 	}
 	// fmt.Println("boxSizes: ", boxSizes)
 
@@ -80,7 +80,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 
 	fmt.Println("products: ", products)
 
-	boxes := packing(products, boxSizes, mode)
+	boxes := packing(products, boxSizes, "space") //อย่าลืมแก้กลับเป๋นเหมือนเดิม
 	fmt.Printf("จำนวนกล่องที่ใช้: %d\n", len(boxes))
 	var productgen []*models.HistoryOrder
 
@@ -124,6 +124,8 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 							VALUES ($1, $2) 
 							RETURNING package_del_id`
 		err = db.QueryRow(queryHistoryDel, historyProduct.BoxName, historyID).Scan(&genboxDelID)
+		fmt.Println("package_dels_test:", historyProduct.BoxName, historyID)
+
 		if err != nil {
 			log.Println("Error inserting into package_dels:", err)
 			return nil, err
@@ -170,7 +172,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	// } else {
 	// 	log.Println("Rows affected: ", rowsAffected)
 	// }
-	fmt.Println("productgen: ", productgen)
+	// fmt.Println("productgen: ", productgen)
 	return productgen, nil
 }
 func calculateBoxWeight(products []models.Product) float64 {
@@ -260,23 +262,23 @@ func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products
 		boxVol := size.BoxWidth * size.BoxHeight * size.BoxLength
 		fitCount := calculateFitCount(product, size.BoxWidth, size.BoxHeight, size.BoxLength)
 		productVol := calculateProductVolume(products)
-		fmt.Println("size.Name: ", size.BoxName)
-		fmt.Println("orderWeight: ", product.ProductWeight)
-		fmt.Println("size.MaxWeight: ", size.BoxMaxWeight)
+		// fmt.Println("size.Name: ", size.BoxName)
+		// fmt.Println("orderWeight: ", product.ProductWeight)
+		// fmt.Println("size.MaxWeight: ", size.BoxMaxWeight)
 		// ตรวจสอบเงื่อนไขน้ำหนักก่อน
 		if product.ProductWeight <= size.BoxMaxWeight {
-			fmt.Println("size.count: ", size.BoxAmount)
-			fmt.Println("order.Width: ", product.ProductWidth)
-			fmt.Println("order.Height: ", product.ProductHeight)
-			fmt.Println("order.Long: ", product.ProductLength)
+			// fmt.Println("size.count: ", size.BoxAmount)
+			// fmt.Println("order.Width: ", product.ProductWidth)
+			// fmt.Println("order.Height: ", product.ProductHeight)
+			// fmt.Println("order.Long: ", product.ProductLength)
 			if mode == "boxes" {
 				// ตรวจสอบว่าขนาดกล่องสามารถใส่สินค้าได้
 				if size.BoxAmount > 0 && size.BoxWidth >= product.ProductWidth && size.BoxHeight >= product.ProductHeight && size.BoxLength >= product.ProductLength {
 					// กรณีสินค้าขนาดเท่ากัน
 					// fmt.Println("productSameSize: ", productSameSize)
 					if productSameSize {
-						fmt.Println("fitCount: ", math.Floor(fitCount))
-						fmt.Println("orderCount: ", productCount)
+						// fmt.Println("fitCount: ", math.Floor(fitCount))
+						// fmt.Println("orderCount: ", productCount)
 						if fitCount >= productCount {
 							selectedBox = size
 							found = true
