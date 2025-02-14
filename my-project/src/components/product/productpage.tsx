@@ -76,13 +76,16 @@ function Productpage() {
                                         <p className=" text-center text-xl">Shoes!</p>
                                     </div>
                                     <div>
-                                        <p className='sm:text-xs md:text-sm xl:text-md'>W x L x H : <label className='text-zinc-500 '>50 x 50 x 50</label></p>
+                                        <p className='sm:text-xs md:text-sm xl:text-md'>W x L x H : <label className='text-zinc-500 '>50 x 50 x 50 cm</label></p>
                                     </div>
                                     <div>
                                         <p className='sm:text-xs md:text-sm xl:text-md'>น้ำหนัก : <label className='text-zinc-500'>50 g.</label></p>
                                     </div>
                                     <div>
-                                        {/* <p className='sm:text-xs md:text-sm xl:text-md'>ราคา : <label className='text-zinc-500'>50 บาท</label></p> */}น
+                                        <p className='sm:text-xs md:text-sm xl:text-md'>ราคา : <label className='text-zinc-500'>50 บาท</label></p>
+                                    </div>
+                                    <div>
+                                        <p className='sm:text-xs md:text-sm xl:text-md'>จำนวนสินค้า : <label className='text-zinc-500'>50 บาท</label></p>
                                     </div>
                                     <div className="card-actions justify-center my-1">
                                         <div className="flex items-center space-x-0">
@@ -101,6 +104,7 @@ function Productpage() {
                                         <Link to='/Editproduct/:product_id'>
                                             <button className="btn btn-primary">แก้ไข</button>
                                         </Link>
+                                        <button className="btn btn-error text-white" onClick={handleAddProduct}>ลบ</button>
                                     </div>
                                 </div>
                             </div>

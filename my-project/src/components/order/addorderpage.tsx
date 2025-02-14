@@ -150,7 +150,7 @@ function AddOrderPage() {
                             </div>
                             <div className="card-actions justify-center">
                                 <button className="btn bg-green-500 btn-sm" onClick={handleAddItem}>Add</button>
-                                <Link to='/Product'>
+                                <Link to='/Order'>
                                     <button className="btn btn-error btn-sm">Cancel</button>
                                 </Link>
                             </div>
