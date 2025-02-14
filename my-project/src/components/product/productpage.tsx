@@ -99,7 +99,7 @@ function Productpage() {
                                     <div className="card-actions justify-center">
                                         <button className="btn btn-success text-white" onClick={handleAddProduct}>เพิ่มสินค้า</button>
                                         <Link to='/Editproduct/:product_id'>
-                                            <button className="btn btn-primary">แก้ไข</button>
+                                            <button className="btn btn-primary">แก้ไข test</button>
                                         </Link>
                                     </div>
                                 </div>
