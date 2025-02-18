@@ -5,10 +5,10 @@ import (
 )
 
 type Order struct {
-	OrderID      int       `json:"order_id"`
-	CustomerID   int       `json:"customer_id"`
-	OrderDate    time.Time `json:"order_date"`
-	OrderDetails []OrderDetail
+	OrderID      int           `json:"order_id"`
+	CustomerID   int           `json:"customer_id"`
+	OrderDate    time.Time     `json:"order_date"`
+	OrderDetails []OrderDetail `json:"order_details"`
 }
 
 type OrderDetail struct {

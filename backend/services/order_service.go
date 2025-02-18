@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 	"go-backend/models"
 	"log"
 )
@@ -62,16 +63,16 @@ func CreateOrder(db *sql.DB, newOrder *models.Order) error {
               VALUES ($1, $2) 
               RETURNING order_id`
 	err := db.QueryRow(query, newOrder.CustomerID, newOrder.OrderDate).Scan(&orderId)
+
 	if err != nil {
 		log.Println("Error inserting order: ", err)
 		return err
 	}
-
 	// 2️⃣ วนลูป insert ข้อมูลลงใน order_dels
 	query1 := `INSERT INTO order_dels (product_amount, order_id, product_id) 
                VALUES ($1, $2, $3) 
                RETURNING order_del_id`
-
+	fmt.Println(newOrder.OrderDetails)
 	for i := range newOrder.OrderDetails {
 		var orderDelId int
 		orderDetail := &newOrder.OrderDetails[i] // ใช้ pointer เพื่ออัปเดตค่าใน slice
@@ -81,7 +82,6 @@ func CreateOrder(db *sql.DB, newOrder *models.Order) error {
 			log.Println("Error inserting order details: ", err1)
 			return err1
 		}
-
 		// อัปเดตค่า order_del_id ที่เพิ่ง insert กลับไปที่ slice
 		orderDetail.OrderDelID = orderDelId
 	}
