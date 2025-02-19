@@ -36,10 +36,13 @@ func main() {
 	router.GET("/api/history/:id", func(c *gin.Context) {
 		controllers.GetHistoryDetail(c, db)
 	})
-	// router.GET("/api/orders", func(c *gin.Context) {
-	// 	controllers.GetOrder(c, db)
-	// })
+	router.GET("/api/orders", func(c *gin.Context) {
+		controllers.GetOrders(c, db)
+	})
 
+	router.GET("/api/orders/:order_id", func(c *gin.Context) {
+		controllers.GetOrdersByID(c, db)
+	})
 	//POST
 	router.POST("/api/products", func(c *gin.Context) {
 		controllers.CreateProduct(c, db)

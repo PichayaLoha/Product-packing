@@ -7,54 +7,51 @@ import (
 	"log"
 )
 
-// func GetProducts(db *sql.DB) ([]models.Product, error) {
-// 	rows, err := db.Query(`SELECT product_id, product_name, product_height, product_length, product_width,
-// 	product_time, product_amount, product_weight, product_cost, user_id FROM products`)
-// 	if err != nil {
-// 		log.Println("Error querying products: ", err)
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
+func GetOrders(db *sql.DB) ([]models.Order, error) {
+	rows, err := db.Query(`SELECT order_id, customer_id, order_date FROM orders`)
+	if err != nil {
+		log.Println("Error querying orders: ", err)
+		return nil, err
+	}
+	defer rows.Close()
 
-// 	var products []models.Product
+	var orders []models.Order
 
-// 	for rows.Next() {
-// 		var product models.Product
-// 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-// 			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
-// 			log.Println("Error scanning product row: ", err)
-// 			return nil, err
-// 		}
-// 		products = append(products, product)
-// 	}
+	for rows.Next() {
+		var order models.Order
+		if err := rows.Scan(&order.OrderID, &order.CustomerID, &order.OrderDate); err != nil {
+			log.Println("Error scanning order row: ", err)
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
 
-// 	return products, nil
-// }
+	return orders, nil
+}
 
-// func GetProductsByID(db *sql.DB, productID string) ([]models.Product, error) {
-// 	query := `SELECT product_id, product_name, product_height, product_length, product_width, product_time,
-// 	product_amount, product_weight, product_cost, user_id FROM products WHERE product_id = $1;`
-// 	rows, err := db.Query(query, productID)
-// 	if err != nil {
-// 		log.Println("Error querying products: ", err)
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
+func GetOrdersByID(db *sql.DB, ordersID string) ([]models.Order, error) {
+	query := `SELECT order_id, customer_id, order_date FROM orders WHERE order_id = $1;`
+	rows, err := db.Query(query, ordersID)
+	if err != nil {
+		log.Println("Error querying orders: ", err)
+		return nil, err
+	}
+	defer rows.Close()
 
-// 	var products []models.Product
+	var orders []models.Order
+	fmt.Println("order1: ", orders)
+	for rows.Next() {
+		var order models.Order
+		if err := rows.Scan(&order.OrderID, &order.CustomerID, &order.OrderDate); err != nil {
+			log.Println("Error scanning order row: ", err)
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	fmt.Println("order2: ", orders)
 
-// 	for rows.Next() {
-// 		var product models.Product
-// 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-// 			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
-// 			log.Println("Error scanning product row: ", err)
-// 			return nil, err
-// 		}
-// 		products = append(products, product)
-// 	}
-
-// 	return products, nil
-// }
+	return orders, nil
+}
 
 func CreateOrder(db *sql.DB, newOrder *models.Order) error {
 	// 1️⃣ สร้าง Order และรับ order_id

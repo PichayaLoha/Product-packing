@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"go-backend/models"
 	"go-backend/services"
 	"net/http"
@@ -10,25 +11,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func GetProducts(c *gin.Context, db *sql.DB) {
-// 	products, err := services.GetProducts(db)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve products"})
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"products": products})
-// }
+func GetOrders(c *gin.Context, db *sql.DB) {
+	orders, err := services.GetOrders(db)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve orders"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"orders": orders})
+}
 
-//	func GetProductsByID(c *gin.Context, db *sql.DB) {
-//		productID := c.Param("product_id")
-//		fmt.Println("productID: ", productID)
-//		products, err := services.GetProductsByID(db, productID)
-//		if err != nil {
-//			c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve products"})
-//			return
-//		}
-//		c.JSON(http.StatusOK, gin.H{"products": products})
-//	}
+func GetOrdersByID(c *gin.Context, db *sql.DB) {
+	orderID := c.Param("order_id")
+	fmt.Println("orderID: ", orderID)
+	orders, err := services.GetOrdersByID(db, orderID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve orders"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"orders": orders})
+}
 func CreateOrder(c *gin.Context, db *sql.DB) {
 	var newOrder models.Order
 
