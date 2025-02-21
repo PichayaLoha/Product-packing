@@ -12,8 +12,9 @@ type Order struct {
 }
 
 type OrderDetail struct {
-	OrderDelID    int `json:"order_del_id"`
-	ProductAmount int `json:"product_amount"`
-	OrderID       int `json:"order_id"`
-	ProductID     int `json:"product_id"`
+	OrderDelID    int     `json:"order_del_id"`
+	ProductAmount int     `json:"product_amount"`
+	OrderID       int     `json:"order_id"`
+	ProductID     int     `json:"product_id"`
+	Product       Product `json:"product"`
 }

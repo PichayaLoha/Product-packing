@@ -39,6 +39,9 @@ func main() {
 	router.GET("/api/orders", func(c *gin.Context) {
 		controllers.GetOrders(c, db)
 	})
+	// router.GET("/api/orderdels", func(c *gin.Context) {
+	// 	controllers.GetOrderdels(c, db)
+	// })
 
 	router.GET("/api/orders/:order_id", func(c *gin.Context) {
 		controllers.GetOrdersByID(c, db)

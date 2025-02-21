@@ -53,6 +53,47 @@ func GetOrdersByID(db *sql.DB, ordersID string) ([]models.Order, error) {
 	return orders, nil
 }
 
+// func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
+// 	rows, err := db.Query(`SELECT order_del_id, order_id, product_amount, product_id FROM order_dels`)
+// 	if err != nil {
+// 		log.Println("Error querying orders: ", err)
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+
+// 	query := `SELECT product_id, product_name, product_height, product_length, product_width, product_time,
+// 	product_amount, product_weight, product_cost, user_id FROM products WHERE product_id = $1;`
+// 	rows1, err1 := db.Query(query, productID)
+// 	if err1 != nil {
+// 		log.Println("Error querying products: ", err)
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+
+// 	var products []models.Product
+
+// 	var orderdels []models.OrderDetail
+
+// 	for rows.Next() {
+// 		var orderdel models.OrderDetail
+// 		if err := rows.Scan(&orderdel.OrderDelID, &orderdel.OrderID, &orderdel.ProductAmount, &orderdel.ProductID); err != nil {
+// 			log.Println("Error scanning order details row: ", err)
+// 			return nil, err
+// 		}
+// 		orderdels = append(orderdels, orderdel)
+// 	}
+// 	for rows1.Next() {
+// 		var product models.Product
+// 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
+// 			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
+// 			log.Println("Error scanning product row: ", err)
+// 			return nil, err
+// 		}
+// 		products = append(products, product)
+// 	}
+// 	return orderdels, nil
+// }
+
 func CreateOrder(db *sql.DB, newOrder *models.Order) error {
 	// 1️⃣ สร้าง Order และรับ order_id
 	var orderId int
