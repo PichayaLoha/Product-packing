@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Menupage from './menupage';
+import Menupage from '../menupage';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-function EditOrderPage() {
+function EditProductPage() {
     const navigate = useNavigate();
     const { order_id } = useParams();
     const [product_name, setProductName] = useState("");
@@ -165,4 +165,4 @@ function EditOrderPage() {
     )
 }
 
-export default EditOrderPage;
+export default EditProductPage;

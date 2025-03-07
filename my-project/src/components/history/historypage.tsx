@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Menupage from './menupage';
+import Menupage from '../menupage';
 import { Link, useNavigate } from 'react-router-dom';
 function History_page() {
     const navegate = useNavigate();
@@ -42,7 +42,7 @@ function History_page() {
                     <div className='flex justify-center'>
                         <div style={{ width: "90%" }}>
                             <div className="overflow-x-auto border rounded-xl border-slate-200">
-                                <table className="table bg-stone-500  text-center">
+                                <table className="table bg-stone-600  text-center">
                                     <thead>
                                         <tr className='bg-cyan-700 text-white text-base'>
                                             <th>ลำดับ</th>

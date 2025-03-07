@@ -71,6 +71,13 @@ func main() {
 		controllers.DeleteOrderDel(c, db)
 	})
 
+	router.GET("/api/orders", func(c *gin.Context) {
+		controllers.GetOrders(c, db)
+	})
+
+	router.POST("/api/orders", func(c *gin.Context) {
+		controllers.CreateOrders(c, db)
+	})
 	// router.DELETE("/api/history/:history_id", func(c *gin.Context) {
 	// 	controllers.DeleteHistory(c, db)
 	// })

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Menupage from './menupage';
+import Menupage from '../menupage';
 import { useNavigate, Link } from 'react-router-dom'; // เพิ่ม Link ที่นี่
 
 function AddOrderPage() {
@@ -11,8 +11,26 @@ function AddOrderPage() {
     const [weight, setWeight] = useState("");
     const [amount, setAmount] = useState("");
     const [userId, setuserId] = useState("");
-    
+
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return; //เช็คว่ามีรูปเข้ามาไหม
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file); // แปลงเป็น Base64
+
+        reader.onloadend = () => {
+            setImage(reader.result);
+            setPreview(reader.result); // แสดงตัวอย่างรูป
+        };
+    };
+
     const handleAddItem = async () => {
+        if (!image) return alert("กรุณาเลือกรูปก่อน");
+        // product_image:
         const newItem = {
             product_name,
             product_width: parseFloat(width),
@@ -33,6 +51,10 @@ function AddOrderPage() {
             });
             console.log(newItem)
             if (response.ok) {
+
+                // setImage(null);
+                // setPreview(null);
+
                 // นำทางไปยังหน้าผลลัพธ์
                 navigate('/Product');
             } else {
@@ -117,10 +139,18 @@ function AddOrderPage() {
                                         onChange={(e) => setuserId(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
+                                <label className="form-control w-full max-w-xs">
+                                    <input className="file-input file-input-bordered file-input-info file-input-xs w-full max-w-xs " type="file" onChange={handleImageChange} accept="image/*" name="fileToUpload" />
+                                </label>
+                                <div className="flex justify-center col-span-2 max-w-xs prevent-select h-40 w-full object-cover">
+                                    {preview && (
+                                        <img src={preview} alt="Preview" />
+                                    )}
+                                </div>
                             </div>
                             <div className="card-actions justify-center">
                                 <button className="btn bg-green-500 btn-sm" onClick={handleAddItem}>Add</button>
-                                <Link to='/Product'>
+                                <Link to='/Order'>
                                     <button className="btn btn-error btn-sm">Cancel</button>
                                 </Link>
                             </div>

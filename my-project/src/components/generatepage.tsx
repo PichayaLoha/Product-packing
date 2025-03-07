@@ -80,10 +80,13 @@ function Generatepage() {
                                                             <tr>
                                                                 <th>Number</th>
                                                                 <th>Product Name</th>
-                                                                <th>High</th>
-                                                                <th>Lenght</th>
-                                                                <th>Widght</th>
+                                                                <th>Height</th>
+                                                                <th>Length</th>
+                                                                <th>Width</th>
                                                                 <th>Weight</th>
+                                                                <th>X</th>
+                                                                <th>Y</th>
+                                                                <th>Z</th>
                                                             </tr>
                                                         </thead>
                                                         {/* รายการของในกล่องนั้นๆ */}
@@ -96,6 +99,9 @@ function Generatepage() {
                                                                     <td>{item.gen_box_product_length}</td>
                                                                     <td>{item.gen_box_product_width}</td>
                                                                     <td>{item.gen_box_product_weight}</td>
+                                                                    <td>{item.gen_box_del_x}</td>
+                                                                    <td>{item.gen_box_del_y}</td>
+                                                                    <td>{item.gen_box_del_z}</td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>

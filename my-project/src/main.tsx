@@ -1,12 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
-import Productpage from './components/productpage';
-import Addorder from './components/addorderpage';
-import Editorderpage from './components/editorderpage.tsx';
+import Productpage from './components/product/productpage.tsx';
+import AddProductPage from './components/product/addproductpage.tsx';
+import EditProductPage from './components/product/editproductpage.tsx';
+import Orderpage from './components/order/orderpage.tsx';
+import Addorder from './components/order/addorderpage.tsx';
+import Editorderpage from './components/order/editorderpage.tsx';
 import Packingpage from './components/packingpage.tsx';
-import Historypage from './components/historypage.tsx';
-import Historydetailpage from './components/historydetailpage.tsx';
+import Historypage from './components/history/historypage.tsx';
+import Historydetailpage from './components/history/historydetailpage.tsx';
 import Generatepage from './components/generatepage.tsx';
 import './index.css'
 import {
@@ -24,8 +27,8 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/Product",
-    element: <Productpage />,
+    path: "/Order",
+    element: <Orderpage />,
   },
   {
     path: "/Addorder",
@@ -36,8 +39,20 @@ const router = createBrowserRouter([
     element: <Editorderpage />,
   },
   {
+    path: "/Product",
+    element: <Productpage />,
+  },
+  {
+    path: "/Addproduct",
+    element: <AddProductPage />,
+  },
+  {
+    path: "/Editproduct/:product_id",
+    element: <EditProductPage />,
+  },
+  {
     path: "/Packing",
-    element: <Packingpage/>,
+    element: <Packingpage />,
   },
   {
     path: "/Generate",
@@ -45,13 +60,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/History",
-    element: <Historypage/>,
+    element: <Historypage />,
   },
   {
     path: "/Historydetail",
     element: <Historydetailpage />,
   },
-  
+
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

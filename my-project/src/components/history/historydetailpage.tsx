@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Menupage from './menupage';
+import Menupage from '../menupage';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 function Historydetailpage() {
     const navegate = useNavigate();
@@ -103,6 +103,9 @@ function Historydetailpage() {
                                                                 <th>Lenght</th>
                                                                 <th>Widght</th>
                                                                 <th>Weight</th>
+                                                                <th>X</th>
+                                                                <th>Y</th>
+                                                                <th>Z</th>
                                                             </tr>
                                                         </thead>
                                                         {/* รายการของในกล่องนั้นๆ */}
@@ -115,6 +118,9 @@ function Historydetailpage() {
                                                                     <td>{item.gen_box_product_length}</td>
                                                                     <td>{item.gen_box_product_width}</td>
                                                                     <td>{item.gen_box_product_weight}</td>
+                                                                    <td>{item.gen_box_del_x}</td>
+                                                                    <td>{item.gen_box_del_y}</td>
+                                                                    <td>{item.gen_box_del_z}</td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>

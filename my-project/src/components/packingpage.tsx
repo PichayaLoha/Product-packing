@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Menupage from './menupage';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function PackingPage() {
     const navigate = useNavigate();
