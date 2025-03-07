@@ -52,6 +52,46 @@ func GetOrdersByID(db *sql.DB, ordersID string) ([]models.Order, error) {
 
 	return orders, nil
 }
+func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
+	rows, err := db.Query(`
+		SELECT 
+			od.order_del_id, od.product_amount, od.order_id, od.product_id,
+			p.product_name, p.product_height, p.product_length, p.product_width,
+			p.product_time, p.product_amount, p.product_weight, p.product_cost,
+			p.user_id
+		FROM order_dels od
+		INNER JOIN products p ON od.product_id = p.product_id
+	`)
+	if err != nil {
+		log.Println("Error querying orders: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var orderdels []models.OrderDetail
+
+	for rows.Next() {
+		var orderdel models.OrderDetail
+		var product models.Product
+
+		// Scan ข้อมูลของ order_dels และ product
+		if err := rows.Scan(
+			&orderdel.OrderDelID, &orderdel.ProductAmount, &orderdel.OrderID, &orderdel.ProductID,
+			&product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
+			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost,
+			&product.UserId,
+		); err != nil {
+			log.Println("Error scanning order row: ", err)
+			return nil, err
+		}
+
+		// ใส่ข้อมูล product เข้าไปใน OrderDetail
+		orderdel.Product = product
+		orderdels = append(orderdels, orderdel)
+	}
+
+	return orderdels, nil
+}
 
 // func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 // 	rows, err := db.Query(`SELECT order_del_id, order_id, product_amount, product_id FROM order_dels`)

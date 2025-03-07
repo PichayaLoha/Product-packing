@@ -30,6 +30,14 @@ func GetOrdersByID(c *gin.Context, db *sql.DB) {
 	}
 	c.JSON(http.StatusOK, gin.H{"orders": orders})
 }
+func GetOrderdels(c *gin.Context, db *sql.DB) {
+	orderdels, err := services.GetOrderdels(db)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve orders"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"orderdels": orderdels})
+}
 
 //	func GetOrderdels(c *gin.Context, db *sql.DB) {
 //		orderdels, err := services.GetOrderdels(db)
