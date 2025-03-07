@@ -7,7 +7,6 @@ import (
 	"math"
 
 	"go-backend/models" // import models ที่สร้างไว้
-	"net/http"
 	"sort"
 
 	"github.com/gin-gonic/gin"
@@ -15,19 +14,25 @@ import (
 )
 
 func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error) {
-	var requestBody struct {
-		Mode string `json:"mode"`
-	}
+	// var requestBody struct {
+	// 	Mode string `json:"mode"`
+	// }
 
-	if err := c.BindJSON(&requestBody); err != nil {
-		log.Println("Error binding JSON: ", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-	}
+	// if err := c.BindJSON(&requestBody); err != nil {
+	// 	log.Println("Error binding JSON: ", err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	// }
 
-	mode := requestBody.Mode
+	// mode := requestBody.Mode
+	mode := "space"
 	fmt.Println(mode)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
-	rows1, err1 := db.Query(`SELECT product_id, product_name, product_width, product_length, product_height, product_weight, product_amount FROM products`)
+	rows1, err1 := db.Query(`SELECT 
+			od.order_del_id, od.order_id, p.product_id,
+			p.product_name, p.product_width, p.product_length, 
+			p.product_height, p.product_weight, od.product_amount
+		FROM order_dels od
+		INNER JOIN products p ON od.product_id = p.product_id`)
 
 	if err != nil {
 		log.Println("Error querying boxes: ", err)
@@ -63,8 +68,9 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	// สแกนข้อมูลจากตาราง products
 	for rows1.Next() {
 		var product models.Product
+		var order models.OrderDetail
 		var productAmount int
-		if err1 := rows1.Scan(&product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
+		if err1 := rows1.Scan(&order.OrderDelID, &order.OrderID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
 			log.Println("Error scanning product row: ", err1)
 			return nil, err
 		}
@@ -182,8 +188,10 @@ func calculateBoxWeight(products []models.Product) float64 {
 }
 
 func packing(products []models.Product, boxSizes []models.Box, mode string) []models.PackedBox {
+
 	var boxes []models.PackedBox
 	remainingProducts := products
+
 	currentBoxWeight := 0.0
 	// totalProductCost := 0.0
 	// totalBoxCost := 0.0

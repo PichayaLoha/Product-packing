@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-backend/models"
 	"go-backend/services"
+	"log"
 	"net/http"
 	"time"
 
@@ -67,4 +68,27 @@ func CreateOrder(c *gin.Context, db *sql.DB) {
 
 	// ส่ง response กลับไป
 	c.JSON(http.StatusCreated, gin.H{"message": "เพิ่มออเดอร์ใหม่สำเร็จ", "order": newOrder})
+}
+func DeleteOrderDel(c *gin.Context, db *sql.DB) {
+	orderdelID := c.Param("order_del_id")
+
+	rowsAffected, err := services.DeleteOrderDel(db, orderdelID)
+	if err != nil {
+		log.Println("Error deleting orderdel: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Unable to delete orderdel",
+		})
+		return
+	}
+
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "orderdel not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "orderdel deleted successfully",
+	})
 }

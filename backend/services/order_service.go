@@ -93,47 +93,6 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 	return orderdels, nil
 }
 
-// func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
-// 	rows, err := db.Query(`SELECT order_del_id, order_id, product_amount, product_id FROM order_dels`)
-// 	if err != nil {
-// 		log.Println("Error querying orders: ", err)
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	query := `SELECT product_id, product_name, product_height, product_length, product_width, product_time,
-// 	product_amount, product_weight, product_cost, user_id FROM products WHERE product_id = $1;`
-// 	rows1, err1 := db.Query(query, productID)
-// 	if err1 != nil {
-// 		log.Println("Error querying products: ", err)
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	var products []models.Product
-
-// 	var orderdels []models.OrderDetail
-
-// 	for rows.Next() {
-// 		var orderdel models.OrderDetail
-// 		if err := rows.Scan(&orderdel.OrderDelID, &orderdel.OrderID, &orderdel.ProductAmount, &orderdel.ProductID); err != nil {
-// 			log.Println("Error scanning order details row: ", err)
-// 			return nil, err
-// 		}
-// 		orderdels = append(orderdels, orderdel)
-// 	}
-// 	for rows1.Next() {
-// 		var product models.Product
-// 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-// 			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
-// 			log.Println("Error scanning product row: ", err)
-// 			return nil, err
-// 		}
-// 		products = append(products, product)
-// 	}
-// 	return orderdels, nil
-// }
-
 func CreateOrder(db *sql.DB, newOrder *models.Order) error {
 	// 1️⃣ สร้าง Order และรับ order_id
 	var orderId int
@@ -165,4 +124,52 @@ func CreateOrder(db *sql.DB, newOrder *models.Order) error {
 	}
 
 	return nil
+}
+
+func DeleteOrderDel(db *sql.DB, orderdelID string) (int64, error) {
+	// ค้นหา order_id ก่อนลบ
+	var orderID int
+	queryGetOrder := `SELECT order_id FROM order_dels WHERE order_del_id = $1`
+	err := db.QueryRow(queryGetOrder, orderdelID).Scan(&orderID)
+	if err != nil {
+		log.Println("Error fetching order_id: ", err)
+		return 0, err
+	}
+
+	// ลบ order_del
+	queryDelete := `DELETE FROM order_dels WHERE order_del_id = $1`
+	result, err := db.Exec(queryDelete, orderdelID)
+	if err != nil {
+		log.Println("Error deleting orderdel: ", err)
+		return 0, err
+	}
+
+	// ตรวจสอบจำนวนแถวที่ถูกลบ
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting rows affected: ", err)
+		return 0, err
+	}
+
+	// ตรวจสอบว่ามี order_id นี้เหลืออยู่ใน order_dels หรือไม่
+	var count int
+	queryCheck := `SELECT COUNT(*) FROM order_dels WHERE order_id = $1`
+	err = db.QueryRow(queryCheck, orderID).Scan(&count)
+	if err != nil {
+		log.Println("Error checking order_dels count: ", err)
+		return rowsAffected, err
+	}
+
+	// ถ้าไม่มี order_del ที่ใช้ order_id นี้แล้ว ให้ลบ order ใน orders
+	if count == 0 {
+		queryDeleteOrder := `DELETE FROM orders WHERE order_id = $1`
+		_, err := db.Exec(queryDeleteOrder, orderID)
+		if err != nil {
+			log.Println("Error deleting order: ", err)
+			return rowsAffected, err
+		}
+		log.Println("Deleted order_id:", orderID)
+	}
+
+	return rowsAffected, nil
 }
