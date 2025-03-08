@@ -36,9 +36,9 @@ func main() {
 	router.GET("/api/history/:id", func(c *gin.Context) {
 		controllers.GetHistoryDetail(c, db)
 	})
-	router.GET("/api/orders", func(c *gin.Context) {
-		controllers.GetOrders(c, db)
-	})
+	// router.GET("/api/orders", func(c *gin.Context) {
+	// 	controllers.GetOrders(c, db)
+	// })
 	router.GET("/api/orderdels", func(c *gin.Context) {
 		controllers.GetOrderdels(c, db)
 	})
@@ -46,16 +46,16 @@ func main() {
 	// 	controllers.GetOrderdels(c, db)
 	// })
 
-	router.GET("/api/orders/:order_id", func(c *gin.Context) {
-		controllers.GetOrdersByID(c, db)
-	})
+	// router.GET("/api/orders/:order_id", func(c *gin.Context) {
+	// 	controllers.GetOrdersByID(c, db)
+	// })
 	//POST
 	router.POST("/api/products", func(c *gin.Context) {
 		controllers.CreateProduct(c, db)
 	})
 
 	router.POST("/api/orders", func(c *gin.Context) {
-		controllers.CreateOrder(c, db) // เรียกใช้ฟังก์ชันที่อยู่ใน controllers
+		controllers.CreateOrders(c, db) // เรียกใช้ฟังก์ชันที่อยู่ใน controllers
 	})
 
 	router.POST("/api/generate", func(c *gin.Context) {
@@ -71,13 +71,6 @@ func main() {
 		controllers.DeleteOrderDel(c, db)
 	})
 
-	router.GET("/api/orders", func(c *gin.Context) {
-		controllers.GetOrders(c, db)
-	})
-
-	router.POST("/api/orders", func(c *gin.Context) {
-		controllers.CreateOrders(c, db)
-	})
 	// router.DELETE("/api/history/:history_id", func(c *gin.Context) {
 	// 	controllers.DeleteHistory(c, db)
 	// })

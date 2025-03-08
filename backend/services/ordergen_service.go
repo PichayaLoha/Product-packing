@@ -28,7 +28,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	fmt.Println(mode)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
-			od.order_del_id, od.order_id, p.product_id,
+			od.order_del_id, p.product_id,
 			p.product_name, p.product_width, p.product_length, 
 			p.product_height, p.product_weight, od.product_amount
 		FROM order_dels od
@@ -70,7 +70,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		var product models.Product
 		var order models.OrderDetail
 		var productAmount int
-		if err1 := rows1.Scan(&order.OrderDelID, &order.OrderID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
+		if err1 := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
 			log.Println("Error scanning product row: ", err1)
 			return nil, err
 		}
