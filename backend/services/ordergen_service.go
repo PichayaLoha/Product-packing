@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net/http"
 
 	"go-backend/models" // import models ที่สร้างไว้
 	"sort"
@@ -28,7 +29,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	fmt.Println(mode)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
-			od.order_del_id, od.order_id, p.product_id,
+			od.order_del_id, p.product_id,
 			p.product_name, p.product_width, p.product_length, 
 			p.product_height, p.product_weight, od.product_amount
 		FROM order_dels od
@@ -38,11 +39,17 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		log.Println("Error querying boxes: ", err)
 		return nil, err
 	}
+	defer rows.Close()
+
 	if err1 != nil {
 		log.Println("Error querying products: ", err1)
 		return nil, err
 	}
-	defer rows.Close()
+	if !rows1.Next() {
+		log.Println("ไม่มีออเดอร์ในระบบ")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่มีออเดอร์ในระบบ"})
+		return nil, nil
+	}
 	defer rows1.Close()
 
 	var boxSizes []models.Box
@@ -70,7 +77,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		var product models.Product
 		var order models.OrderDetail
 		var productAmount int
-		if err1 := rows1.Scan(&order.OrderDelID, &order.OrderID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
+		if err1 := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
 			log.Println("Error scanning product row: ", err1)
 			return nil, err
 		}
@@ -166,18 +173,19 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		}
 
 	}
-	// query := `DELETE FROM products`
-	// result, err := db.Exec(query)
-	// if err != nil {
-	// 	log.Println("Error deleting products: ", err)
-	// }
+	query := `DELETE FROM order_dels`
+	result, err := db.Exec(query)
+	if err != nil {
+		log.Println("Error deleting order details: ", err)
+	}
 
-	// rowsAffected, err := result.RowsAffected()
-	// if err != nil {
-	// 	log.Println("Error getting rows affected: ", err)
-	// } else {
-	// 	log.Println("Rows affected: ", rowsAffected)
-	// }
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting rows affected: ", err)
+	} else {
+		log.Println("Rows affected: ", rowsAffected)
+	}
+
 	// fmt.Println("productgen: ", productgen)
 	return productgen, nil
 }

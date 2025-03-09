@@ -2,60 +2,59 @@ package services
 
 import (
 	"database/sql"
-	"fmt"
 	"go-backend/models"
 	"log"
 )
 
-func GetOrders(db *sql.DB) ([]models.Order, error) {
-	rows, err := db.Query(`SELECT order_id, customer_id, order_date FROM orders`)
-	if err != nil {
-		log.Println("Error querying orders: ", err)
-		return nil, err
-	}
-	defer rows.Close()
+// func GetOrders(db *sql.DB) ([]models.Order, error) {
+// 	rows, err := db.Query(`SELECT order_id, customer_id, order_date FROM orders`)
+// 	if err != nil {
+// 		log.Println("Error querying orders: ", err)
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
 
-	var orders []models.Order
+// 	var orders []models.Order
 
-	for rows.Next() {
-		var order models.Order
-		if err := rows.Scan(&order.OrderID, &order.CustomerID, &order.OrderDate); err != nil {
-			log.Println("Error scanning order row: ", err)
-			return nil, err
-		}
-		orders = append(orders, order)
-	}
+// 	for rows.Next() {
+// 		var order models.Order
+// 		if err := rows.Scan(&order.OrderID, &order.CustomerID, &order.OrderDate); err != nil {
+// 			log.Println("Error scanning order row: ", err)
+// 			return nil, err
+// 		}
+// 		orders = append(orders, order)
+// 	}
 
-	return orders, nil
-}
+// 	return orders, nil
+// }
 
-func GetOrdersByID(db *sql.DB, ordersID string) ([]models.Order, error) {
-	query := `SELECT order_id, customer_id, order_date FROM orders WHERE order_id = $1;`
-	rows, err := db.Query(query, ordersID)
-	if err != nil {
-		log.Println("Error querying orders: ", err)
-		return nil, err
-	}
-	defer rows.Close()
+// func GetOrdersByID(db *sql.DB, ordersID string) ([]models.Order, error) {
+// 	query := `SELECT order_id, customer_id, order_date FROM orders WHERE order_id = $1;`
+// 	rows, err := db.Query(query, ordersID)
+// 	if err != nil {
+// 		log.Println("Error querying orders: ", err)
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
 
-	var orders []models.Order
-	fmt.Println("order1: ", orders)
-	for rows.Next() {
-		var order models.Order
-		if err := rows.Scan(&order.OrderID, &order.CustomerID, &order.OrderDate); err != nil {
-			log.Println("Error scanning order row: ", err)
-			return nil, err
-		}
-		orders = append(orders, order)
-	}
-	fmt.Println("order2: ", orders)
+// 	var orders []models.Order
+// 	fmt.Println("order1: ", orders)
+// 	for rows.Next() {
+// 		var order models.Order
+// 		if err := rows.Scan(&order.OrderID, &order.CustomerID, &order.OrderDate); err != nil {
+// 			log.Println("Error scanning order row: ", err)
+// 			return nil, err
+// 		}
+// 		orders = append(orders, order)
+// 	}
+// 	fmt.Println("order2: ", orders)
 
-	return orders, nil
-}
+//		return orders, nil
+//	}
 func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 	rows, err := db.Query(`
 		SELECT 
-			od.order_del_id, od.product_amount, od.order_id, od.product_id,
+			od.order_del_id, od.product_amount, od.product_id,
 			p.product_name, p.product_height, p.product_length, p.product_width,
 			p.product_time, p.product_amount, p.product_weight, p.product_cost,
 			p.user_id
@@ -76,7 +75,7 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 
 		// Scan ข้อมูลของ order_dels และ product
 		if err := rows.Scan(
-			&orderdel.OrderDelID, &orderdel.ProductAmount, &orderdel.OrderID, &orderdel.ProductID,
+			&orderdel.OrderDelID, &orderdel.ProductAmount, &orderdel.ProductID,
 			&product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
 			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost,
 			&product.UserId,
@@ -93,37 +92,19 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 	return orderdels, nil
 }
 
-func CreateOrder(db *sql.DB, newOrder *models.Order) error {
-	// 1️⃣ สร้าง Order และรับ order_id
-	var orderId int
-	query := `INSERT INTO orders (customer_id, order_date) 
-              VALUES ($1, $2) 
-              RETURNING order_id`
-	err := db.QueryRow(query, newOrder.CustomerID, newOrder.OrderDate).Scan(&orderId)
+func CreateOrders(db *sql.DB, newOrderdel *models.OrderDetail) error {
+
+	query := `INSERT INTO order_dels (product_amount, product_id) 
+               VALUES ($1, $2) 
+               RETURNING order_del_id`
+	err := db.QueryRow(query, newOrderdel.ProductAmount, newOrderdel.ProductID).Scan(&newOrderdel.OrderDelID)
 
 	if err != nil {
-		log.Println("Error inserting order: ", err)
+		log.Println("Error inserting product: ", err)
 		return err
 	}
-	// 2️⃣ วนลูป insert ข้อมูลลงใน order_dels
-	query1 := `INSERT INTO order_dels (product_amount, order_id, product_id) 
-               VALUES ($1, $2, $3) 
-               RETURNING order_del_id`
-	fmt.Println(newOrder.OrderDetails)
-	for i := range newOrder.OrderDetails {
-		var orderDelId int
-		orderDetail := &newOrder.OrderDetails[i] // ใช้ pointer เพื่ออัปเดตค่าใน slice
-		err1 := db.QueryRow(query1, orderDetail.ProductAmount, orderId, orderDetail.ProductID).Scan(&orderDelId)
-
-		if err1 != nil {
-			log.Println("Error inserting order details: ", err1)
-			return err1
-		}
-		// อัปเดตค่า order_del_id ที่เพิ่ง insert กลับไปที่ slice
-		orderDetail.OrderDelID = orderDelId
-	}
-
 	return nil
+
 }
 
 func DeleteOrderDel(db *sql.DB, orderdelID string) (int64, error) {
