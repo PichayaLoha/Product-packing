@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net/http"
 
 	"go-backend/models" // import models ที่สร้างไว้
 	"sort"
@@ -38,11 +39,17 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		log.Println("Error querying boxes: ", err)
 		return nil, err
 	}
+	defer rows.Close()
+
 	if err1 != nil {
 		log.Println("Error querying products: ", err1)
 		return nil, err
 	}
-	defer rows.Close()
+	if !rows1.Next() {
+		log.Println("ไม่มีออเดอร์ในระบบ")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่มีออเดอร์ในระบบ"})
+		return nil, nil
+	}
 	defer rows1.Close()
 
 	var boxSizes []models.Box
@@ -166,18 +173,19 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		}
 
 	}
-	// query := `DELETE FROM products`
-	// result, err := db.Exec(query)
-	// if err != nil {
-	// 	log.Println("Error deleting products: ", err)
-	// }
+	query := `DELETE FROM order_dels`
+	result, err := db.Exec(query)
+	if err != nil {
+		log.Println("Error deleting order details: ", err)
+	}
 
-	// rowsAffected, err := result.RowsAffected()
-	// if err != nil {
-	// 	log.Println("Error getting rows affected: ", err)
-	// } else {
-	// 	log.Println("Rows affected: ", rowsAffected)
-	// }
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting rows affected: ", err)
+	} else {
+		log.Println("Rows affected: ", rowsAffected)
+	}
+
 	// fmt.Println("productgen: ", productgen)
 	return productgen, nil
 }
