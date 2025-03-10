@@ -7,6 +7,7 @@ import (
 	"go-backend/services"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -32,24 +33,63 @@ func GetProductsByID(c *gin.Context, db *sql.DB) {
 	c.JSON(http.StatusOK, gin.H{"products": products})
 }
 
+// const uploadPath = "./uploads" // โฟลเดอร์สำหรับเก็บรูป
+
 func CreateProduct(c *gin.Context, db *sql.DB) {
 	var newProduct models.Product
 
-	if err := c.ShouldBindJSON(&newProduct); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	// รับค่า Form-Data
+	newProduct.ProductName = c.PostForm("product_name")
+	newProduct.ProductHeight, _ = strconv.ParseFloat(c.PostForm("product_height"), 64)
+	newProduct.ProductLength, _ = strconv.ParseFloat(c.PostForm("product_length"), 64)
+	newProduct.ProductWidth, _ = strconv.ParseFloat(c.PostForm("product_width"), 64)
+	newProduct.ProductAmount, _ = strconv.Atoi(c.PostForm("product_amount"))
+	newProduct.ProductWeight, _ = strconv.ParseFloat(c.PostForm("product_weight"), 64)
+	newProduct.ProductCost, _ = strconv.ParseFloat(c.PostForm("product_cost"), 64)
+	newProduct.UserId, _ = strconv.Atoi(c.PostForm("user_id"))
+
+	// 📌 รับไฟล์จาก Form-Data
+	file, err := c.FormFile("product_image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาอัปโหลดรูปภาพ"})
 		return
 	}
 
+	// เปิดไฟล์
+	fileOpen, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถเปิดไฟล์"})
+		return
+	}
+	defer fileOpen.Close()
+
+	// 📌 ตั้งชื่อไฟล์ใหม่
+	fileName := fmt.Sprintf("%d-%s", time.Now().Unix(), file.Filename)
+	fmt.Println("fileName: ", fileName)
+	// 🚀 อัปโหลดไป Cloudinary
+	imageURL, err := services.UploadToCloudinary(fileOpen, fileName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปโหลดรูปไป Cloudinary ล้มเหลว"})
+		return
+	}
+
+	// 🖼 เก็บ URL ลง Database
+	newProduct.ProductImage = imageURL
 	newProduct.ProductTime = time.Now()
 
+	// ✅ บันทึกสินค้า
 	if err := services.CreateProduct(db, &newProduct); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create product"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถเพิ่มสินค้าได้"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "เพิ่มออเดอร์ใหม่สำเร็จ", "product": newProduct})
+	// 🎉 ตอบกลับ
+	c.JSON(http.StatusCreated, gin.H{
+		"message":   "เพิ่มสินค้าเรียบร้อย",
+		"product":   newProduct,
+		"image_url": imageURL,
+	})
 }
-
 func UpdateProduct(c *gin.Context, db *sql.DB) {
 	var updatedProduct models.Product
 

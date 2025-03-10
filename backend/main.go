@@ -42,6 +42,8 @@ func main() {
 	router.GET("/api/orderdels", func(c *gin.Context) {
 		controllers.GetOrderdels(c, db)
 	})
+	// router.Static("/uploads", "./uploads")
+
 	// router.GET("/api/orderdels", func(c *gin.Context) {
 	// 	controllers.GetOrderdels(c, db)
 	// })
@@ -61,6 +63,10 @@ func main() {
 	router.POST("/api/generate", func(c *gin.Context) {
 		controllers.GenerateProduct(c, db)
 	})
+
+	// router.POST("/api/upload", func(c *gin.Context) {
+	// 	controllers.Upload(c, db)
+	// })
 
 	//DELETE
 	router.DELETE("/api/products/:product_id", func(c *gin.Context) {
