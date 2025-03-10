@@ -6,6 +6,7 @@ import (
 	"go-backend/services"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,7 +49,7 @@ func CreateOrders(c *gin.Context, db *sql.DB) {
 
 	// กำหนดเวลาสั่งซื้อเป็นเวลาปัจจุบัน
 	// newOrder.OrderDate = time.Now()
-
+	newOrderdel.OrderDelDate = time.Now()
 	// เรียกใช้ service เพื่อสร้าง order
 	if err := services.CreateOrders(db, &newOrderdel); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create order"})
@@ -60,7 +61,8 @@ func CreateOrders(c *gin.Context, db *sql.DB) {
 		"message":        "เพิ่มออเดอร์ใหม่สำเร็จ",
 		"order_id":       newOrderdel.OrderDelID,
 		"product_id":     newOrderdel.ProductID,
-		"product_amount": newOrderdel.ProductAmount})
+		"product_amount": newOrderdel.ProductAmount,
+		"order_del_date": newOrderdel.OrderDelDate})
 }
 func DeleteOrderDel(c *gin.Context, db *sql.DB) {
 	orderdelID := c.Param("order_del_id")

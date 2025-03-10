@@ -16,7 +16,7 @@ import (
 
 func GetProducts(db *sql.DB) ([]models.Product, error) {
 	rows, err := db.Query(`SELECT product_id, product_name, product_height, product_length, product_width, 
-	product_time, product_amount, product_weight, product_cost, user_id FROM products`)
+	product_time, product_amount, product_weight, product_cost, user_id, product_image FROM products`)
 	if err != nil {
 		log.Println("Error querying products: ", err)
 		return nil, err
@@ -28,7 +28,7 @@ func GetProducts(db *sql.DB) ([]models.Product, error) {
 	for rows.Next() {
 		var product models.Product
 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
+			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId, &product.ProductImage); err != nil {
 			log.Println("Error scanning product row: ", err)
 			return nil, err
 		}
@@ -40,7 +40,7 @@ func GetProducts(db *sql.DB) ([]models.Product, error) {
 
 func GetProductsByID(db *sql.DB, productID string) ([]models.Product, error) {
 	query := `SELECT product_id, product_name, product_height, product_length, product_width, product_time, 
-	product_amount, product_weight, product_cost, user_id FROM products WHERE product_id = $1;`
+	product_amount, product_weight, product_cost, user_id, product_image FROM products WHERE product_id = $1;`
 	rows, err := db.Query(query, productID)
 	if err != nil {
 		log.Println("Error querying products: ", err)
@@ -53,7 +53,7 @@ func GetProductsByID(db *sql.DB, productID string) ([]models.Product, error) {
 	for rows.Next() {
 		var product models.Product
 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId); err != nil {
+			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId, &product.ProductImage); err != nil {
 			log.Println("Error scanning product row: ", err)
 			return nil, err
 		}
