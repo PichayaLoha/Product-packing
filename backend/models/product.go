@@ -15,6 +15,7 @@ type Product struct {
 	ProductWeight float64   `json:"product_weight"`
 	ProductCost   float64   `json:"product_cost"`
 	UserId        int       `json:"user_id"`
+	ProductImage  string    `json:"product_image"`
 	X             float64   `json:"package_box_x"`
 	Y             float64   `json:"package_box_y"`
 	Z             float64   `json:"package_box_z"`

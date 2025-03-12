@@ -54,7 +54,7 @@ import (
 func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 	rows, err := db.Query(`
 		SELECT 
-			od.order_del_id, od.product_amount, od.product_id,
+			od.order_del_id, od.product_amount, od.product_id, od.order_del_date,
 			p.product_name, p.product_height, p.product_length, p.product_width,
 			p.product_time, p.product_amount, p.product_weight, p.product_cost,
 			p.user_id
@@ -75,7 +75,7 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 
 		// Scan ข้อมูลของ order_dels และ product
 		if err := rows.Scan(
-			&orderdel.OrderDelID, &orderdel.ProductAmount, &orderdel.ProductID,
+			&orderdel.OrderDelID, &orderdel.ProductAmount, &orderdel.ProductID, &orderdel.OrderDelDate,
 			&product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
 			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost,
 			&product.UserId,
@@ -94,10 +94,10 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 
 func CreateOrders(db *sql.DB, newOrderdel *models.OrderDetail) error {
 
-	query := `INSERT INTO order_dels (product_amount, product_id) 
-               VALUES ($1, $2) 
+	query := `INSERT INTO order_dels (product_amount, product_id, order_del_date) 
+               VALUES ($1, $2, $3) 
                RETURNING order_del_id`
-	err := db.QueryRow(query, newOrderdel.ProductAmount, newOrderdel.ProductID).Scan(&newOrderdel.OrderDelID)
+	err := db.QueryRow(query, newOrderdel.ProductAmount, newOrderdel.ProductID, newOrderdel.OrderDelDate).Scan(&newOrderdel.OrderDelID)
 
 	if err != nil {
 		log.Println("Error inserting product: ", err)
