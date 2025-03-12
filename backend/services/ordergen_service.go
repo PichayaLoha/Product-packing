@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"net/http"
-
 	"go-backend/models" // import models ที่สร้างไว้
 	"sort"
 
@@ -15,17 +14,17 @@ import (
 )
 
 func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error) {
-	// var requestBody struct {
-	// 	Mode string `json:"mode"`
-	// }
+	var requestBody struct {
+		Mode string `json:"mode"`
+	}
 
-	// if err := c.BindJSON(&requestBody); err != nil {
-	// 	log.Println("Error binding JSON: ", err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-	// }
+	if err := c.BindJSON(&requestBody); err != nil {
+		log.Println("Error binding JSON: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	}
 
-	// mode := requestBody.Mode
-	mode := "space"
+	mode := requestBody.Mode
+	// mode := "space"
 	fmt.Println(mode)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 

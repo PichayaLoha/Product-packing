@@ -12,9 +12,9 @@ function PackingPage() {
     useEffect(() => {
         const fetchOrdersAndBoxes = async () => {
             try {
-                const responseOrders = await fetch('http://localhost:8080/api/products');
+                const responseOrders = await fetch('http://localhost:8080/api/orderdels');
                 const responseBoxes = await fetch('http://localhost:8080/api/boxes');
-                
+
                 if (!responseOrders.ok || !responseBoxes.ok) {
                     throw new Error('Failed to fetch data');
                 }
@@ -23,10 +23,11 @@ function PackingPage() {
                 const dataBoxes = await responseBoxes.json();
 
                 console.log(dataBoxes.boxes);
+                console.log(dataOrders.orderdels)
                 setBoxes(dataBoxes.boxes);
-                setOrder(dataOrders.products);// เข้าถึง array orders จาก key 'orders'
-                
-                setSize(dataOrders.products ? dataOrders.products.length : 0);
+                setOrder(dataOrders.orderdels);// เข้าถึง array orders จาก key 'orders'
+
+                setSize(dataOrders.orderdels ? dataOrders.orderdels.length : 0);
                 // เข้าถึง array boxes จาก key 'boxes'
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -62,8 +63,8 @@ function PackingPage() {
 
             const history = await fetch('http://localhost:8080/api/history');
             const data = await history.json();
-            console.log(data.history.length)
-            navigate('/Generate', { state: { message: data.history.length } });
+            console.log("id ของออันที่กุกำลังใช้",data.history[data.history.length - 1].package_id)
+            navigate('/Generate', { state: { message: data.history[data.history.length - 1].package_id } });
         } catch (error) {
             console.error('Error:', error);
         }
@@ -127,6 +128,7 @@ function PackingPage() {
                                                 <th>Width(cm.)</th>
                                                 <th>Length(cm.)</th>
                                                 <th>Height(cm.)</th>
+                                                <th>Weight(g.)</th>
                                                 <th>Amount</th>
                                                 <th>Added</th>
                                             </tr>
@@ -136,12 +138,13 @@ function PackingPage() {
                                                 {order.map((item, index) => (
                                                     <tr key={index}>
                                                         <th>{index + 1}</th>
-                                                        <td>{item.product_name}</td>
-                                                        <td>{item.product_width}</td>
-                                                        <td>{item.product_length}</td>
-                                                        <td>{item.product_height}</td>
-                                                        <td>{item.product_amount}</td>
-                                                        <td>{item.product_time}</td>
+                                                        <td>{item.product.product_name}</td>
+                                                        <td>{item.product.product_width}</td>
+                                                        <td>{item.product.product_length}</td>
+                                                        <td>{item.product.product_height}</td>
+                                                        <td>{item.product.product_weight}</td>
+                                                        <td>{item.product.product_amount}</td>
+                                                        <td>{item.product.product_time}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>

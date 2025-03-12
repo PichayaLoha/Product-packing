@@ -10,17 +10,35 @@ function AddProductPage() {
     const [height, setHeight] = useState("");
     const [weight, setWeight] = useState("");
     const [amount, setAmount] = useState("");
+    const [cost, setCost] = useState("");
     const [userId, setuserId] = useState("");
-    
+
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return; //เช็คว่ามีรูปเข้ามาไหม
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file); // แปลงเป็น Base64
+
+        reader.onloadend = () => {
+            setImage(reader.result);
+            setPreview(reader.result); // แสดงตัวอย่างรูป
+        };
+    };
+
     const handleAddItem = async () => {
         const newItem = {
             product_name,
-            product_width: parseFloat(width),
-            product_length: parseFloat(length),
             product_height: parseFloat(height),
+            product_length: parseFloat(length),
+            product_width: parseFloat(width),
             product_weight: parseFloat(weight),
             product_amount: parseInt(amount),
-            product_userid: parseInt(userId)
+            product_cost: parseFloat(cost),
+            user_id: parseInt(userId)
         };
 
         try {
@@ -31,7 +49,7 @@ function AddProductPage() {
                 },
                 body: JSON.stringify(newItem),
             });
-            console.log(newItem)
+            console.log("this new item", newItem)
             if (response.ok) {
                 // นำทางไปยังหน้าผลลัพธ์
                 navigate('/Product');
@@ -100,6 +118,15 @@ function AddProductPage() {
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
+                                    <span className="label-text">ราคา</span>
+                                    <input
+                                        type="text"
+                                        placeholder="บาท"
+                                        value={cost}
+                                        onChange={(e) => setCost(e.target.value)} // อัปเดต state
+                                        className="input input-bordered input-sm w-full max-w-xs" />
+                                </label>
+                                <label className="form-control w-full max-w-xs">
                                     <span className="label-text">จำนวน</span>
                                     <input
                                         type="text"
@@ -117,6 +144,14 @@ function AddProductPage() {
                                         onChange={(e) => setuserId(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
+                                <label className="form-control w-full max-w-xs">
+                                    <input className="file-input file-input-bordered file-input-info file-input-xs w-full max-w-xs " type="file" onChange={handleImageChange} accept="image/*" name="fileToUpload" />
+                                </label>
+                                <div className="flex justify-center col-span-2 max-w-xs prevent-select h-40 w-full object-cover">
+                                    {preview && (
+                                        <img src={preview} alt="Preview" />
+                                    )}
+                                </div>
                             </div>
                             <div className="card-actions justify-center">
                                 <button className="btn bg-green-500 btn-sm" onClick={handleAddItem}>Add</button>

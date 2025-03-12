@@ -4,32 +4,34 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 function EditProductPage() {
     const navigate = useNavigate();
-    const { order_id } = useParams();
+    const { product_id } = useParams();
     const [product_name, setProductName] = useState("");
     const [product_width, setWidth] = useState("");
     const [product_length, setLength] = useState("");
     const [product_height, setHeight] = useState("");
     const [product_weight, setWeight] = useState("");
     const [product_amount, setAmount] = useState("");
-    const [product_userid, setUserId] = useState("");
+    const [product_cost, setCost] = useState("");
+    const [user_id, setUserId] = useState("");
 
-    console.log(order_id)
+    console.log(product_id)
     useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const response = await fetch(`http://localhost:8080/api/products/${order_id}`);
+                const response = await fetch(`http://localhost:8080/api/products/${product_id}`);
                 const data = await response.json();
 
                 // ตรวจสอบข้อมูลที่ได้รับ
-                console.log("Fetched data:", data);
-                if (data && data.product) {
-                    setProductName(data.product.product_name || ""); // อัปเดตชื่อสินค้า
-                    setWidth(data.product.product_width || ""); // อัปเดตความกว้าง
-                    setLength(data.product.product_length || ""); // อัปเดตความยาว
-                    setHeight(data.product.product_height || ""); // อัปเดตความสูง
-                    setWeight(data.product.product_weight || ""); // อัปเดตน้ำหนัก
-                    setAmount(data.product.product_amount || ""); // อัปเดตจำนวน
-                    setUserId(data.product.product_userid || ""); // อัปเดตจำนวน
+                console.log("Fetched data:", data.products[0].product_name);
+                if (data && data.products) {
+                    setProductName(data.products[0].product_name || ""); // อัปเดตชื่อสินค้า
+                    setWidth(data.products[0].product_width || ""); // อัปเดตความกว้าง
+                    setLength(data.products[0].product_length || ""); // อัปเดตความยาว  
+                    setHeight(data.products[0].product_height || ""); // อัปเดตความสูง
+                    setWeight(data.products[0].product_weight || ""); // อัปเดตน้ำหนัก
+                    setAmount(data.products[0].product_amount || ""); // อัปเดตจำนวน
+                    setCost(data.products[0].product_cost || ""); // อัปเดตจำนวน
+                    setUserId(data.products[0].user_id || ""); // อัปเดตจำนวน
                 }
             } catch (error) {
                 console.error('Error fetching order:', error);
@@ -37,7 +39,7 @@ function EditProductPage() {
         };
 
         fetchOrder(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
-    }, [order_id]);
+    }, [product_id]);
     console.log(product_name)
     // ฟังก์ชันสำหรับจัดการการแก้ไขรายการ
     const handleEditItem = async () => {
@@ -48,11 +50,12 @@ function EditProductPage() {
             product_height: parseFloat(product_height),
             product_weight: parseFloat(product_weight),
             product_amount: parseInt(product_amount),
-            product_userid: parseInt(product_userid)
+            product_cost: parseFloat(product_cost),
+            user_id: parseInt(user_id)
         };
         console.log(product_name)
         try {
-            const response = await fetch(`http://localhost:8080/api/products/${order_id}`, {
+            const response = await fetch(`http://localhost:8080/api/products/${product_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -132,6 +135,15 @@ function EditProductPage() {
                                     />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
+                                    <span className="label-text">ราคา</span>
+                                    <input
+                                        type="text"
+                                        placeholder="บาท"
+                                        value={product_cost}
+                                        onChange={(e) => setCost(e.target.value)} // อัปเดต state
+                                        className="input input-bordered input-sm w-full max-w-xs" />
+                                </label>
+                                <label className="form-control w-full max-w-xs">
                                     <span className="label-text">จำนวน</span>
                                     <input
                                         type="text"
@@ -146,7 +158,7 @@ function EditProductPage() {
                                     <input
                                         type="text"
                                         placeholder="userid"
-                                        value={product_userid}
+                                        value={user_id}
                                         onChange={(e) => setUserId(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>

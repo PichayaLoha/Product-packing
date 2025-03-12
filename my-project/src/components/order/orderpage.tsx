@@ -9,11 +9,12 @@ function OrderTablePage() {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/products');
+                const response = await fetch('http://localhost:8080/api/orderdels');
                 const data = await response.json();
                 console.log(size)
-                setOrder(data.products);
-                setSize(data.products ? data.products.length : 0) // เข้าถึง array orders จาก key 'Products'
+                console.log(data.orderdels)
+                setOrder(data.orderdels);
+                setSize(data.orderdels ?data.orderdels.length : 0) // เข้าถึง array orders จาก key 'Products'
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -23,16 +24,16 @@ function OrderTablePage() {
         fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
-    const handleDeleteOrder = async (productId) => {
+    const handleDeleteOrder = async (orderId) => {
         const confirmDelete = window.confirm("คุณแน่ใจหรือว่าต้องการลบออเดอร์นี้?");
         if (confirmDelete) {
             try {
-                const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
+                const response = await fetch(`http://localhost:8080/api/products/${orderId}`, {
                     method: 'DELETE',
                 });
 
                 if (response.ok) {
-                    setProduct(prevOrders => prevOrders.filter(product => product.product_id !== productId));
+                    setOrder(prevOrders => prevOrders.filter(order => order.order_id !== orderId));
                     alert("ลบออเดอร์เรียบร้อยแล้ว");
                 } else {
                     console.error('Error deleting product:', response.statusText);
@@ -47,7 +48,7 @@ function OrderTablePage() {
     return (
         <div>
             <div className="grid grid-cols-12 h-screen">
-                <Menupage/>
+                <Menupage />
                 <div className="col-span-10">
                     <div className='m-7 '>
                         <div className='mb-3 flex items-center'>
@@ -74,7 +75,7 @@ function OrderTablePage() {
                                                 {order.map((item, index) => (
                                                     <tr key={index}>
                                                         <th>{index + 1}</th>
-                                                        <td>{item.product_name}</td>
+                                                        <td>{item.product.product_name}</td>
                                                         <td>{item.product_amount}</td>
                                                         <td>{new Date(item.product_time).toLocaleString()}</td>
                                                         <td>

@@ -29,20 +29,20 @@ function AddOrderPage() {
     };
 
     const handleAddItem = async () => {
-        if (!image) return alert("กรุณาเลือกรูปก่อน");
+        // if (!image) return alert("กรุณาเลือกรูปก่อน");
         // product_image:
         const newItem = {
             product_name,
-            product_width: parseFloat(width),
-            product_length: parseFloat(length),
             product_height: parseFloat(height),
+            product_length: parseFloat(length),
+            product_width: parseFloat(width),
             product_weight: parseFloat(weight),
             product_amount: parseInt(amount),
             product_userid: parseInt(userId)
         };
 
         try {
-            const response = await fetch('http://localhost:8080/api/products', {
+            const response = await fetch('http://localhost:8080/api/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ function AddOrderPage() {
                 // setPreview(null);
 
                 // นำทางไปยังหน้าผลลัพธ์
-                navigate('/Product');
+                navigate('/Order');
             } else {
                 console.error('Error adding item:', response.statusText);
             }
