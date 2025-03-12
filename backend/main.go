@@ -42,6 +42,8 @@ func main() {
 	router.GET("/api/orderdels", func(c *gin.Context) {
 		controllers.GetOrderdels(c, db)
 	})
+	// router.Static("/uploads", "./uploads")
+
 	// router.GET("/api/orderdels", func(c *gin.Context) {
 	// 	controllers.GetOrderdels(c, db)
 	// })
@@ -50,6 +52,9 @@ func main() {
 	// 	controllers.GetOrdersByID(c, db)
 	// })
 	//POST
+	router.POST("/api/boxes", func(c *gin.Context) {
+		controllers.CreateBoxes(c, db)
+	})
 	router.POST("/api/products", func(c *gin.Context) {
 		controllers.CreateProduct(c, db)
 	})
@@ -62,6 +67,10 @@ func main() {
 		controllers.GenerateProduct(c, db)
 	})
 
+	// router.POST("/api/upload", func(c *gin.Context) {
+	// 	controllers.Upload(c, db)
+	// })
+
 	//DELETE
 	router.DELETE("/api/products/:product_id", func(c *gin.Context) {
 		controllers.DeleteProduct(c, db)
@@ -70,12 +79,18 @@ func main() {
 	router.DELETE("/api/orderdels/:order_del_id", func(c *gin.Context) {
 		controllers.DeleteOrderDel(c, db)
 	})
+	router.DELETE("/api/boxes/:box_id", func(c *gin.Context) {
+		controllers.DeleteBoxes(c, db)
+	})
 
 	// router.DELETE("/api/history/:history_id", func(c *gin.Context) {
 	// 	controllers.DeleteHistory(c, db)
 	// })
 
 	//PUT
+	router.PUT("/api/boxes/:box_id", func(c *gin.Context) {
+		controllers.UpdateBoxes(c, db)
+	})
 	router.PUT("/api/products/:product_id", func(c *gin.Context) {
 		controllers.UpdateProduct(c, db)
 	})
