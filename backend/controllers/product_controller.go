@@ -111,7 +111,7 @@ func UpdateProduct(c *gin.Context, db *sql.DB) {
 		})
 		return
 	}
-
+	updatedProduct.ProductID, _ = strconv.Atoi(productID)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "อัปเดตออเดอร์สำเร็จ",
 		"product": updatedProduct,

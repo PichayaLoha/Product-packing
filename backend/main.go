@@ -36,6 +36,9 @@ func main() {
 	router.GET("/api/history/:id", func(c *gin.Context) {
 		controllers.GetHistoryDetail(c, db)
 	})
+	router.GET("/api/customers", func(c *gin.Context) {
+		controllers.GetCustomers(c, db)
+	})
 	// router.GET("/api/orders", func(c *gin.Context) {
 	// 	controllers.GetOrders(c, db)
 	// })
@@ -67,6 +70,10 @@ func main() {
 		controllers.GenerateProduct(c, db)
 	})
 
+	router.POST("/api/customers", func(c *gin.Context) {
+		controllers.CreateCustomers(c, db)
+	})
+
 	// router.POST("/api/upload", func(c *gin.Context) {
 	// 	controllers.Upload(c, db)
 	// })
@@ -81,6 +88,9 @@ func main() {
 	})
 	router.DELETE("/api/boxes/:box_id", func(c *gin.Context) {
 		controllers.DeleteBoxes(c, db)
+	})
+	router.DELETE("/api/customers/:customer_id", func(c *gin.Context) {
+		controllers.DeleteCustomer(c, db)
 	})
 
 	// router.DELETE("/api/history/:history_id", func(c *gin.Context) {
@@ -97,6 +107,10 @@ func main() {
 
 	router.PUT("/api/history/:history_id", func(c *gin.Context) {
 		controllers.UpdateHistory(c, db)
+	})
+
+	router.PUT("/api/customers/:customer_id", func(c *gin.Context) {
+		controllers.UpdateCustomers(c, db)
 	})
 
 	router.Run(":8080")
