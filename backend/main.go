@@ -62,8 +62,8 @@ func main() {
 		controllers.CreateProduct(c, db)
 	})
 
-	router.POST("/api/orders", func(c *gin.Context) {
-		controllers.CreateOrders(c, db) // เรียกใช้ฟังก์ชันที่อยู่ใน controllers
+	router.POST("/api/orderdels", func(c *gin.Context) {
+		controllers.CreateOrderdels(c, db) // เรียกใช้ฟังก์ชันที่อยู่ใน controllers
 	})
 
 	router.POST("/api/generate", func(c *gin.Context) {

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net/http"
 
 	"go-backend/models" // import models ที่สร้างไว้
 	"sort"
@@ -28,33 +27,13 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	mode := "space"
 	fmt.Println(mode)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
-	rows1, err1 := db.Query(`SELECT 
-			od.order_del_id, p.product_id,
-			p.product_name, p.product_width, p.product_length, 
-			p.product_height, p.product_weight, od.product_amount
-		FROM order_dels od
-		INNER JOIN products p ON od.product_id = p.product_id`)
 
 	if err != nil {
 		log.Println("Error querying boxes: ", err)
 		return nil, err
 	}
 	defer rows.Close()
-
-	if err1 != nil {
-		log.Println("Error querying products: ", err1)
-		return nil, err
-	}
-	if !rows1.Next() {
-		log.Println("ไม่มีออเดอร์ในระบบ")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่มีออเดอร์ในระบบ"})
-		return nil, nil
-	}
-	defer rows1.Close()
-
 	var boxSizes []models.Box
-	var products []models.Product
-
 	// สแกนข้อมูลจากตาราง boxes
 	for rows.Next() {
 		var box models.Box
@@ -72,17 +51,38 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	}
 	// fmt.Println("boxSizes: ", boxSizes)
 
+	var products []models.Product
+	rows1, err1 := db.Query(`
+    SELECT 
+        od.order_del_id, p.product_id,
+        p.product_name, p.product_width, p.product_length, 
+        p.product_height, p.product_weight, od.product_amount
+    FROM order_dels od
+    INNER JOIN products p ON od.product_id = p.product_id
+`)
+	if err1 != nil {
+		log.Println("Error querying products: ", err1)
+		return nil, err1
+	}
+	defer rows1.Close()
+
 	// สแกนข้อมูลจากตาราง products
 	for rows1.Next() {
 		var product models.Product
 		var order models.OrderDetail
 		var productAmount int
-		if err1 := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
-			log.Println("Error scanning product row: ", err1)
+
+		if err := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err != nil {
+			log.Println("Error scanning product row: ", err)
 			return nil, err
 		}
 
-		// ลูปเพิ่มออเดอร์ตามจำนวน product_amount
+		if productAmount <= 0 {
+			log.Println("พบสินค้าใน order_dels ที่มีจำนวนเป็น 0, Product ID:", product.ProductID)
+			continue
+		}
+
+		// ลูปเพิ่มสินค้าเข้าไปตามจำนวนที่มีในออเดอร์
 		for i := 0; i < productAmount; i++ {
 			products = append(products, product)
 		}
@@ -170,6 +170,16 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 			}
 
 			fmt.Printf("Inserted package_box_dels with ID: %d\n", genBoxDelID)
+
+			updateQuery := `
+			UPDATE products
+			SET product_amount = product_amount - 1
+			WHERE product_id = $1 AND product_amount > 0`
+			_, err := db.Exec(updateQuery, historyProduct1.ProductID)
+			if err != nil {
+				log.Printf("Error updating product_amount for ProductID %d: %v", historyProduct1.ProductID, err)
+				return nil, err
+			}
 		}
 
 	}
