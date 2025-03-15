@@ -11,15 +11,9 @@ function Generatepage() {
             try {
                 const response = await fetch(`http://localhost:8080/api/history/${message}`);
                 const data = await response.json();
-                console.log("test",data.history_dels);
+                console.log("generate complete :", data.history_dels);
                 console.log(message);
-
                 setOrder(data.history_dels || []);
-
-
-
-                // setProduct(data.products);
-                // setSize(data.products.length) // เข้าถึง array orders จาก key 'Products'
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -28,10 +22,6 @@ function Generatepage() {
 
         fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
-
-    const test = () => {
-        console.log(order.history_id)
-    }
 
 
     return (
@@ -64,12 +54,14 @@ function Generatepage() {
                                     <tbody >
 
                                         <tr key={index} className='bg-stone-400'>
+                                            <td>{index+1}
+                                            </td>
                                             <th>{item.history_del_id}</th>
-                                            <td>{item.history_del_boxsize}</td>
+                                            <td>{item.package_del_boxsize}</td>
                                             <td>3</td>
                                             <td>Blue</td>
-                                            <td>
-                                            </td>
+                                            {/* <td>
+                                            </td> */}
                                         </tr>
 
                                         <tr>
@@ -91,17 +83,17 @@ function Generatepage() {
                                                         </thead>
                                                         {/* รายการของในกล่องนั้นๆ */}
                                                         <tbody>
-                                                            {item.gen_box_dels.map((item, index) => (
-                                                                <tr >
-                                                                    <th>{index}</th>
-                                                                    <td >{item.gen_box_product_name}</td>
-                                                                    <td>{item.gen_box_product_height}</td>
-                                                                    <td>{item.gen_box_product_length}</td>
-                                                                    <td>{item.gen_box_product_width}</td>
-                                                                    <td>{item.gen_box_product_weight}</td>
-                                                                    <td>{item.gen_box_del_x}</td>
-                                                                    <td>{item.gen_box_del_y}</td>
-                                                                    <td>{item.gen_box_del_z}</td>
+                                                            {item.package_id.map((item, index) => (
+                                                                <tr key={index}>
+                                                                    <th>{index + 1}</th>
+                                                                    <td >{item.product_name}</td>
+                                                                    <td>{item.product_height}</td>
+                                                                    <td>{item.product_length}</td>
+                                                                    <td>{item.product_width}</td>
+                                                                    <td>{item.product_weight}</td>
+                                                                    <td>{item.package_box_x}</td>
+                                                                    <td>{item.package_box_y}</td>
+                                                                    <td>{item.package_box_z}</td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>

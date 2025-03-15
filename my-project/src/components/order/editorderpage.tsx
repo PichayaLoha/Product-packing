@@ -21,6 +21,7 @@ function EditOrderPage() {
                 const data = await response.json();
 
                 // ตรวจสอบข้อมูลที่ได้รับ
+                console.log("Fetched data:", data.products[0].product_name);
                 console.log("Fetched data:", data);
                 if (data && data.product) {
                     setProductName(data.product.product_name || ""); // อัปเดตชื่อสินค้า
@@ -153,7 +154,7 @@ function EditOrderPage() {
                             </div>
                             <div className="card-actions justify-center">
                                 <button onClick={handleEditItem} className="btn bg-green-500 btn-sm">Save</button>
-                                <Link to='/Product'>
+                                <Link to='/Order'>
                                     <button className="btn btn-error btn-sm">Cancel</button>
                                 </Link>
                             </div>

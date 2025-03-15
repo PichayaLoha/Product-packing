@@ -14,7 +14,7 @@ function Historydetailpage() {
                 const response = await fetch(`http://localhost:8080/api/history/${message}`);
                 const data = await response.json();
                 console.log("test", data);
-                setcheck(data.history_status)
+                setcheck(data.package_status)
                 setOrder(data.history_dels || []);
 
             } catch (error) {
@@ -28,9 +28,9 @@ function Historydetailpage() {
 
     const handleEditItem = async (e) => {
         const value = e.target.getAttribute('data-value');
-        console.log(message)
+        console.log(value)
         const updatedItem = {
-            history_status: "Packed",
+            package_status: "Packed",
         };
         try {
             const response = await fetch(`http://localhost:8080/api/history/${message}`, {
@@ -79,16 +79,14 @@ function Historydetailpage() {
                                 </thead>
                                 {/* รายการกล่องทั้งหมดของ orderนั้นๆ */}
                                 {order.map((item, index) => (
-                                    <tbody >
+                                    <tbody>
 
                                         <tr className='bg-stone-400'>
                                             <th>{index + 1}</th>
-                                            <td>{item.history_del_boxsize}</td>
-                                            <td>{item.history_del_id}</td>
+                                            <td>{item.package_del_boxsize}</td>
+                                            <td>{item.package_del_id}</td>
                                             <td>Bob</td>
                                             <td>
-                                                {/* <button className='btn btn-sm border-orange-300 bg-orange-300'>แก้ไข</button>
-                                                <button className='btn btn-sm border-red-400 ml-5 bg-red-400'>ลบ</button> */}
                                             </td>
                                         </tr>
                                         <tr>
@@ -99,7 +97,7 @@ function Historydetailpage() {
                                                             <tr>
                                                                 <th>Number</th>
                                                                 <th>Product Name</th>
-                                                                <th>High</th>
+                                                                <th>Hight</th>
                                                                 <th>Lenght</th>
                                                                 <th>Widght</th>
                                                                 <th>Weight</th>
@@ -110,17 +108,17 @@ function Historydetailpage() {
                                                         </thead>
                                                         {/* รายการของในกล่องนั้นๆ */}
                                                         <tbody>
-                                                            {item.gen_box_dels.map((item, index) => (
-                                                                <tr key={index}>
+                                                            {item.package_id.map((item, index) => (
+                                                                <tr key={item.package_box_id}>
                                                                     <th>{index + 1}</th>
-                                                                    <td >{item.gen_box_product_name}</td>
-                                                                    <td>{item.gen_box_product_height}</td>
-                                                                    <td>{item.gen_box_product_length}</td>
-                                                                    <td>{item.gen_box_product_width}</td>
-                                                                    <td>{item.gen_box_product_weight}</td>
-                                                                    <td>{item.gen_box_del_x}</td>
-                                                                    <td>{item.gen_box_del_y}</td>
-                                                                    <td>{item.gen_box_del_z}</td>
+                                                                    <td >{item.product_name}</td>
+                                                                    <td>{item.product_height}</td>
+                                                                    <td>{item.product_length}</td>
+                                                                    <td>{item.product_width}</td>
+                                                                    <td>{item.product_weight}</td>
+                                                                    <td>{item.package_box_x}</td>
+                                                                    <td>{item.package_box_y}</td>
+                                                                    <td>{item.package_box_z}</td>
                                                                 </tr>
                                                             ))}
                                                         </tbody>
