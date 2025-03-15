@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Menupage from './menupage';
-import { useNavigate } from 'react-router-dom';
+import Menupage from '../menupage';
+import Boxesmanage from './boxesmanage';
+import { Link, useNavigate } from 'react-router-dom';
+import { IoSettingsOutline } from "react-icons/io5";
 
 function PackingPage() {
     const navigate = useNavigate();
@@ -63,7 +65,7 @@ function PackingPage() {
 
             const history = await fetch('http://localhost:8080/api/history');
             const data = await history.json();
-            console.log("id ของออันที่กุกำลังใช้",data.history[data.history.length - 1].package_id)
+            console.log("id ของออันที่กุกำลังใช้", data.history[data.history.length - 1].package_id)
             navigate('/Generate', { state: { message: data.history[data.history.length - 1].package_id } });
         } catch (error) {
             console.error('Error:', error);
@@ -77,22 +79,30 @@ function PackingPage() {
                 <div className="col-span-10">
                     <div className='m-7'>
                         <div className='mb-3'>
-                            <p className='text-2xl font-semibold mb-3'>Size</p>
-                            <div className='flex gap-5 mb-2'>
-                                {boxes.map((item, index) => (
-                                    <div key={item.box_id || index} className='flex items-center'>
-                                        <input
-                                            type="checkbox"
-                                            name="radio"
-                                            className="checkbox mr-1"
-                                            value={item.box_name.charAt(0)}
+                            <label className='flex items-center text-2xl font-semibold mb-3'>
+                                Size
+                                <Link to="/Boxesmanage" className='ml-2 btn btn-sm'>
+                                    <IoSettingsOutline style={{ scale: "1.2" }} />
+                                </Link>
+                            </label>
+                            {boxes.length > 0 &&
+                                <div className='flex gap-5 mb-2'>
+                                    {boxes.map((item, index) => (
+                                        <div key={item.box_id || index} className='flex items-center'>
+                                            <input
+                                                type="checkbox"
+                                                name="radio"
+                                                className="checkbox mr-1"
+                                                value={item.box_name.charAt(0)}
 
-                                        // จัดการการเปลี่ยนแปลง
-                                        />
-                                        <label> {item.box_name.charAt(0)} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ{item.box_amount}</label>
-                                    </div>
-                                ))}
-                            </div>
+                                            // จัดการการเปลี่ยนแปลง
+                                            />
+                                            <label> {item.box_name.charAt(0)} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ{item.box_amount}</label>
+
+                                        </div>
+                                    ))}
+                                </div>
+                            }
                             <div className='flex items-center'>
                                 <input
                                     type="radio"
@@ -143,8 +153,8 @@ function PackingPage() {
                                                         <td>{item.product.product_length}</td>
                                                         <td>{item.product.product_height}</td>
                                                         <td>{item.product.product_weight}</td>
-                                                        <td>{item.product.product_amount}</td>
-                                                        <td>{item.product.product_time}</td>
+                                                        <td>{item.product_amount}</td>
+                                                        <td>{new Date(item.product.product_time).toLocaleString()}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>

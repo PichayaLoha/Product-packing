@@ -7,10 +7,12 @@ import EditProductPage from './components/product/editproductpage.tsx';
 import Orderpage from './components/order/orderpage.tsx';
 import Addorder from './components/order/addorderpage.tsx';
 import Editorderpage from './components/order/editorderpage.tsx';
-import Packingpage from './components/packingpage.tsx';
+import Packingpage from './components/generate/packingpage.tsx';
 import Historypage from './components/history/historypage.tsx';
 import Historydetailpage from './components/history/historydetailpage.tsx';
-import Generatepage from './components/generatepage.tsx';
+import Generatepage from './components/generate/generatepage.tsx';
+import Boxesmanage from './components/generate/boxesmanage.tsx';
+import Login from './components/login/loginpage.tsx';
 import './index.css'
 import {
   createBrowserRouter,
@@ -65,6 +67,14 @@ const router = createBrowserRouter([
   {
     path: "/Historydetail",
     element: <Historydetailpage />,
+  },
+  {
+    path: "/Boxesmanage",
+    element: <Boxesmanage />,
+  },
+  {
+    path: "/Login",
+    element: <Login />,
   },
 
 ]);

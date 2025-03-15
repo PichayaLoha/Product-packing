@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Menupage from './menupage';
+import Menupage from '../menupage';
 import { Link, useLocation } from 'react-router-dom';
 function Generatepage() {
     const location = useLocation();
@@ -45,7 +45,7 @@ function Generatepage() {
                                         <th>ลำดับ</th>
                                         <th>ขนาดกล่อง</th>
                                         <th>user-id</th>
-                                        <th>ชื่อ<button onClick={test}>232523</button></th>
+                                        <th>ชื่อสินค้า</th>
                                         <th></th>
                                     </tr>
                                 </thead>

@@ -11,6 +11,7 @@ interface Product {
     product_amount: number;
     product_cost: number;
     user_id: number;
+    product_image: string
 }
 
 
@@ -31,7 +32,7 @@ function Productcard({ product, onQuantityChange }: { product: Product }) {
         };
 
         try {
-            const response = await fetch('http://localhost:8080/api/orders', {
+            const response = await fetch('http://localhost:8080/api/orderdels', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -75,7 +76,7 @@ function Productcard({ product, onQuantityChange }: { product: Product }) {
             <div className="bg-base-500 shadow-xl rounded-xl sm:px-0 xl:px-5 p-5 ">
                 <figure className="flex justify-center">
                     <img width={250} height={250}
-                        src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                        src={product.product_image}
                         alt="Shoes"
                         className="rounded-xl shadow-md" />
                 </figure>

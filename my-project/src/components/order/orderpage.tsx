@@ -14,7 +14,7 @@ function OrderTablePage() {
                 console.log(size)
                 console.log(data.orderdels)
                 setOrder(data.orderdels);
-                setSize(data.orderdels ?data.orderdels.length : 0) // เข้าถึง array orders จาก key 'Products'
+                setSize(data.orderdels ? data.orderdels.length : 0) // เข้าถึง array orders จาก key 'Products'
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -53,9 +53,6 @@ function OrderTablePage() {
                     <div className='m-7 '>
                         <div className='mb-3 flex items-center'>
                             <p className='text-2xl font-semibold'>Order</p>
-                            <Link to="/Addorder">
-                                <button className='btn bg-sky-900 ml-5 text-lg text-white'>Add Order</button>
-                            </Link>
                         </div>
                         <div className='flex justify-center'>
                             <div style={{ width: "95%" }}>
@@ -77,7 +74,7 @@ function OrderTablePage() {
                                                         <th>{index + 1}</th>
                                                         <td>{item.product.product_name}</td>
                                                         <td>{item.product_amount}</td>
-                                                        <td>{new Date(item.product_time).toLocaleString()}</td>
+                                                        <td>{new Date(item.order_del_date).toLocaleString()}</td>
                                                         <td>
                                                             <Link to={`/Editorder/${item.product_id}`}>
                                                                 <button className='btn btn-md bg-orange-300'>แก้ไข</button>

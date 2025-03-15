@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 function menupage() {
 
     return (
-        <div className="col-span-2 bg-purple-500">
+        <div className="col-span-2 bg-purple-500 h-screen">
             <div className='m-5 mt-8'>
                 <div className='grid justify-center items-center mb-7'>
                     <Link to="/">

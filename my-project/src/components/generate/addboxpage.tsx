@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Menupage from '../menupage';
 import { useNavigate, Link } from 'react-router-dom'; // เพิ่ม Link ที่นี่
 
-function AddProductPage() {
+function AddOrderPage() {
     const navigate = useNavigate();
     const [product_name, setproduct_name] = useState("");
     const [width, setWidth] = useState("");
@@ -10,7 +10,6 @@ function AddProductPage() {
     const [height, setHeight] = useState("");
     const [weight, setWeight] = useState("");
     const [amount, setAmount] = useState("");
-    const [cost, setCost] = useState("");
     const [userId, setuserId] = useState("");
 
     const [image, setImage] = useState(null);
@@ -18,50 +17,53 @@ function AddProductPage() {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
-
-        setImage(file);
+        if (!file) return; //เช็คว่ามีรูปเข้ามาไหม
 
         const reader = new FileReader();
+        reader.readAsDataURL(file); // แปลงเป็น Base64
+
         reader.onloadend = () => {
-            setPreview(reader.result);
+            setImage(reader.result);
+            setPreview(reader.result); // แสดงตัวอย่างรูป
         };
-        reader.readAsDataURL(file);
     };
 
     const handleAddItem = async () => {
-        const formData = new FormData();
-        formData.append("product_name", product_name);
-        formData.append("product_height", height);
-        formData.append("product_length", length);
-        formData.append("product_width", width);
-        formData.append("product_weight", weight);
-        formData.append("product_amount", amount);
-        formData.append("product_cost", cost);
-        formData.append("user_id", userId);
-
-        if (image) {
-            formData.append("product_image", image); // 📌 เพิ่มรูปภาพ
-        } else {
-            alert("โปรดใส่รูปก่อน");
-        }
+        // if (!image) return alert("กรุณาเลือกรูปก่อน");
+        // product_image:
+        const newItem = {
+            product_name,
+            product_height: parseFloat(height),
+            product_length: parseFloat(length),
+            product_width: parseFloat(width),
+            product_weight: parseFloat(weight),
+            product_amount: parseInt(amount),
+            product_userid: parseInt(userId)
+        };
 
         try {
-            const response = await fetch("http://localhost:8080/api/products", {
-                method: "POST",
-                body: formData, // 📌 เปลี่ยนจาก JSON เป็น FormData
+            const response = await fetch('http://localhost:8080/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newItem),
             });
-
+            console.log(newItem)
             if (response.ok) {
-                navigate("/Product");
+
+                // setImage(null);
+                // setPreview(null);
+
+                // นำทางไปยังหน้าผลลัพธ์
+                navigate('/Order');
             } else {
-                console.error("Error adding item:", response.statusText);
+                console.error('Error adding item:', response.statusText);
             }
         } catch (error) {
-            console.error("Error:", error);
+            console.error('Error:', error);
         }
     };
-
 
     return (
         <div className="grid grid-cols-12 h-screen">
@@ -79,10 +81,7 @@ function AddProductPage() {
                                         type="text"
                                         placeholder="ชื่อสินค้า"
                                         value={product_name}
-                                        onChange={(e) => {
-                                            setproduct_name(e.target.value)
-                                        }
-                                        } // อัปเดต state
+                                        onChange={(e) => setproduct_name(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
 
@@ -123,15 +122,6 @@ function AddProductPage() {
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ราคา</span>
-                                    <input
-                                        type="text"
-                                        placeholder="บาท"
-                                        value={cost}
-                                        onChange={(e) => setCost(e.target.value)} // อัปเดต state
-                                        className="input input-bordered input-sm w-full max-w-xs" />
-                                </label>
-                                <label className="form-control w-full max-w-xs">
                                     <span className="label-text">จำนวน</span>
                                     <input
                                         type="text"
@@ -160,7 +150,7 @@ function AddProductPage() {
                             </div>
                             <div className="card-actions justify-center">
                                 <button className="btn bg-green-500 btn-sm" onClick={handleAddItem}>Add</button>
-                                <Link to='/Product'>
+                                <Link to='/Order'>
                                     <button className="btn btn-error btn-sm">Cancel</button>
                                 </Link>
                             </div>
@@ -173,4 +163,4 @@ function AddProductPage() {
     );
 }
 
-export default AddProductPage;
+export default AddOrderPage;
