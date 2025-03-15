@@ -6,6 +6,7 @@ import (
 	"go-backend/services"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +31,7 @@ func CreateBoxes(c *gin.Context, db *sql.DB) {
 
 	// newOrderdel.OrderDelDate = time.Now()
 	if err := services.CreateBoxes(db, &newBox); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create order"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create box"})
 		return
 	}
 
@@ -60,7 +61,7 @@ func UpdateBoxes(c *gin.Context, db *sql.DB) {
 		})
 		return
 	}
-
+	updatedBox.BoxID, _ = strconv.Atoi(boxID)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "อัปเดตออเดอร์สำเร็จ",
 		"box":     updatedBox,

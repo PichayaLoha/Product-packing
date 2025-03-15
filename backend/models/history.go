@@ -12,9 +12,12 @@ const (
 )
 
 type HistoryOrder struct {
-	BoxName       string
-	Products      []Product
-	HistoryStatus HistoryStatusEnum `json:"package_status"`
+	BoxName            string
+	Products           []Product
+	HistoryStatus      HistoryStatusEnum `json:"package_status"`
+	HistoryProductCost float64           `json:"package_product_cost"`
+	HistoryBoxCost     float64           `json:"package_box_cost"`
+	HistoryTotalCost   float64           `json:"package_total_cost"`
 }
 type HistoryDel struct {
 	HistoryDelID      int         `json:"package_del_id"`

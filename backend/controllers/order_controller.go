@@ -19,7 +19,7 @@ func GetOrderdels(c *gin.Context, db *sql.DB) {
 	}
 	c.JSON(http.StatusOK, gin.H{"orderdels": orderdels})
 }
-func CreateOrders(c *gin.Context, db *sql.DB) {
+func CreateOrderdels(c *gin.Context, db *sql.DB) {
 	var newOrderdel models.OrderDetail
 
 	// อ่าน JSON จาก request
@@ -29,7 +29,7 @@ func CreateOrders(c *gin.Context, db *sql.DB) {
 	}
 
 	newOrderdel.OrderDelDate = time.Now()
-	if err := services.CreateOrders(db, &newOrderdel); err != nil {
+	if err := services.CreateOrderdels(db, &newOrderdel); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create order"})
 		return
 	}
