@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"go-backend/models"
 	"go-backend/services"
 	"log"
@@ -20,6 +21,18 @@ func GetBoxes(c *gin.Context, db *sql.DB) {
 	}
 	c.JSON(http.StatusOK, gin.H{"boxes": boxes})
 }
+
+func GetBoxesByID(c *gin.Context, db *sql.DB) {
+	boxID := c.Param("box_id")
+	fmt.Println("boxID: ", boxID)
+	boxes, err := services.GetBoxesByID(db, boxID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve boxes"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"boxes": boxes})
+}
+
 func CreateBoxes(c *gin.Context, db *sql.DB) {
 	var newBox models.Box
 

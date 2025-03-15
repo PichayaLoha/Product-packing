@@ -27,6 +27,30 @@ func GetBoxes(db *sql.DB) ([]models.Box, error) {
 
 	return boxes, nil
 }
+
+func GetBoxesByID(db *sql.DB, boxID string) ([]models.Box, error) {
+	query := `SELECT box_id, box_name, box_height, box_length, box_width, box_amount, box_maxweight, box_cost FROM boxes WHERE box_id = $1;`
+	rows, err := db.Query(query, boxID)
+	if err != nil {
+		log.Println("Error querying boxs: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var boxes []models.Box
+
+	for rows.Next() {
+		var box models.Box
+		if err := rows.Scan(&box.BoxID, &box.BoxName, &box.BoxHeight, &box.BoxLength, &box.BoxWidth, &box.BoxAmount, &box.BoxMaxWeight, &box.BoxCost); err != nil {
+			log.Println("Error scanning box row: ", err)
+			return nil, err
+		}
+		boxes = append(boxes, box)
+	}
+
+	return boxes, nil
+}
+
 func CreateBoxes(db *sql.DB, newBox *models.Box) error {
 
 	query := `INSERT INTO boxes (box_name, box_height, box_length, box_width, box_amount, box_maxweight) 
