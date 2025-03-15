@@ -30,6 +30,10 @@ func main() {
 		controllers.GetBoxes(c, db)
 	})
 
+	router.GET("/api/boxes/:box_id", func(c *gin.Context) {
+		controllers.GetBoxesByID(c, db)
+	})
+
 	router.GET("/api/history", func(c *gin.Context) {
 		controllers.GetHistory(c, db)
 	})
