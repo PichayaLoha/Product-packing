@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"go-backend/models"
 	"go-backend/services"
 	"log"
@@ -19,6 +20,18 @@ func GetCustomers(c *gin.Context, db *sql.DB) {
 	}
 	c.JSON(http.StatusOK, gin.H{"customer": customers})
 }
+
+func GetCustomersByID(c *gin.Context, db *sql.DB) {
+	customerID := c.Param("customer_id")
+	fmt.Println("customerID: ", customerID)
+	customers, err := services.GetCustomersByID(db, customerID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve customers"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"customers": customers})
+}
+
 func CreateCustomers(c *gin.Context, db *sql.DB) {
 	var newCustomer models.Customer
 

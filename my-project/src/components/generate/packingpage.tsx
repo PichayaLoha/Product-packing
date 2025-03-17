@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Menupage from '../menupage';
-import Boxesmanage from './boxesmanage';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoSettingsOutline } from "react-icons/io5";
+import MyModal from "./modal";
 
 function PackingPage() {
     const navigate = useNavigate();
@@ -10,6 +10,11 @@ function PackingPage() {
     const [boxes, setBoxes] = useState([]);
     const [size, setSize] = useState(0);
     const [mode, setMode] = useState("boxes"); // เก็บโหมดที่เลือก
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+
 
     useEffect(() => {
         const fetchOrdersAndBoxes = async () => {
@@ -43,10 +48,50 @@ function PackingPage() {
         setMode(event.target.value); // เปลี่ยนค่า mode ตามที่เลือก
     };
 
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleSubmit = async (data: { firstname: string; lastname: string; address: string; postal: string; phone: string; }) => {
+        console.log("ข้อมูลที่ส่ง:", data);
+        const newItem = {
+            customer_firstname: data.firstname,
+            customer_lastname: data.lastname,
+            customer_address: data.address,
+            customer_postal: data.postal,
+            customer_phone: data.phone
+            ,
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/api/customers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newItem),
+            });
+
+            if (response.ok) {
+                console.log("result is", newItem);
+                alert("เพิ่ม customer เรียบร้อยแล้ว");
+                handleGenerate()
+                // แสดงผลลัพธ์จาก backend
+            } else {
+                console.error('Error generating order:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+        // 
+    };
+
     const handleGenerate = async () => {
-
         console.log("Mode being sent:", mode); // เพิ่มการ log เพื่อดูค่า mode
-
         try {
             const response = await fetch('http://localhost:8080/api/generate', {
                 method: 'POST', // เปลี่ยนเป็น POST
@@ -63,10 +108,14 @@ function PackingPage() {
                 console.error('Error generating order:', response.statusText);
             }
 
+            const customer = await fetch('http://localhost:8080/api/customers');
+            const customer_data = await customer.json();
+            console.log("customer id is", customer_data.customer[customer_data.customer.length - 1].customer_id)
+
             const history = await fetch('http://localhost:8080/api/history');
             const data = await history.json();
-            console.log("id ของออันที่กุกำลังใช้", data.history[data.history.length - 1].package_id)
-            navigate('/Generate', { state: { message: data.history[data.history.length - 1].package_id } });
+            console.log("historyid is", data.history[data.history.length - 1].package_id)
+            navigate('/Generate', { state: { message: data.history[data.history.length - 1].package_id, cus_id: customer_data.customer[customer_data.customer.length - 1].customer_id } });
         } catch (error) {
             console.error('Error:', error);
         }
@@ -74,10 +123,12 @@ function PackingPage() {
 
     return (
         <div>
+            <MyModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} />
             <div className="grid grid-cols-12 h-screen">
                 <Menupage />
                 <div className="col-span-10">
                     <div className='m-7'>
+
                         <div className='mb-3'>
                             <label className='flex items-center text-2xl font-semibold mb-3'>
                                 Size
@@ -165,12 +216,13 @@ function PackingPage() {
                         </div>
                         <div className='flex justify-center'>
                             {/* <Link to='/Generate'> */}
-                            <button className='btn btn-lg bg-green-300 text-xl' onClick={handleGenerate}>Generate</button>
+                            <button className='btn btn-lg bg-green-300 text-xl' onClick={handleOpenModal}>Generate</button>
                             {/* </Link> */}
                         </div>
                     </div>
                 </div>
             </div>
+            <MyModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} />
         </div>
     );
 }

@@ -4,19 +4,19 @@ import (
 	"database/sql"
 	"log"
 
+	"go-backend/config"
+
 	_ "github.com/lib/pq"
 )
 
+var DB *sql.DB
+
 func InitDB() *sql.DB {
-	connStr := "user=postgres password=1234 dbname=postgres1 sslmode=disable port=5433"
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", config.DatabaseURL)
 	if err != nil {
-		log.Fatal("Error connecting to the database: ", err)
+		log.Fatal("Failed to connect database:", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		log.Fatal("Unable to connect to the database: ", err)
-	}
-
+	DB = db
 	return db
 }

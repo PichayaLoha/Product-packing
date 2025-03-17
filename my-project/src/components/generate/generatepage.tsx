@@ -3,12 +3,18 @@ import Menupage from '../menupage';
 import { Link, useLocation } from 'react-router-dom';
 function Generatepage() {
     const location = useLocation();
-    const { message } = location.state;
+    const { message, cus_id } = location.state;
     const [order, setOrder] = useState([]);
+    const [client, setClient] = useState([]);
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
+                const customer = await fetch(`http://localhost:8080/api/customers/${cus_id}`);
+                const customer_data = await customer.json();
+                console.log(customer_data)
+                setClient(customer_data.customers[0] || []);
+
                 const response = await fetch(`http://localhost:8080/api/history/${message}`);
                 const data = await response.json();
                 console.log("generate complete :", data.history_dels);
@@ -45,8 +51,8 @@ function Generatepage() {
                                         <th>ลำดับ</th>
                                         <th>ขนาดกล่อง</th>
                                         <th>user-id</th>
-                                        <th>ชื่อสินค้า</th>
-                                        <th></th>
+                                        <th>จำนวนสินค้า</th>
+                                        <th>ชื่อลูกค้า</th>
                                     </tr>
                                 </thead>
                                 {/* รายการกล่องทั้งหมดของ orderนั้นๆ */}
@@ -54,12 +60,12 @@ function Generatepage() {
                                     <tbody >
 
                                         <tr key={index} className='bg-stone-400'>
-                                            <td>{index+1}
+                                            <td>{index + 1}
                                             </td>
-                                            <th>{item.history_del_id}</th>
-                                            <td>{item.package_del_boxsize}</td>
-                                            <td>3</td>
-                                            <td>Blue</td>
+                                            <th>{item.package_del_boxsize}</th>
+                                            <td>{client.customer_id}</td>
+                                            <td>{item.package_id.length}</td>
+                                            <td>{client.customer_firstname} {client.customer_lastname}</td>
                                             {/* <td>
                                             </td> */}
                                         </tr>

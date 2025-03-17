@@ -27,6 +27,30 @@ func GetCustomers(db *sql.DB) ([]models.Customer, error) {
 
 	return customers, nil
 }
+
+func GetCustomersByID(db *sql.DB, customerID string) ([]models.Customer, error) {
+	query := `SELECT customer_id, customer_firstname, customer_lastname, customer_address, customer_postal, customer_phone FROM customers WHERE customer_id = $1;`
+	rows, err := db.Query(query, customerID)
+	if err != nil {
+		log.Println("Error querying customers: ", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var customers []models.Customer
+
+	for rows.Next() {
+		var customer models.Customer
+		if err := rows.Scan(&customer.CustomerID, &customer.CustomerFirstName, &customer.CustomerLastName, &customer.CustomerAddress, &customer.CustomerPostal, &customer.CustomerPhone); err != nil {
+			log.Println("Error scanning customer row: ", err)
+			return nil, err
+		}
+		customers = append(customers, customer)
+	}
+
+	return customers, nil
+}
+
 func CreateCustomers(db *sql.DB, newCustomer *models.Customer) error {
 
 	query := `INSERT INTO customers (customer_firstname, customer_lastname, customer_address, customer_phone, customer_postal) 
