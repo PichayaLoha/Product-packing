@@ -26,11 +26,11 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	mode := requestBody.Mode
 	// mode := "space"
 	fmt.Println(mode)
-	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
+	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight ,box_cost FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
 			od.order_del_id, p.product_id,
 			p.product_name, p.product_width, p.product_length, 
-			p.product_height, p.product_weight, od.product_amount
+			p.product_height, p.product_weight,p.product_cost, od.product_amount
 		FROM order_dels od
 		INNER JOIN products p ON od.product_id = p.product_id`)
 
@@ -57,7 +57,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	// สแกนข้อมูลจากตาราง boxes
 	for rows.Next() {
 		var box models.Box
-		if err := rows.Scan(&box.BoxID, &box.BoxName, &box.BoxWidth, &box.BoxLength, &box.BoxHeight, &box.BoxAmount, &box.BoxMaxWeight); err != nil {
+		if err := rows.Scan(&box.BoxID, &box.BoxName, &box.BoxWidth, &box.BoxLength, &box.BoxHeight, &box.BoxAmount, &box.BoxMaxWeight, &box.BoxCost); err != nil {
 			log.Println("Error scanning box row: ", err)
 			return nil, err
 		}
@@ -90,7 +90,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		var product models.Product
 		var order models.OrderDetail
 		var productAmount int
-		if err1 := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
+		if err1 := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight,&product.ProductCost, &productAmount); err1 != nil {
 			log.Println("Error scanning product row: ", err1)
 			return nil, err
 		}
@@ -104,8 +104,8 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	sortProducts(products)
 
 	fmt.Println("products: ", products)
-
-	boxes := packing(products, boxSizes, "space") //อย่าลืมแก้กลับเป๋นเหมือนเดิม
+	boxes, totalProductCost, totalBoxCost, totalCost := packing(products, boxSizes, mode, boxSizes.BoxCost, products.ProductCost)
+	// boxes := packing(products, boxSizes, "space") //อย่าลืมแก้กลับเป๋นเหมือนเดิม
 	fmt.Printf("จำนวนกล่องที่ใช้: %d\n", len(boxes))
 	var productgen []*models.HistoryOrder
 
@@ -133,10 +133,10 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 
 	var historyID int
 	historyOrder := models.HistoryOrder{HistoryStatus: "Unpacked"}
-	queryHistoryOrder := `INSERT INTO packages_order (package_time, package_amount, package_status)
-		              VALUES (NOW(), $1, $2)
+	queryHistoryOrder := `INSERT INTO packages_order (package_time, package_amount, package_status, package_product_cost, package_box_cost, package_total_cost)
+		              VALUES (NOW(), $1, $2, $3, $4, $5)
 		              RETURNING package_id`
-	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus).Scan(&historyID)
+	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus, totalProductCost, totalBoxCost, totalCost).Scan(&historyID)
 	if err != nil {
 		log.Println("Error inserting into packages_order:", err)
 		return nil, err
@@ -209,14 +209,15 @@ func calculateBoxWeight(products []models.Product) float64 {
 	return totalWeight
 }
 
-func packing(products []models.Product, boxSizes []models.Box, mode string) []models.PackedBox {
+func packing(products []models.Product, boxSizes []models.Box, mode string, totalBoxCost, totalProductCost) ([]models.PackedBox, float64, float64, float64) {
 
 	var boxes []models.PackedBox
 	remainingProducts := products
 
 	currentBoxWeight := 0.0
-	totalProductCost := 0.0
-	totalBoxCost := 0.0
+	totalProductCost := totalProductCost
+	totalCost := 0.0
+	totalBoxCost := totalBoxCost
 	for len(remainingProducts) > 0 {
 		// ตรวจสอบว่าน้ำหนักของสินค้า
 		product := remainingProducts[0]
@@ -263,18 +264,21 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) []mo
 				break
 			}
 		}
-			for _, box := range boxes {
-				totalBoxCost += box.Size.BoxCost // ราคากล่อง
-				for _, product := range box.Products {
-					totalProductCost += product.ProductCost // ราคาสินค้า
-				}
+		for _, box := range boxes {
+			totalBoxCost += box.Size.BoxCost // ราคากล่อง
+			for _, product := range box.Products {
+				totalProductCost += product.ProductCost // ราคาสินค้า
 			}
+		}
 
-			fmt.Printf("ราคารวมของสินค้าทั้งหมด: %.2f\n", totalProductCost)
-			fmt.Printf("ราคารวมของกล่องที่ใช้: %.2f\n", totalBoxCost)
+		totalCost = totalProductCost + totalBoxCost
+		fmt.Printf("ราคารวมของสินค้าทั้งหมด: %.2f\n", totalProductCost)
+		fmt.Printf("ราคารวมของกล่องที่ใช้: %.2f\n", totalBoxCost)
+		fmt.Printf("ราคารวม: %.2f\n", totalCost)
+
 	}
 
-	return boxes
+	return boxes, totalProductCost, totalBoxCost, totalCost
 }
 
 func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products []models.Product, mode string) (models.Box, bool) {
