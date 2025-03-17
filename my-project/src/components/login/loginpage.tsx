@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'; // ✅ ใช้สำหรั�
 import Menupage from '../menupage';
 
 const Login: React.FC = () => {
+    const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -26,6 +27,7 @@ const Login: React.FC = () => {
                 console.log("เข้าไหมนิ")
                 localStorage.setItem("token", data.token); // ✅ เก็บ Token ไว้
                 alert("login success")
+                navi
                 // navigate("/dashboard"); // ✅ Redirect ไป Dashboard
             } else {
                 setError(data.error || "Invalid username or password.");

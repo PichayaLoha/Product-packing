@@ -6,6 +6,7 @@ import (
 	"go-backend/models" // import models ที่สร้างไว้
 	"log"
 	"math"
+	"net/http"
 	"sort"
 
 	"github.com/gin-gonic/gin"
@@ -13,17 +14,17 @@ import (
 )
 
 func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error) {
-	// var requestBody struct {
-	// 	Mode string `json:"mode"`
-	// }
+	var requestBody struct {
+		Mode string `json:"mode"`
+	}
 
-	// if err := c.BindJSON(&requestBody); err != nil {
-	// 	log.Println("Error binding JSON: ", err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-	// }
+	if err := c.BindJSON(&requestBody); err != nil {
+		log.Println("Error binding JSON: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	}
 
-	// mode := requestBody.Mode
-	mode := "space"
+	mode := requestBody.Mode
+	// mode := "space"
 	fmt.Println(mode)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
@@ -214,8 +215,8 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) []mo
 	remainingProducts := products
 
 	currentBoxWeight := 0.0
-	// totalProductCost := 0.0
-	// totalBoxCost := 0.0
+	totalProductCost := 0.0
+	totalBoxCost := 0.0
 	for len(remainingProducts) > 0 {
 		// ตรวจสอบว่าน้ำหนักของสินค้า
 		product := remainingProducts[0]
@@ -262,15 +263,15 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) []mo
 				break
 			}
 		}
-		// 	for _, box := range boxes {
-		// 		totalBoxCost += box.Size.BoxCost // ราคากล่อง
-		// 		for _, product := range box.Products {
-		// 			totalProductCost += product.ProductCost // ราคาสินค้า
-		// 		}
-		// 	}
+			for _, box := range boxes {
+				totalBoxCost += box.Size.BoxCost // ราคากล่อง
+				for _, product := range box.Products {
+					totalProductCost += product.ProductCost // ราคาสินค้า
+				}
+			}
 
-		// 	fmt.Printf("ราคารวมของสินค้าทั้งหมด: %.2f\n", totalProductCost)
-		// 	fmt.Printf("ราคารวมของกล่องที่ใช้: %.2f\n", totalBoxCost)
+			fmt.Printf("ราคารวมของสินค้าทั้งหมด: %.2f\n", totalProductCost)
+			fmt.Printf("ราคารวมของกล่องที่ใช้: %.2f\n", totalBoxCost)
 	}
 
 	return boxes

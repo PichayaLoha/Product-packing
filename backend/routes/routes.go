@@ -11,7 +11,15 @@ import (
 
 func Router(db *sql.DB) *gin.Engine {
 	router := gin.Default()
-	router.Use(cors.Default())
+	config := cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length", "Authorization"},
+		AllowCredentials: true,
+	}
+
+	router.Use(cors.New(config))
 
 	// ================= GET =================
 	router.GET("/api/products", func(c *gin.Context) {

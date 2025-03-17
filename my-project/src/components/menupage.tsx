@@ -11,19 +11,26 @@ function Menupage() {
         console.log("Token before logout:", token);
 
         try {
-            await fetch("http://localhost:8080/api/logout", {
+            const response = await fetch("http://localhost:8080/api/logout", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
                 },
             });
-            localStorage.removeItem("token");
-            console.log("Token after logout:", localStorage.getItem("token")); // ✅ ลบ Token ใน LocalStorage
-            navigate("/login");
-            alert("soig") // ✅ กลับไปหน้า Login
+
+            if (!response.ok) {
+                console.error("Logout API failed:", response.status);
+            }
+
         } catch (error) {
             console.error("Logout error:", error);
+        } finally {
+            console.log("Removing token from localStorage...");
+            localStorage.removeItem("token");
+            console.log("Token after logout:", localStorage.getItem("token"));
+            navigate("/login");
+            alert("Logged out successfully");
         }
     };
 
