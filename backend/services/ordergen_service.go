@@ -6,7 +6,6 @@ import (
 	"go-backend/models" // import models ที่สร้างไว้
 	"log"
 	"math"
-	"net/http"
 	"sort"
 
 	"github.com/gin-gonic/gin"
@@ -14,17 +13,17 @@ import (
 )
 
 func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error) {
-	var requestBody struct {
-		Mode string `json:"mode"`
-	}
+	// var requestBody struct {
+	// 	Mode string `json:"mode"`
+	// }
 
-	if err := c.BindJSON(&requestBody); err != nil {
-		log.Println("Error binding JSON: ", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-	}
+	// if err := c.BindJSON(&requestBody); err != nil {
+	// 	log.Println("Error binding JSON: ", err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+	// }
 
-	mode := requestBody.Mode
-	// mode := "space"
+	// mode := requestBody.Mode
+	mode := "space"
 	fmt.Println(mode)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
@@ -44,11 +43,11 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		log.Println("Error querying products: ", err1)
 		return nil, err
 	}
-	if !rows1.Next() {
-		log.Println("ไม่มีออเดอร์ในระบบ")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่มีออเดอร์ในระบบ"})
-		return nil, nil
-	}
+	// if !rows1.Next() {
+	// 	log.Println("ไม่มีออเดอร์ในระบบ")
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่มีออเดอร์ในระบบ"})
+	// 	return nil, nil
+	// }
 	defer rows1.Close()
 
 	var boxSizes []models.Box
@@ -72,6 +71,20 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	// fmt.Println("boxSizes: ", boxSizes)
 
 	// สแกนข้อมูลจากตาราง products
+	// for rows1.Next() {
+	// 	var product models.Product
+	// 	var order models.OrderDetail
+	// 	var productAmount int
+	// 	if err1 := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
+	// 		log.Println("Error scanning product row: ", err1)
+	// 		return nil, err
+	// 	}
+
+	// 	// ลูปเพิ่มออเดอร์ตามจำนวน product_amount
+	// 	for i := 0; i < productAmount; i++ {
+	// 		products = append(products, product)
+	// 	}
+	// }
 	for rows1.Next() {
 		var product models.Product
 		var order models.OrderDetail
@@ -86,7 +99,6 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 			products = append(products, product)
 		}
 	}
-
 	// เรียงลำดับ product
 	sortProducts(products)
 
@@ -185,7 +197,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		log.Println("Rows affected: ", rowsAffected)
 	}
 
-	// fmt.Println("productgen: ", productgen)
+	fmt.Println("productgen: ", productgen)
 	return productgen, nil
 }
 func calculateBoxWeight(products []models.Product) float64 {
