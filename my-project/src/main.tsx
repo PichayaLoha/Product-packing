@@ -15,6 +15,7 @@ import Boxesmanage from "./components/generate/boxesmanage.tsx";
 import Login from "./components/login/loginpage.tsx";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute.tsx";
+import Productpacking from './components/product/productpacking.tsx';
 import "./index.css";
 
 const Main = () => {
@@ -38,6 +39,7 @@ const Main = () => {
           <Route path="/History" element={<Historypage />} />
           <Route path="/Historydetail" element={<Historydetailpage />} />
           <Route path="/Boxesmanage" element={<Boxesmanage />} />
+          <Route path="/Productpacking" element={<Productpacking />} />
         </Route>
 
         {/* Redirect ไปหน้า Login ถ้า URL ไม่ถูกต้อง */}

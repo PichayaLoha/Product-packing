@@ -57,7 +57,7 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 			od.order_del_id, od.product_amount, od.product_id, od.order_del_date,
 			p.product_name, p.product_height, p.product_length, p.product_width,
 			p.product_time, p.product_amount, p.product_weight, p.product_cost,
-			p.user_id
+			p.user_id, p.product_image
 		FROM order_dels od
 		INNER JOIN products p ON od.product_id = p.product_id
 	`)
@@ -78,7 +78,7 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 			&orderdel.OrderDelID, &orderdel.ProductAmount, &orderdel.ProductID, &orderdel.OrderDelDate,
 			&product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
 			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost,
-			&product.UserId,
+			&product.UserId, &product.ProductImage,
 		); err != nil {
 			log.Println("Error scanning order row: ", err)
 			return nil, err

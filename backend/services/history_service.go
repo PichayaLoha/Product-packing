@@ -104,15 +104,15 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 		// ตรวจสอบว่า productID เป็น NULL หรือไม่
 		if productID.Valid {
 			// เรียกฟังก์ชัน GetProductsByID เพื่อดึงข้อมูลสินค้า
-			products, err := GetProductsByID(db, productID.String)
+			hisroryboxdels, err := GetProductsByID(db, productID.String)
 			if err != nil {
-				log.Println("Error fetching products: ", err)
+				log.Println("Error fetching hisroryboxdels: ", err)
 				return models.History{}, err
 			}
 
-			// ตรวจสอบว่ามีสินค้าใน products หรือไม่
-			if len(products) > 0 {
-				product := products[0] // ใช้สินค้าแรกในรายการ (ถ้ามี)
+			// ตรวจสอบว่ามีสินค้าใน hisroryboxdels หรือไม่
+			if len(hisroryboxdels) > 0 {
+				hisroryboxdel := hisroryboxdels[0] // ใช้สินค้าแรกในรายการ (ถ้ามี)
 				if _, exists := historyDelsMap[historyDelID]; !exists {
 					historyDelsMap[historyDelID] = &models.HistoryDel{
 						HistoryDelID:      historyDelID,
@@ -127,11 +127,11 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 						GenBoxDelX:      genBoxDelX.Float64,
 						GenBoxDelY:      genBoxDelY.Float64,
 						GenBoxDelZ:      genBoxDelZ.Float64,
-						GenBoxDelName:   product.ProductName,
-						GenBoxDelHeight: product.ProductHeight,
-						GenBoxDelLength: product.ProductLength,
-						GenBoxDelWidth:  product.ProductWidth,
-						GenBoxDelWeight: product.ProductWeight,
+						GenBoxDelName:   hisroryboxdel.ProductName,
+						GenBoxDelHeight: hisroryboxdel.ProductHeight,
+						GenBoxDelLength: hisroryboxdel.ProductLength,
+						GenBoxDelWidth:  hisroryboxdel.ProductWidth,
+						GenBoxDelWeight: hisroryboxdel.ProductWeight,
 					}
 
 					historyDelsMap[historyDelID].GenBoxDels = append(historyDelsMap[historyDelID].GenBoxDels, genBoxDel)
@@ -148,6 +148,41 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 	return history, nil
 }
 
+func GetHistoryBoxDetail(db *sql.DB, hisroryboxdelID string) ([]models.PackageDetail, error) {
+	query := `SELECT 
+		pbd.package_box_id, pbd.package_box_x, pbd.package_box_y, pbd.package_box_z,
+		pd.package_del_id,
+		b.box_id, b.box_name, b.box_width, b.box_length, b.box_height,
+		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height 
+	FROM package_box_dels pbd
+	JOIN package_dels pd ON pbd.package_del_id = pd.package_del_id
+	JOIN boxes b ON pd.package_del_boxsize = b.box_name
+	JOIN products p ON pbd.product_id = p.product_id
+	WHERE pd.package_del_id = $1;`
+
+	rows, err := db.Query(query, hisroryboxdelID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var packageDetails []models.PackageDetail
+
+	for rows.Next() {
+		var detail models.PackageDetail
+		if err := rows.Scan(
+			&detail.PackageBoxID, &detail.PackageBoxX, &detail.PackageBoxY, &detail.PackageBoxZ,
+			&detail.PackageDelID,
+			&detail.BoxID, &detail.BoxName, &detail.BoxWidth, &detail.BoxLength, &detail.BoxHeight,
+			&detail.ProductID, &detail.ProductName, &detail.ProductWidth, &detail.ProductLength, &detail.ProductHeight,
+		); err != nil {
+			return nil, err
+		}
+		packageDetails = append(packageDetails, detail)
+	}
+
+	return packageDetails, nil
+}
 func UpdateHistory(db *sql.DB, updatedHistory *models.HistoryOrder, historyID string) error {
 	query := `UPDATE package_order
 			  SET history_status = $1

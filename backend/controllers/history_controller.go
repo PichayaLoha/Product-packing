@@ -28,6 +28,16 @@ func GetHistoryDetail(c *gin.Context, db *sql.DB) {
 	c.JSON(http.StatusOK, historyDetail)
 }
 
+func GetHistoryBoxDetail(c *gin.Context, db *sql.DB) {
+	id := c.Param("hisroryboxdel_id")
+	historyDetail, err := services.GetHistoryBoxDetail(db, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve history box detail"})
+		return
+	}
+	c.JSON(http.StatusOK, historyDetail)
+}
+
 func UpdateHistory(c *gin.Context, db *sql.DB) {
 	var updatedHistory models.HistoryOrder
 
