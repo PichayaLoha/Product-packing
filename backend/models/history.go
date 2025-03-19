@@ -40,11 +40,17 @@ type GenBoxDel struct {
 }
 
 type History struct {
-	HistoryID     int               `json:"package_id"`
-	HistoryAmount int               `json:"package_amount"`
-	HistoryTime   time.Time         `json:"package_time"`
-	HistoryStatus HistoryStatusEnum `json:"package_status"`
-	HistoryDels   []HistoryDel      `json:"history_dels"`
+	HistoryID         int               `json:"package_id"`
+	HistoryAmount     int               `json:"package_amount"`
+	HistoryTime       time.Time         `json:"package_time"`
+	HistoryStatus     HistoryStatusEnum `json:"package_status"`
+	HistoryDels       []HistoryDel      `json:"history_dels"`
+	CustomerID        int               `json:"customer_id"`
+	CustomerFirstName string            `json:"customer_firstname"`
+	CustomerLastName  string            `json:"customer_lastname"`
+	CustomerAddress   string            `json:"customer_address"`
+	CustomerPostal    string            `json:"customer_postal"`
+	CustomerPhone     string            `json:"customer_phone"`
 }
 
 type PackageDetail struct {

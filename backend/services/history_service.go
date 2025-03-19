@@ -8,7 +8,20 @@ import (
 )
 
 func GetHistory(db *sql.DB) ([]models.History, error) {
-	rows, err := db.Query(`SELECT package_id, package_amount, package_time, package_status FROM packages_order`)
+	rows, err := db.Query(`
+                SELECT 
+                        po.package_id, 
+                        po.package_amount, 
+                        po.package_time, 
+                        po.package_status,
+                        c.customer_firstname,
+                        c.customer_lastname,
+                        c.customer_address,
+                        c.customer_postal,
+                        c.customer_phone
+                FROM packages_order po
+                INNER JOIN customers c ON po.customer_id = c.customer_id
+        `)
 	if err != nil {
 		log.Println("Error querying history: ", err)
 		return nil, err
@@ -19,7 +32,17 @@ func GetHistory(db *sql.DB) ([]models.History, error) {
 
 	for rows.Next() {
 		var history1 models.History
-		if err := rows.Scan(&history1.HistoryID, &history1.HistoryAmount, &history1.HistoryTime, &history1.HistoryStatus); err != nil {
+		if err := rows.Scan(
+			&history1.HistoryID,
+			&history1.HistoryAmount,
+			&history1.HistoryTime,
+			&history1.HistoryStatus,
+			&history1.CustomerFirstName,
+			&history1.CustomerLastName,
+			&history1.CustomerAddress,
+			&history1.CustomerPostal,
+			&history1.CustomerPhone,
+		); err != nil {
 			log.Println("Error scanning history row: ", err)
 			return nil, err
 		}
