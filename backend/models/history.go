@@ -18,6 +18,7 @@ type HistoryOrder struct {
 	HistoryProductCost float64           `json:"package_product_cost"`
 	HistoryBoxCost     float64           `json:"package_box_cost"`
 	HistoryTotalCost   float64           `json:"package_total_cost"`
+	CustomerID         int               `json:"customer_id"`
 }
 type HistoryDel struct {
 	HistoryDelID      int         `json:"package_del_id"`

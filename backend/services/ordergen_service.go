@@ -133,15 +133,28 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 
 	var historyID int
 	historyOrder := models.HistoryOrder{HistoryStatus: "Unpacked"}
-	queryHistoryOrder := `INSERT INTO packages_order (package_time, package_amount, package_status, package_product_cost, package_box_cost, package_total_cost)
-		              VALUES (NOW(), $1, $2, $3, $4, $5)
-		              RETURNING package_id`
-	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus, totalProductCost, totalBoxCost, totalCost).Scan(&historyID)
 
+	// ✅ ดึง `customer_id` ล่าสุดจาก database
+	var customerID int
+	queryLastCustomer := `SELECT customer_id FROM customers ORDER BY customer_id DESC LIMIT 1`
+	err = db.QueryRow(queryLastCustomer).Scan(&customerID)
+	if err != nil {
+		log.Println("Error retrieving latest customer_id:", err)
+		return nil, err
+	}
+
+	fmt.Println("Latest customer_id:", customerID)
+
+	// ✅ ใช้ `customer_id` ที่เพิ่งสร้างในการ INSERT `packages_order`
+	queryHistoryOrder := `INSERT INTO packages_order (package_time, package_amount, package_status, package_product_cost, package_box_cost, package_total_cost, customer_id)
+                      VALUES (NOW(), $1, $2, $3, $4, $5, $6)
+                      RETURNING package_id`
+	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus, totalProductCost, totalBoxCost, totalCost, customerID).Scan(&historyID)
 	if err != nil {
 		log.Println("Error inserting into packages_order:", err)
 		return nil, err
 	}
+	fmt.Println("Created package_id:", historyID)
 
 	for _, historyProduct := range productgen {
 		// fmt.Println("historyProduct : ", historyProduct.Products)

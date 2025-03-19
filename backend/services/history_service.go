@@ -202,7 +202,7 @@ func DeleteHistory(db *sql.DB, packageID string) (int64, error) {
 		return 0, err
 	}
 
-	// 1️⃣ ลบข้อมูลจาก package_box_dels ก่อน
+	//ลบข้อมูลจาก package_box_dels ก่อน
 	queryBoxDels := `DELETE FROM package_box_dels WHERE package_del_id IN 
                      (SELECT package_del_id FROM package_dels WHERE package_id = $1)`
 	_, err = tx.Exec(queryBoxDels, packageID)
@@ -212,7 +212,7 @@ func DeleteHistory(db *sql.DB, packageID string) (int64, error) {
 		return 0, err
 	}
 
-	// 2️⃣ ลบข้อมูลจาก package_dels
+	//ลบข้อมูลจาก package_dels
 	queryDels := `DELETE FROM package_dels WHERE package_id = $1`
 	_, err = tx.Exec(queryDels, packageID)
 	if err != nil {
@@ -221,7 +221,6 @@ func DeleteHistory(db *sql.DB, packageID string) (int64, error) {
 		return 0, err
 	}
 
-	// 3️⃣ ลบข้อมูลจาก packages_order
 	queryOrder := `DELETE FROM packages_order WHERE package_id = $1`
 	result, err := tx.Exec(queryOrder, packageID)
 	if err != nil {
@@ -230,7 +229,6 @@ func DeleteHistory(db *sql.DB, packageID string) (int64, error) {
 		return 0, err
 	}
 
-	// ✅ ตรวจสอบว่ามีข้อมูลที่ถูกลบหรือไม่
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		log.Println("Error getting rows affected:", err)
