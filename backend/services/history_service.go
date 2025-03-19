@@ -2,6 +2,7 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 	"go-backend/models"
 	"log"
 )
@@ -195,33 +196,57 @@ func UpdateHistory(db *sql.DB, updatedHistory *models.HistoryOrder, historyID st
 	return nil
 }
 
-// func UpdateStatus(db *sql.DB, updatedStatus *models.HistoryOrder, historyID string) error {
-// 	query := `UPDATE package_order
-// 			  SET history_status = $1
-// 			  WHERE history_id = $2`
-// 	_, err := db.Exec(query, updatedHistory.HistoryStatus, historyID)
-// 	if err != nil {
-// 		log.Println("Error updating history: ", err)
-// 		return err
-// 	}
-// 	return nil
-// }
+func DeleteHistory(db *sql.DB, packageID string) (int64, error) {
+	tx, err := db.Begin() // ✅ เริ่ม transaction
+	if err != nil {
+		return 0, err
+	}
 
-// func DeleteHistory(db *sql.DB, historyID string) (int64, error) {
-// 	query := `DELETE FROM gen_history_order WHERE history_id = $1`
-// 	query2 := `DELETE FROM gen_box_del WHERE history_id = $1`
-// 	query3 := `DELETE FROM gen_history_order WHERE history_id = $1`
-// 	result, err := db.Exec(query, historyID)
-// 	if err != nil {
-// 		log.Println("Error deleting history: ", err)
-// 		return 0, err
-// 	}
+	// 1️⃣ ลบข้อมูลจาก package_box_dels ก่อน
+	queryBoxDels := `DELETE FROM package_box_dels WHERE package_del_id IN 
+                     (SELECT package_del_id FROM package_dels WHERE package_id = $1)`
+	_, err = tx.Exec(queryBoxDels, packageID)
+	if err != nil {
+		tx.Rollback()
+		log.Println("Error deleting from package_box_dels:", err)
+		return 0, err
+	}
 
-// 	rowsAffected, err := result.RowsAffected()
-// 	if err != nil {
-// 		log.Println("Error getting rows affected: ", err)
-// 		return 0, err
-// 	}
+	// 2️⃣ ลบข้อมูลจาก package_dels
+	queryDels := `DELETE FROM package_dels WHERE package_id = $1`
+	_, err = tx.Exec(queryDels, packageID)
+	if err != nil {
+		tx.Rollback()
+		log.Println("Error deleting from package_dels:", err)
+		return 0, err
+	}
 
-// 	return rowsAffected, nil
-// }
+	// 3️⃣ ลบข้อมูลจาก packages_order
+	queryOrder := `DELETE FROM packages_order WHERE package_id = $1`
+	result, err := tx.Exec(queryOrder, packageID)
+	if err != nil {
+		tx.Rollback()
+		log.Println("Error deleting from packages_order:", err)
+		return 0, err
+	}
+
+	// ✅ ตรวจสอบว่ามีข้อมูลที่ถูกลบหรือไม่
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting rows affected:", err)
+		return 0, err
+	}
+
+	if rowsAffected == 0 {
+		log.Println("No history found for packageID:", packageID)
+		return 0, fmt.Errorf("History not found")
+	}
+
+	// ✅ Commit การลบทั้งหมด
+	err = tx.Commit()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, nil
+}
