@@ -26,23 +26,23 @@ const getRandomColor = (usedColors) => {
 // สร้างออบเจ็กต์เพื่อเก็บสีของสินค้าแต่ละชื่อ
 const productColors = {};
 
-const Product = ({ 
-  size, 
-  position, 
-  color, 
-  name 
+const Product = ({
+  size,
+  position,
+  color,
+  name
 }) => {
   const [hovered, setHovered] = useState(false);
-  
+
   return (
     <group position={position}>
-      <mesh 
+      <mesh
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
         <boxGeometry args={size} />
-        <meshStandardMaterial 
-          color={color} 
+        <meshStandardMaterial
+          color={color}
           roughness={0.3}
           metalness={0.2}
           emissive={hovered ? color : "black"}
@@ -50,7 +50,7 @@ const Product = ({
         />
         <Edges color="white" threshold={15} />
       </mesh>
-      
+
       {hovered && (
         <Text
           position={[0, size[1] / 2 + 0.5, 0]}
@@ -68,9 +68,9 @@ const Product = ({
   );
 };
 
-const Box = ({ 
-  boxSize, 
-  products, 
+const Box = ({
+  boxSize,
+  products,
   rotation,
   boxName
 }) => {
@@ -91,7 +91,7 @@ const Box = ({
         <edgesGeometry args={[new THREE.BoxGeometry(...boxSize)]} />
         <lineBasicMaterial color="#ffffff" />
       </lineSegments>
-      
+
       {/* Box label */}
       <Text
         position={[0, boxSize[1] / 2 + 1, 0]}
@@ -139,7 +139,7 @@ const ProductPacking = () => {
   const { message: package_id } = location.state || {};
   console.log("package_dels_id received:", package_dels_id);
   console.log("package_id received:", package_id);
-  
+
   const API_URL = package_dels_id ? `http://localhost:8080/api/historydel/${package_dels_id}` : null;
   const [boxSize, setBoxSize] = useState([0, 0, 0]);
   const [products, setProducts] = useState([]);
@@ -155,7 +155,7 @@ const ProductPacking = () => {
           setLoading(false);
           return;
         }
-        
+
         const response = await fetch(API_URL);
         const data = await response.json();
         console.log("API data:", data);
@@ -171,7 +171,7 @@ const ProductPacking = () => {
               name,
               color: productColors[name] || "#999999",
             }));
-            
+
           setProductNames(uniqueProducts);
           setProducts(data);
           console.log("Products:", data);
@@ -194,11 +194,11 @@ const ProductPacking = () => {
         <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-blue-500" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p className="mt-4 text-xl text-white">Loading visualization...</p>
+        <p className="mt-4 text-xl text-white">Loading ...</p>
       </div>
     </div>
   );
-  
+
   if (!boxSize || !API_URL) return (
     <div className="flex items-center justify-center h-screen bg-gray-900">
       <div className="text-center p-8 bg-gray-800 rounded-lg shadow-lg">
@@ -219,23 +219,29 @@ const ProductPacking = () => {
   return (
     <div className="relative h-screen w-screen bg-gray-900">
       {/* Back button */}
-      <button
-        className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md 
+      {package_id !== "generate" ? (
+        <button
+          className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md 
                   shadow-lg transition-colors flex items-center z-10"
-        onClick={() => navigate('/Historydetail', { state: { message: package_id } })}
+          onClick={() => navigate('/Historydetail', { state: { message: package_id } })}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+          Back to Historydetail
+        </button>
+      ) : (<button
+        className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+        onClick={() => navigate('/History')}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-        </svg>
         Back to History
       </button>
-
+      )}
       {/* Box info panel */}
       <div className="absolute top-4 right-4 bg-gray-800 bg-opacity-90 p-4 rounded-md shadow-lg z-10 text-white">
         <h2 className="text-xl font-bold mb-2 border-b border-gray-700 pb-2">{boxName}</h2>
         <div className="flex items-center space-x-2">
           <span className="text-gray-300">Dimensions:</span>
-          <span>{boxSize[0]*4} x {boxSize[1]*4} x {boxSize[2]*4}</span>
+          <span>{boxSize[0] * 4} x {boxSize[1] * 4} x {boxSize[2] * 4}</span>
         </div>
         <div className="flex items-center space-x-2 mt-1">
           <span className="text-gray-300">Total Items:</span>
@@ -265,59 +271,59 @@ const ProductPacking = () => {
       </div>
 
       {/* Main 3D Canvas */}
-      <Canvas 
-        className="w-full h-full" 
+      <Canvas
+        className="w-full h-full"
         camera={{ position: [20, 12, 20], fov: 50 }}
         shadows
       >
         <color attach="background" args={["#111827"]} />
-        
+
         {/* Lighting */}
         <ambientLight intensity={0.5} />
-        <directionalLight 
-          position={[10, 10, 10]} 
-          intensity={1} 
-          castShadow 
-          shadow-mapSize-width={1024} 
+        <directionalLight
+          position={[10, 10, 10]}
+          intensity={1}
+          castShadow
+          shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
-        <spotLight 
-          position={[-10, 10, 10]} 
-          angle={0.3} 
-          penumbra={1} 
-          intensity={0.8} 
+        <spotLight
+          position={[-10, 10, 10]}
+          angle={0.3}
+          penumbra={1}
+          intensity={0.8}
           castShadow
         />
-        
+
         {/* Environment */}
         <Environment preset="city" />
-        
+
         {/* Box with products */}
-        <Box 
-          boxSize={boxSize} 
-          products={products} 
+        <Box
+          boxSize={boxSize}
+          products={products}
           rotation={rotation}
-          boxName={boxName} 
+          boxName={boxName}
         />
-        
+
         {/* Controls */}
-        <OrbitControls 
+        <OrbitControls
           enablePan={true}
           enableZoom={true}
           enableRotate={true}
           minDistance={5}
           maxDistance={50}
         />
-        
+
         {/* Grid helper */}
-        <gridHelper 
-          args={[50, 50, '#444444', '#222222']} 
-          position={[0, -boxSize[1]/2 - 0.1, 0]} 
+        <gridHelper
+          args={[50, 50, '#444444', '#222222']}
+          position={[0, -boxSize[1] / 2 - 0.1, 0]}
           rotation={[0, 0, 0]}
         />
-        
+
         {/* Axis helper */}
-        <axesHelper args={[5]} position={[0, -boxSize[1]/2 - 0.1, 0]} />
+        <axesHelper args={[5]} position={[0, -boxSize[1] / 2 - 0.1, 0]} />
       </Canvas>
     </div>
   );

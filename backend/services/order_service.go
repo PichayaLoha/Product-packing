@@ -63,6 +63,7 @@ func CreateOrderdels(db *sql.DB, newOrderdel *models.OrderDetail) error {
 }
 
 func DeleteOrderDel(db *sql.DB, orderdelID string) (int64, error) {
+	// ลบ order_del
 	queryDelete := `DELETE FROM order_dels WHERE order_del_id = $1`
 	result, err := db.Exec(queryDelete, orderdelID)
 	if err != nil {

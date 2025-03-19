@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import Menupage from '../menupage'
 import { Link, useNavigate } from 'react-router-dom';
+import { tr } from 'framer-motion/client';
 
 function Boxesmanage() {
     const navigate = useNavigate();
     const [boxes, setBoxes] = useState([]);
-    const [boxlong, setBoxlong] = useState([]);
+    // const [boxlong, setBoxlong] = useState([]);
     const [size, setSize] = useState(0);
 
     const [box_name, setBoxname] = useState("");
@@ -87,10 +88,19 @@ function Boxesmanage() {
         setBoxmaxweight_ed(selectedBox.box_maxweight)
         setBoxamount_ed(selectedBox.box_amount)
         setBoxid_ed(selectedBox.box_id)
-        setIsDisabled(!isDisabled);
+        setIsDisabled(false);
     }
 
     const clearUpdateboxes = () => {
+        setBoxname("")
+        setBoxwidth("")
+        setBoxlength("")
+        setheBoxheight("")
+        setBoxmaxweight("")
+        setBoxamount("")
+        setBoxid("")
+    }
+    const clearUpdateboxesed = () => {
         setBoxname_ed("")
         setBoxwidth_ed("")
         setBoxlength_ed("")
@@ -98,6 +108,7 @@ function Boxesmanage() {
         setBoxmaxweight_ed("")
         setBoxamount_ed("")
         setBoxid_ed("")
+        setIsDisabled(true);
     }
 
     const handleUpdateboxes = async () => {
@@ -281,7 +292,7 @@ function Boxesmanage() {
                                 <div className="card-actions justify-center">
                                     <button className="btn bg-green-400 btn-sm" onClick={handleAddboxes}>Add</button>
 
-                                    <button className="btn btn-info btn-sm">Clear</button>
+                                    <button className="btn btn-info btn-sm" onClick={clearUpdateboxes}>Clear</button>
 
                                 </div>
                             </div>
@@ -360,7 +371,7 @@ function Boxesmanage() {
                                 <div className="card-actions justify-center">
                                     <button className="btn bg-green-400 btn-sm" onClick={handleUpdateboxes}>Confirm</button>
 
-                                    <button className="btn btn-info btn-sm">Clear</button>
+                                    <button className="btn btn-info btn-sm" onClick={clearUpdateboxesed}>Clear</button>
 
                                 </div>
                             </div>

@@ -44,7 +44,7 @@ function PackingPage() {
         fetchOrdersAndBoxes(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []);
 
-    const handleModeChange = (event) => {
+    const handleModeChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
         setMode(event.target.value); // เปลี่ยนค่า mode ตามที่เลือก
     };
 
@@ -63,8 +63,7 @@ function PackingPage() {
             customer_lastname: data.lastname,
             customer_address: data.address,
             customer_postal: data.postal,
-            customer_phone: data.phone
-            ,
+            customer_phone: data.phone,
         };
 
         try {
@@ -185,12 +184,14 @@ function PackingPage() {
                                         <thead>
                                             <tr className='bg-cyan-700 text-white text-base'>
                                                 <th>Number</th>
+                                                <th>Product Image</th>
                                                 <th>Product Name</th>
+                                                <th>Weight(kg.)</th>
+                                                <th>Amount</th>
                                                 <th>Width(cm.)</th>
                                                 <th>Length(cm.)</th>
                                                 <th>Height(cm.)</th>
-                                                <th>Weight(g.)</th>
-                                                <th>Amount</th>
+
                                                 <th>Added</th>
                                             </tr>
                                         </thead>
@@ -199,12 +200,20 @@ function PackingPage() {
                                                 {order.map((item, index) => (
                                                     <tr key={index}>
                                                         <th>{index + 1}</th>
+                                                        <td><figure className="flex justify-center w-full h-24 ">
+                                                            <img style={{ width: "70%", height: "100%" }}
+                                                                src={item.product.product_image}
+                                                                alt="Shoes"
+                                                                className="rounded-xl object-contain" />
+                                                        </figure>
+                                                        </td>
                                                         <td>{item.product.product_name}</td>
+                                                        <td>{item.product.product_weight}</td>
+                                                        <td>{item.product_amount}</td>
                                                         <td>{item.product.product_width}</td>
                                                         <td>{item.product.product_length}</td>
                                                         <td>{item.product.product_height}</td>
-                                                        <td>{item.product.product_weight}</td>
-                                                        <td>{item.product_amount}</td>
+
                                                         <td>{new Date(item.product.product_time).toLocaleString()}</td>
                                                     </tr>
                                                 ))}

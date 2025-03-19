@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Menupage from '../menupage';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 function Generatepage() {
+    const navigate = useNavigate();
     const location = useLocation();
     const { message, cus_id } = location.state;
     const [order, setOrder] = useState([]);
@@ -29,6 +30,11 @@ function Generatepage() {
         fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
+    const handleRowClick = (packageDelId: number) => {
+        console.log("📦 ส่งค่า package_dels_id:", packageDelId); // ✅ Debug ตรวจสอบค่าที่ถูกส่งไป
+        navigate('/productpacking', { state: { package_dels_id: packageDelId, message: "generate" } });
+    };
+
 
     return (
         <div className="grid grid-cols-12 h-screen">
@@ -53,6 +59,7 @@ function Generatepage() {
                                         <th>user-id</th>
                                         <th>จำนวนสินค้า</th>
                                         <th>ชื่อลูกค้า</th>
+                                        <th>ชื่อลูกค้า</th>
                                     </tr>
                                 </thead>
                                 {/* รายการกล่องทั้งหมดของ orderนั้นๆ */}
@@ -66,12 +73,13 @@ function Generatepage() {
                                             <td>{client.customer_id}</td>
                                             <td>{item.package_id.length}</td>
                                             <td>{client.customer_firstname} {client.customer_lastname}</td>
+                                            <td><button className='btn btn-sm' onClick={() => handleRowClick(item.package_del_id)}>Preview</button></td>
                                             {/* <td>
                                             </td> */}
                                         </tr>
 
                                         <tr>
-                                            <td colSpan={5} className='bg-stone-500'>
+                                            <td colSpan={6} className='bg-stone-500'>
                                                 <div className="p-5 overflow-x-auto bg-white">
                                                     <table className="table">
                                                         <thead>

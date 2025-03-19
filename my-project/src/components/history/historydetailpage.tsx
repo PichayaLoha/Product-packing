@@ -5,14 +5,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 function Historydetailpage() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { message } = location.state;
+    const { message, f_name, l_name } = location.state || {};
     const [order, setOrder] = useState([]);
     const [check, setCheck] = useState();
 
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                console.log("message", message);
+                console.log("message", message, f_name, l_name);
                 const response = await fetch(`http://localhost:8080/api/history/${message}`);
                 const data = await response.json();
                 console.log("test", data);
@@ -23,11 +23,32 @@ function Historydetailpage() {
             }
         };
         fetchOrders();
-    }, []); 
+    }, []);
+
+    const updateStatus = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/history/${message}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ package_status: "Packed" }),
+            });
+            if (response.ok) {
+                alert("Update status success");
+                navigate('/history');
+            } else {
+                console.error('Error updating status:', response.statusText);
+            }
+        }
+        catch (error) {
+            console.error('Error fetching products:', error);
+        }
+    }
 
     const handleRowClick = (packageDelId: number) => {
         console.log("📦 ส่งค่า package_dels_id:", packageDelId); // ✅ Debug ตรวจสอบค่าที่ถูกส่งไป
-        navigate('/productpacking', { state: { package_dels_id: packageDelId, message:  message} });
+        navigate('/productpacking', { state: { package_dels_id: packageDelId, message: message } });
     };
 
     return (
@@ -37,7 +58,7 @@ function Historydetailpage() {
                 <div className='flex mb-5 items-end'>
                     <p className='text-3xl mr-5'>History</p>
                     {check === "Unpacked" && (
-                        <button className='btn btn-sm btn-success' onClick={() => alert("Update Status")}>
+                        <button className='btn btn-soft btn-success' onClick={updateStatus}>
                             Packed
                         </button>
                     )}
@@ -50,22 +71,23 @@ function Historydetailpage() {
                                     <tr className='bg-cyan-700 text-white text-base'>
                                         <th>ลำดับ</th>
                                         <th>ขนาดกล่อง</th>
-                                        <th>user-id</th>
+                                        <th>จำนวนของในกล่อง</th>
                                         <th>ชื่อ</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {order.map((item, index) => (
                                         <React.Fragment key={item.package_del_id}>
-                                            <tr className='bg-stone-400 cursor-pointer' 
-                                                onClick={() => handleRowClick(item.package_del_id)}>
+                                            <tr className='bg-stone-400 cursor-pointer'>
                                                 <th>{index + 1}</th>
                                                 <td>{item.package_del_boxsize}</td>
-                                                <td>{item.package_del_id}</td>
-                                                <td>Bob</td>
+                                                <td>{item.package_id.length}</td>
+                                                <td>{f_name} {l_name}</td>
+                                                <td><button className='btn btn-sm' onClick={() => handleRowClick(item.package_del_id)}>Preview</button></td>
                                             </tr>
                                             <tr>
-                                                <td colSpan={4} className='bg-stone-500'>
+                                                <td colSpan={5} className='bg-stone-500'>
                                                     <div className="p-5 overflow-x-auto bg-white">
                                                         <table className="table">
                                                             <thead>

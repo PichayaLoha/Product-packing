@@ -10,6 +10,7 @@ function OrderTablePage() {
 
   // ดึงข้อมูล orders จาก backend เมื่อ component โหลด
   useEffect(() => {
+    document.documentElement.setAttribute("data-theme", "light");
     const fetchOrders = async () => {
       try {
         const response = await fetch('http://localhost:8080/api/products');

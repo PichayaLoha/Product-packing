@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import Menupage from '../menupage';
 import { useNavigate, Link } from 'react-router-dom'; // เพิ่ม Link ที่นี่
+interface ImageChangeEvent extends React.ChangeEvent<HTMLInputElement> {
+    target: HTMLInputElement & { files: FileList };
+}
 
 function AddProductPage() {
     const navigate = useNavigate();
     const [product_name, setproduct_name] = useState("");
     const [width, setWidth] = useState("");
-    const [length, setLength] = useState("");
+    const [length, setLength] = useState<string>("");
     const [height, setHeight] = useState("");
     const [weight, setWeight] = useState("");
     const [amount, setAmount] = useState("");
     const [cost, setCost] = useState("");
     const [userId, setuserId] = useState("");
 
-    const [image, setImage] = useState(null);
-    const [preview, setPreview] = useState(null);
+    const [image, setImage] = useState<File | null>();
+    const [preview, setPreview] = useState<string | null>();
 
-    const handleImageChange = (e) => {
+
+
+    const handleImageChange = (e: ImageChangeEvent) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -24,7 +29,7 @@ function AddProductPage() {
 
         const reader = new FileReader();
         reader.onloadend = () => {
-            setPreview(reader.result);
+            setPreview(reader.result as string);
         };
         reader.readAsDataURL(file);
     };
