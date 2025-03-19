@@ -3,34 +3,34 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Edges, Text, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { useLocation, useNavigate } from 'react-router-dom';
-const generateColorFromName = (name: string): string => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+
+const colors = [
+  "#FF4B4B", // red
+  "#4B83FF", // blue
+  "#4BFF91", // green
+  "#FFD84B", // yellow
+  "#FF4BF2", // magenta
+  "#4BFFFC", // cyan
+  "#FF964B", // orange
+  "#964BFF", // purple
+];
+
+const getRandomColor = (usedColors) => {
+  let color = colors[Math.floor(Math.random() * colors.length)];
+  while (usedColors.has(color)) {
+    color = colors[Math.floor(Math.random() * colors.length)];
   }
-  const color = `#${((hash & 0x00FFFFFF).toString(16).toUpperCase()).padStart(6, '0')}`;
   return color;
 };
-// Enhanced product colors with better visual appeal
-const productColors = {
-  "PS5": "#FF4B4B",
-  "ปลา กระป๋อง 2": "#4B83FF",
-  "มา ม่า เกาหลี": "#4BFF91",
-  "Order 4": "#FFD84B",
-  // Add more products and colors as needed
-};
 
-// Product component with hover effect and labels
+// สร้างออบเจ็กต์เพื่อเก็บสีของสินค้าแต่ละชื่อ
+const productColors = {};
+
 const Product = ({ 
   size, 
   position, 
   color, 
   name 
-}: { 
-  size: [number, number, number]; 
-  position: [number, number, number]; 
-  color: string;
-  name: string;
 }) => {
   const [hovered, setHovered] = useState(false);
   
@@ -68,17 +68,11 @@ const Product = ({
   );
 };
 
-// Box component with grid and improved visuals
 const Box = ({ 
   boxSize, 
   products, 
   rotation,
   boxName
-}: { 
-  boxSize: [number, number, number]; 
-  products: any[]; 
-  rotation: [number, number, number];
-  boxName: string;
 }) => {
   const startX = -boxSize[0] / 2;
   const startY = -boxSize[1] / 2;
@@ -117,7 +111,13 @@ const Box = ({
         const y = startY + product.product_height / 8 + product.package_box_y / 4;
         const z = startZ + product.product_width / 8 + product.package_box_z / 4;
 
-        const color = productColors[product.product_name] || "#999999";
+        // ใช้สีจาก productColors หรือสุ่มสีใหม่หากยังไม่มี
+        if (!productColors[product.product_name]) {
+          const usedColors = new Set(Object.values(productColors));
+          productColors[product.product_name] = getRandomColor(usedColors);
+        }
+
+        const color = productColors[product.product_name];
 
         return (
           <Product
@@ -133,20 +133,6 @@ const Box = ({
   );
 };
 
-// Enhanced color sphere for legend
-const ColorSphere = ({ color }) => {
-  return (
-    <mesh>
-      <sphereGeometry args={[0.5, 16, 16]} />
-      <meshStandardMaterial 
-        color={color} 
-        roughness={0.3}
-        metalness={0.2}
-      />
-    </mesh>
-  );
-};
-
 const ProductPacking = () => {
   const location = useLocation();
   const { package_dels_id } = location.state || {};
@@ -155,11 +141,11 @@ const ProductPacking = () => {
   console.log("package_id received:", package_id);
   
   const API_URL = package_dels_id ? `http://localhost:8080/api/historydel/${package_dels_id}` : null;
-  const [boxSize, setBoxSize] = useState<[number, number, number] | null>(null);
-  const [products, setProducts] = useState<any[]>([]);
+  const [boxSize, setBoxSize] = useState([0, 0, 0]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [boxName, setBoxName] = useState<string>("");
-  const [productNames, setProductNames] = useState<any[]>([]);
+  const [boxName, setBoxName] = useState("");
+  const [productNames, setProductNames] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -259,7 +245,7 @@ const ProductPacking = () => {
 
       {/* Products legend */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 bg-opacity-90 p-4 rounded-md shadow-lg z-10 text-white">
-        <h3 className="text-lg font-bold mb-2 border-b border-gray-700 pb-2">Product Legend</h3>
+        <h3 className="text-lg font-bold mb-2 border-b border-gray-700 pb-2">สินค้า</h3>
         <ul className="flex flex-wrap gap-4 justify-center">
           {productNames.map((product, index) => (
             <li key={index} className="flex items-center">
