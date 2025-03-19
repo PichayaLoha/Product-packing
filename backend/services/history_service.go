@@ -184,9 +184,9 @@ func GetHistoryBoxDetail(db *sql.DB, hisroryboxdelID string) ([]models.PackageDe
 	return packageDetails, nil
 }
 func UpdateHistory(db *sql.DB, updatedHistory *models.HistoryOrder, historyID string) error {
-	query := `UPDATE package_order
-			  SET history_status = $1
-			  WHERE history_id = $2`
+	query := `UPDATE packages_order
+			  SET package_status = $1
+			  WHERE package_id = $2`
 	_, err := db.Exec(query, updatedHistory.HistoryStatus, historyID)
 	if err != nil {
 		log.Println("Error updating history: ", err)
@@ -194,6 +194,18 @@ func UpdateHistory(db *sql.DB, updatedHistory *models.HistoryOrder, historyID st
 	}
 	return nil
 }
+
+// func UpdateStatus(db *sql.DB, updatedStatus *models.HistoryOrder, historyID string) error {
+// 	query := `UPDATE package_order
+// 			  SET history_status = $1
+// 			  WHERE history_id = $2`
+// 	_, err := db.Exec(query, updatedHistory.HistoryStatus, historyID)
+// 	if err != nil {
+// 		log.Println("Error updating history: ", err)
+// 		return err
+// 	}
+// 	return nil
+// }
 
 // func DeleteHistory(db *sql.DB, historyID string) (int64, error) {
 // 	query := `DELETE FROM gen_history_order WHERE history_id = $1`

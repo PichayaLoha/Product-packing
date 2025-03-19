@@ -57,11 +57,34 @@ func UpdateHistory(c *gin.Context, db *sql.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "อัปเดตออเดอร์สำเร็จ",
+		"message": "อัปเดตสเตตัสสำเร็จ",
 		"history": updatedHistory,
 	})
 }
 
+// func UpdateStatus(c *gin.Context, db *sql.DB) {
+// 	var updatedStatus models.HistoryOrder
+
+// 	historyID := c.Param("history_id")
+// 	if err := c.ShouldBindJSON(&updateStatus); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"error": "Invalid request",
+// 		})
+// 		return
+// 	}
+
+// 	if err := services.UpdateStatus(db, &updateStatus, historyID); err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"error": "Unable to update status",
+// 		})
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"message": "อัปเดตสเตตัสสำเร็จ",
+// 		"history": updateStatus,
+// 	})
+// }
 // func DeleteHistory(c *gin.Context, db *sql.DB) {
 // 	productID := c.Param("history_id")
 
