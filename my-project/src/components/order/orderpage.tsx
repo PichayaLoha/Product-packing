@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Menupage from '../menupage';
-import { Link } from 'react-router-dom';
 
 function OrderTablePage() {
     const [order, setOrder] = useState([]);
@@ -23,7 +22,7 @@ function OrderTablePage() {
         fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
-    const handleDeleteOrder = async (orderId) => {
+    const handleDeleteOrder = async (orderId :number) => {
         const confirmDelete = window.confirm("คุณแน่ใจหรือว่าต้องการลบออเดอร์นี้?");
         if (confirmDelete) {
             try {

@@ -24,9 +24,6 @@ function Productcard({ product, onQuantityChange }: { product: Product; onQuanti
     const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
     const handleAddProduct = async (productId: number) => {
-        // if (!image) return alert("กรุณาเลือกรูปก่อน");
-        // product_image:
-
         const newItem = {
             product_id: productId,
             product_amount: quantity,
@@ -43,6 +40,7 @@ function Productcard({ product, onQuantityChange }: { product: Product; onQuanti
             console.log(newItem)
             if (response.ok) {
                 alert("เพิ่มเรียบร้อยแล้ว")
+                setQuantity(1);
                 // navigate('/Order');
             } else {
                 console.error('Error adding item:', response.statusText);

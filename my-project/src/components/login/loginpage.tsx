@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "../auth/AuthContext";
+
+export interface AuthToken {
+    value: string;
+    expiry: number;
+}
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const authContext = useContext(AuthContext);
 
+    if (!authContext) {
+        return <p>Loading...</p>;
+    }
+
+    const { setToken } = authContext;
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -22,7 +34,7 @@ const Login: React.FC = () => {
             const data = await response.json();
 
             if (response.ok) {
-                localStorage.setItem("token", data.token);
+                setToken(data.token, 120);
                 alert("login success");
                 navigate("/");
             } else {
@@ -41,14 +53,14 @@ const Login: React.FC = () => {
                     <h1 className="text-5xl font-bold text-indigo-700">Product-Packing</h1>
 
                 </div>
-                
+
                 {/* Card */}
                 <div className="bg-white rounded-xl shadow-xl overflow-hidden">
                     {/* Card Header */}
                     <div className="bg-indigo-600 p-4">
                         <h2 className="text-white text-xl font-medium text-center">Login</h2>
                     </div>
-                    
+
                     {/* Form */}
                     <form className="p-6" onSubmit={handleSubmit}>
                         <div className="form-control mb-4">
@@ -64,7 +76,7 @@ const Login: React.FC = () => {
                                 required
                             />
                         </div>
-                        
+
                         <div className="form-control mb-6">
                             <label className="label">
                                 <span className="label-text font-medium text-gray-700">Password</span>
@@ -78,7 +90,7 @@ const Login: React.FC = () => {
                                 required
                             />
                         </div>
-                        
+
                         {error && (
                             <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="inline w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,10 +99,10 @@ const Login: React.FC = () => {
                                 {error}
                             </div>
                         )}
-                        
+
                         <div className="form-control mt-6">
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 className="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full py-3 rounded-md transition-colors duration-200"
                             >
                                 Sign In
@@ -98,7 +110,7 @@ const Login: React.FC = () => {
                         </div>
                     </form>
                 </div>
-                
+
             </div>
         </div>
     );

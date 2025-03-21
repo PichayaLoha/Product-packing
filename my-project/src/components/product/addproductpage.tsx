@@ -92,7 +92,7 @@ function AddProductPage() {
                                 </label>
 
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความกว้าง</span>
+                                    <span className="label-text">ความกว้าง (cm.)</span>
                                     <input
                                         type="text"
                                         placeholder="เซนติเมตร"
@@ -101,7 +101,7 @@ function AddProductPage() {
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความยาว</span>
+                                    <span className="label-text">ความยาว (cm.)</span>
                                     <input
                                         type="text"
                                         placeholder="เซนติเมตร"
@@ -110,7 +110,7 @@ function AddProductPage() {
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความสูง</span>
+                                    <span className="label-text">ความสูง (cm.)</span>
                                     <input
                                         type="text"
                                         placeholder="เซนติเมตร"
@@ -119,7 +119,7 @@ function AddProductPage() {
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">น้ำหนัก</span>
+                                    <span className="label-text">น้ำหนัก (kg.)</span>
                                     <input
                                         type="text"
                                         placeholder="น้ำหนัก"
@@ -128,7 +128,7 @@ function AddProductPage() {
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ราคา</span>
+                                    <span className="label-text">ราคา (บาท)</span>
                                     <input
                                         type="text"
                                         placeholder="บาท"
@@ -145,7 +145,7 @@ function AddProductPage() {
                                         onChange={(e) => setAmount(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
-                                <label className="form-control w-full max-w-xs">
+                                {/* <label className="form-control w-full max-w-xs">
                                     <span className="label-text">ผู้ใช้</span>
                                     <input
                                         type="text"
@@ -153,7 +153,7 @@ function AddProductPage() {
                                         value={userId}
                                         onChange={(e) => setuserId(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
-                                </label>
+                                </label> */}
                                 <label className="form-control w-full max-w-xs">
                                     <input className="file-input file-input-bordered file-input-info file-input-xs w-full max-w-xs " type="file" onChange={handleImageChange} accept="image/*" name="fileToUpload" />
                                 </label>

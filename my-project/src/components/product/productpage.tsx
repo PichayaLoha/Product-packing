@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Menupage from '../menupage';
 import { Link, } from 'react-router-dom';
 import Productcard from './productcard';
-
 interface Product {
     product_id: number;
     product_name: string;
@@ -16,41 +15,11 @@ interface Product {
     product_image: string
 }
 
-interface ThemeColors {
-    primary: string;
-    secondary: string;
-    accent: string;
-    background: string;
-    text: string;
-    card: string;
-}
-
-const themes: Record<string, ThemeColors> = {
-    default: {
-        primary: 'bg-blue-600 hover:bg-blue-700',
-        secondary: 'bg-purple-500 hover:bg-purple-600',
-        accent: 'bg-amber-500',
-        background: 'bg-gray-50',
-        text: 'text-gray-800',
-        card: 'bg-white'
-    },
-    dark: {
-        primary: 'bg-blue-500 hover:bg-blue-600',
-        secondary: 'bg-purple-600 hover:bg-purple-700',
-        accent: 'bg-amber-500',
-        background: 'bg-gray-900',
-        text: 'text-gray-100',
-        card: 'bg-gray-800'
-    },
-};
-
 function Productpage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentTheme, setCurrentTheme] = useState<string>('default');
-    const [isGridView, setIsGridView] = useState(true);
     const [sortBy, setSortBy] = useState<string>('default');
 
     useEffect(() => {

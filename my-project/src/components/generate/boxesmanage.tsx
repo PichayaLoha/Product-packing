@@ -175,7 +175,7 @@ function Boxesmanage() {
                 <div className="col-span-6">
                     <div className='m-7 '>
                         <div className='mb-3 flex items-center'>
-                            <p className='text-2xl font-semibold'>Order</p>
+                            <p className='text-2xl font-semibold'>Boxes</p>
                         </div>
                         <div className='flex justify-start'>
                             <div style={{ width: "100%" }}>

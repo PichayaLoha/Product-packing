@@ -42,9 +42,9 @@ function Generatepage() {
             <div className="col-span-10 m-5">
                 <div className='mb-5'>
                     <Link to='/Product'>
-                        <button className='btn'>กลับไปหน้าเพิ่ม Order</button>
+                        <button className='btn'>กลับไปหน้าเพิ่ม Product</button>
                     </Link>
-                    <p>จำนวนกล่องท้ังหมด : 4</p>
+                    <p>จำนวนกล่องท้ังหมด : {order.length} กล่อง</p>
                     {/* <p>กล่องขนาด F :[4]    E:[4]    D:[4]    G:[4]   S:[4]   M:[4]    L:[4]</p> */}
 
                 </div>
@@ -56,7 +56,6 @@ function Generatepage() {
                                     <tr className='bg-cyan-700 text-white text-base'>
                                         <th>ลำดับ</th>
                                         <th>ขนาดกล่อง</th>
-                                        <th>user-id</th>
                                         <th>จำนวนสินค้า</th>
                                         <th>ชื่อลูกค้า</th>
                                         <th>ชื่อลูกค้า</th>
@@ -70,7 +69,6 @@ function Generatepage() {
                                             <td>{index + 1}
                                             </td>
                                             <th>{item.package_del_boxsize}</th>
-                                            <td>{client.customer_id}</td>
                                             <td>{item.package_id.length}</td>
                                             <td>{client.customer_firstname} {client.customer_lastname}</td>
                                             <td><button className='btn btn-sm' onClick={() => handleRowClick(item.package_del_id)}>Preview</button></td>
