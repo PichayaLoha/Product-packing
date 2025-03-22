@@ -8,7 +8,6 @@ import (
 
 	"go-backend/middleware"
 	"go-backend/models"
-	"go-backend/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +39,7 @@ func Login(db *sql.DB) gin.HandlerFunc {
 		}
 
 		// ตรวจสอบรหัสผ่าน (ใช้ bcrypt)
-		if !utils.CheckPassword(user.UserPasswordHash, req.Password) {
+		if !middleware.CheckPassword(user.UserPasswordHash, req.Password) {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 			return
 		}

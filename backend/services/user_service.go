@@ -3,8 +3,8 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"go-backend/middleware"
 	"go-backend/models"
-	"go-backend/utils"
 	"log"
 )
 
@@ -12,7 +12,7 @@ import (
 func CreateUsers(db *sql.DB, newUser *models.User) error {
 	// แปลงรหัสผ่านเป็น Hash
 	fmt.Println("เข้าservie มาแล้ว")
-	hashedPassword, err := utils.HashPassword(newUser.UserPassword)
+	hashedPassword, err := middleware.HashPassword(newUser.UserPassword)
 	if err != nil {
 		return fmt.Errorf("Error hashing password: %v", err)
 	}
