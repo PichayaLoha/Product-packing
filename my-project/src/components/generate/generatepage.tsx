@@ -70,7 +70,10 @@ function Generatepage() {
                                             </td>
                                             <th>{item.package_del_boxsize}</th>
                                             <td>{item.package_id.length}</td>
-                                            <td>{client.customer_firstname} {client.customer_lastname}</td>
+                                            <td>{client.customer_firstname || client.customer_lastname
+                                                ? `${client.customer_firstname} ${client.customer_lastname}`.trim()
+                                                : "ไม่ระบุชื่อ"}
+                                            </td>
                                             <td><button className='btn btn-sm' onClick={() => handleRowClick(item.package_del_id)}>Preview</button></td>
                                             {/* <td>
                                             </td> */}

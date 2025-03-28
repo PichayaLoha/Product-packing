@@ -3,9 +3,19 @@ import Menupage from '../menupage'
 import { Link, useNavigate } from 'react-router-dom';
 import { tr } from 'framer-motion/client';
 
+interface Box {
+    box_id: number;
+    box_name: string;
+    box_width: number;
+    box_length: number;
+    box_height: number;
+    box_maxweight: number;
+    box_amount: number;
+}
+
 function Boxesmanage() {
     const navigate = useNavigate();
-    const [boxes, setBoxes] = useState([]);
+    const [boxes, setBoxes] = useState<Box[]>([]);
     // const [boxlong, setBoxlong] = useState([]);
     const [size, setSize] = useState(0);
 
@@ -27,7 +37,7 @@ function Boxesmanage() {
     const [box_amount_ed, setBoxamount_ed] = useState("");
     const [box_id_ed, setBoxid_ed] = useState("");
 
-    const fetchOrdersAndBoxes = async () => {
+    const fetchOrdersAndBoxes = async (): Promise<void> => {
         try {
             const responseBoxes = await fetch('http://localhost:8080/api/boxes');
 
@@ -78,17 +88,22 @@ function Boxesmanage() {
         }
     };
 
-    const selectupdateboxes = (boxId: number) => {
+    const selectupdateboxes = (boxId: number): void => {
         const selectedBox = boxes.find(({ box_id }) => box_id === boxId);
-        console.log(selectedBox);
-        setBoxname_ed(selectedBox.box_name)
-        setBoxwidth_ed(selectedBox.box_width)
-        setBoxlength_ed(selectedBox.box_length)
-        setheBoxheight_ed(selectedBox.box_height)
-        setBoxmaxweight_ed(selectedBox.box_maxweight)
-        setBoxamount_ed(selectedBox.box_amount)
-        setBoxid_ed(selectedBox.box_id)
-        setIsDisabled(false);
+        if (!selectedBox) {
+            console.error("Box not found");
+            return;
+        }
+        else {
+            setBoxname_ed(selectedBox.box_name)
+            setBoxwidth_ed(selectedBox.box_width)
+            setBoxlength_ed(selectedBox.box_length)
+            setheBoxheight_ed(selectedBox.box_height)
+            setBoxmaxweight_ed(selectedBox.box_maxweight)
+            setBoxamount_ed(selectedBox.box_amount)
+            setBoxid_ed(selectedBox.box_id)
+            setIsDisabled(false);
+        }
     }
 
     const clearUpdateboxes = () => {
@@ -147,7 +162,7 @@ function Boxesmanage() {
         }
     };
 
-    const handleDeleteboxes = async (boxId) => {
+    const handleDeleteboxes = async (boxId: number): Promise<void> => {
         const confirmDelete = window.confirm("คุณแน่ใจหรือว่าต้องการลบออเดอร์นี้?");
         if (confirmDelete) {
             try {

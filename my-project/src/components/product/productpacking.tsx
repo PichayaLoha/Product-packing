@@ -48,7 +48,7 @@ const Product = ({
           emissive={hovered ? color : "black"}
           emissiveIntensity={hovered ? 0.3 : 0}
         />
-        <Edges color="white" threshold={15} />
+        <Edges color="black" threshold={15} />
       </mesh>
 
       {hovered && (
