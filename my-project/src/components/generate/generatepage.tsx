@@ -1,12 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import Menupage from '../menupage';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+
+interface History {
+    package_del_id: number;
+    package_del_boxsize: string;
+    package_id: any[];
+    package_status: string;
+    history_id: number;
+}
+
+interface Customer {
+    customer_id: number;
+    customer_firstname: string;
+    customer_lastname: string;
+    customer_address: string;
+    customer_postal: string;
+    customer_phone: string;
+    customer_status: string;
+    customer_created_at: string;
+    customer_updated_at: string;
+}
+
 function Generatepage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { message, cus_id } = location.state;
-    const [order, setOrder] = useState([]);
-    const [client, setClient] = useState([]);
+    const [history, setHistory] = useState<History[]>([]);
+    const [client, setClient] = useState<Customer | null>(null);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -20,7 +41,7 @@ function Generatepage() {
                 const data = await response.json();
                 console.log("generate complete :", data.history_dels);
                 console.log(message);
-                setOrder(data.history_dels || []);
+                setHistory(data.history_dels || []);
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -44,7 +65,7 @@ function Generatepage() {
                     <Link to='/Product'>
                         <button className='btn'>กลับไปหน้าเพิ่ม Product</button>
                     </Link>
-                    <p>จำนวนกล่องท้ังหมด : {order.length} กล่อง</p>
+                    <p>จำนวนกล่องท้ังหมด : {history.length} กล่อง</p>
                     {/* <p>กล่องขนาด F :[4]    E:[4]    D:[4]    G:[4]   S:[4]   M:[4]    L:[4]</p> */}
 
                 </div>
@@ -62,7 +83,7 @@ function Generatepage() {
                                     </tr>
                                 </thead>
                                 {/* รายการกล่องทั้งหมดของ orderนั้นๆ */}
-                                {order.map((item, index) => (
+                                {history.map((item: History, index) => (
                                     <tbody >
 
                                         <tr key={index} className='bg-stone-400'>
@@ -70,9 +91,9 @@ function Generatepage() {
                                             </td>
                                             <th>{item.package_del_boxsize}</th>
                                             <td>{item.package_id.length}</td>
-                                            <td>{client.customer_firstname || client.customer_lastname
+                                            <td>{client && (client.customer_firstname || client.customer_lastname
                                                 ? `${client.customer_firstname} ${client.customer_lastname}`.trim()
-                                                : "ไม่ระบุชื่อ"}
+                                                : "ไม่ระบุชื่อ")}
                                             </td>
                                             <td><button className='btn btn-sm' onClick={() => handleRowClick(item.package_del_id)}>Preview</button></td>
                                             {/* <td>

@@ -4,10 +4,37 @@ import { Link, useNavigate } from 'react-router-dom';
 import { IoSettingsOutline } from "react-icons/io5";
 import MyModal from "./modal";
 
+interface Order {
+    product: {
+        product_id: number;
+        product_name: string;
+        product_weight: number;
+        product_width: number;
+        product_length: number;
+        product_height: number;
+        product_image: string;
+        product_time: string;
+    };
+    product_amount: number;
+    product_id: number;
+    order_id: number;
+    order_del_id: number;
+}
+
+interface Box {
+    box_id: number;
+    box_name: string;
+    box_width: string;
+    box_length: string;
+    box_height: string;
+    box_maxweight: string;
+    box_amount: string;
+}
+
 function PackingPage() {
     const navigate = useNavigate();
-    const [order, setOrder] = useState([]);
-    const [boxes, setBoxes] = useState([]);
+    const [order, setOrder] = useState<Order[]>([]);
+    const [boxes, setBoxes] = useState<Box[]>([]);
     const [size, setSize] = useState(0);
     const [mode, setMode] = useState("boxes"); // เก็บโหมดที่เลือก
 
@@ -195,9 +222,9 @@ function PackingPage() {
                                                 <th>Added</th>
                                             </tr>
                                         </thead>
-                                        {size > 0 &&
+                                        {size > 0 ? (
                                             <tbody>
-                                                {order.map((item, index) => (
+                                                {order.map((item: Order, index) => (
                                                     <tr key={index}>
                                                         <th>{index + 1}</th>
                                                         <td><figure className="flex justify-center w-full h-24 ">
@@ -218,16 +245,29 @@ function PackingPage() {
                                                     </tr>
                                                 ))}
                                             </tbody>
-                                        }
+                                        ):(
+                                            <tbody>
+                                                <tr className=''>
+                                                    <td colSpan={9} >
+                                                        <p className='text-center text-2xl text-red-500'>ไม่พบสินค้าที่เตรียมคำนวณ</p>
+                                                        <Link to="/Product">
+                                                            <button className='btn px-8 my-2 text-2xl btn-info drop-shadow-md'>Go to Product</button>
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        )}
                                     </table>
                                 </div>
                             </div>
                         </div>
+                        {size > 0 && (
                         <div className='flex justify-center'>
                             {/* <Link to='/Generate'> */}
                             <button className='btn btn-lg bg-green-300 text-xl' onClick={handleOpenModal}>Generate</button>
                             {/* </Link> */}
                         </div>
+                    )}
                     </div>
                 </div>
             </div>

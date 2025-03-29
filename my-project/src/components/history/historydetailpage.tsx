@@ -1,12 +1,28 @@
 import React, { useEffect, useState } from 'react'
 import Menupage from '../menupage';
 import { useLocation, useNavigate } from 'react-router-dom';
+interface OrderItem {
+    package_del_id: number;
+    package_del_boxsize: string;
+    package_id: {
+        package_box_id: number;
+        product_name: string;
+        product_height: number;
+        product_length: number;
+        product_width: number;
+        product_weight: number;
+        package_box_x: number;
+        package_box_y: number;
+        package_box_z: number;
+    }[];
+}
 
 function Historydetailpage() {
     const navigate = useNavigate();
     const location = useLocation();
     const { message, f_name, l_name } = location.state || {};
-    const [order, setOrder] = useState([]);
+
+    const [order, setOrder] = useState<OrderItem[]>([]);
     const [check, setCheck] = useState();
 
     useEffect(() => {

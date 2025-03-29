@@ -6,35 +6,32 @@ import { tr } from 'framer-motion/client';
 interface Box {
     box_id: number;
     box_name: string;
-    box_width: number;
-    box_length: number;
-    box_height: number;
-    box_maxweight: number;
-    box_amount: number;
+    box_width: string;
+    box_length: string;
+    box_height: string;
+    box_maxweight: string;
+    box_amount: string;
 }
 
 function Boxesmanage() {
-    const navigate = useNavigate();
     const [boxes, setBoxes] = useState<Box[]>([]);
-    // const [boxlong, setBoxlong] = useState([]);
-    const [size, setSize] = useState(0);
 
     const [box_name, setBoxname] = useState("");
-    const [box_width, setBoxwidth] = useState("");
-    const [box_length, setBoxlength] = useState("");
-    const [box_height, setheBoxheight] = useState("");
-    const [box_maxweight, setBoxmaxweight] = useState("");
-    const [box_amount, setBoxamount] = useState("");
+    const [box_width, setBoxwidth] = useState<string>("");
+    const [box_length, setBoxlength] = useState<string>("");
+    const [box_height, setheBoxheight] = useState<string>("");
+    const [box_maxweight, setBoxmaxweight] = useState<string>("");
+    const [box_amount, setBoxamount] = useState<string>("");
     const [box_id, setBoxid] = useState("");
 
     const [isDisabled, setIsDisabled] = useState(true);
-
+    //ed is edit zone 
     const [box_name_ed, setBoxname_ed] = useState("");
-    const [box_width_ed, setBoxwidth_ed] = useState("");
-    const [box_length_ed, setBoxlength_ed] = useState("");
-    const [box_height_ed, setheBoxheight_ed] = useState("");
-    const [box_maxweight_ed, setBoxmaxweight_ed] = useState("");
-    const [box_amount_ed, setBoxamount_ed] = useState("");
+    const [box_width_ed, setBoxwidth_ed] = useState<string>("");
+    const [box_length_ed, setBoxlength_ed] = useState<string>("");
+    const [box_height_ed, setheBoxheight_ed] = useState<string>("");
+    const [box_maxweight_ed, setBoxmaxweight_ed] = useState<string>("");
+    const [box_amount_ed, setBoxamount_ed] = useState<string>("");
     const [box_id_ed, setBoxid_ed] = useState("");
 
     const fetchOrdersAndBoxes = async (): Promise<void> => {
@@ -47,7 +44,6 @@ function Boxesmanage() {
             const dataBoxes = await responseBoxes.json();
             console.log(dataBoxes.boxes);
             setBoxes(dataBoxes.boxes);
-            setSize(dataBoxes.boxes ? dataBoxes.boxes.length : 0);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -101,7 +97,7 @@ function Boxesmanage() {
             setheBoxheight_ed(selectedBox.box_height)
             setBoxmaxweight_ed(selectedBox.box_maxweight)
             setBoxamount_ed(selectedBox.box_amount)
-            setBoxid_ed(selectedBox.box_id)
+            setBoxid_ed(selectedBox.box_id.toString())
             setIsDisabled(false);
         }
     }

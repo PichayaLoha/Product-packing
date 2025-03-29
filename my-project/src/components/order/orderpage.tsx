@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Menupage from '../menupage';
+import { Link } from 'react-router-dom';
 
 interface Product {
     product_image: string;
@@ -80,7 +81,7 @@ function OrderTablePage() {
                                                 <th></th>
                                             </tr>
                                         </thead>
-                                        {size > 0 &&
+                                        {size > 0 ? (
                                             <tbody>
                                                 {order.map((item: Order, index: number) => (
                                                     <tr key={index}>
@@ -106,6 +107,18 @@ function OrderTablePage() {
                                                     </tr>
                                                 ))}
                                             </tbody>
+                                        ) : (
+                                            <tbody>
+                                                <tr className=''>
+                                                    <td colSpan={6} >
+                                                        <p className='text-center text-2xl text-red-500'>ไม่พบสินค้าที่เตรียมคำนวณ</p>
+                                                        <Link to="/Product">
+                                                            <button className='btn px-8 my-2 text-2xl btn-info drop-shadow-md'>Go to Product</button>
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        )
                                         }
                                     </table>
                                 </div>
