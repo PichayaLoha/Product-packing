@@ -149,7 +149,7 @@ function History_page() {
                                         <tbody>
                                             <tr>
                                                 <td colSpan={5} className="text-center py-4 text-white">
-                                                    ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
+                                                    ไม่พบข้อมูล
                                                 </td>
                                             </tr>
                                         </tbody>
