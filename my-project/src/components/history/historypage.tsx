@@ -103,9 +103,9 @@ function History_page() {
                     <div className='flex justify-center'>
                         <div style={{ width: "90%" }}>
                             <div className="overflow-x-auto border rounded-xl border-slate-200">
-                                <table className="table bg-stone-600 text-center">
-                                    <thead>
-                                        <tr className='bg-cyan-700 text-white text-base'>
+                                <table className="table bg-stone-600 w-full text-center">
+                                    <thead className='bg-cyan-700 text-white text-base'>
+                                        <tr>
                                             <th>ลำดับ</th>
                                             <th>จำนวนกล่อง</th>
                                             <th>ชื่อ</th>
