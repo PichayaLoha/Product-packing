@@ -14,6 +14,9 @@ func GetHistory(db *sql.DB) ([]models.History, error) {
                         po.package_amount, 
                         po.package_time, 
                         po.package_status,
+						po.package_product_cost,
+						po.package_box_cost,
+						po.package_total_cost,
                         c.customer_firstname,
                         c.customer_lastname,
                         c.customer_address,
@@ -37,6 +40,9 @@ func GetHistory(db *sql.DB) ([]models.History, error) {
 			&history1.HistoryAmount,
 			&history1.HistoryTime,
 			&history1.HistoryStatus,
+			&history1.HistoryProductCost,
+			&history1.HistoryBoxCost,
+			&history1.HistoryTotalCost,
 			&history1.CustomerFirstName,
 			&history1.CustomerLastName,
 			&history1.CustomerAddress,
@@ -58,6 +64,9 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
             ho.package_amount,
             ho.package_time,
             ho.package_status,
+			ho.package_product_cost,
+			ho.package_box_cost,
+			ho.package_total_cost,
             hd.package_del_id,
             hd.package_del_boxsize,
             bd.package_box_id,
@@ -94,12 +103,7 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			genBoxDelX        sql.NullFloat64
 			genBoxDelY        sql.NullFloat64
 			genBoxDelZ        sql.NullFloat64
-			productID         sql.NullString // เปลี่ยนจาก string เป็น sql.NullString
-			// genProductName    sql.NullString
-			// genProductHeight  sql.NullFloat64
-			// genProductLength  sql.NullFloat64
-			// genProductWidth   sql.NullFloat64
-			// genProductWeight  sql.NullFloat64
+			productID         sql.NullString
 		)
 
 		err := rows.Scan(
@@ -107,6 +111,9 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			&history.HistoryAmount,
 			&history.HistoryTime,
 			&history.HistoryStatus,
+			&history.HistoryProductCost,
+			&history.HistoryBoxCost,
+			&history.HistoryTotalCost,
 			&historyDelID,
 			&historyDelBoxSize,
 			&genBoxDelID,
