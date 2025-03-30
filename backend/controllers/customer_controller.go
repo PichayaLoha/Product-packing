@@ -63,8 +63,6 @@ func UpdateCustomers(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	// updatedProduct.ProductTime = time.Now()
-
 	if err := services.UpdateCustomers(db, &updatedCustomer, customerID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Unable to update customer",
