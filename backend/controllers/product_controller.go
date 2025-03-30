@@ -33,8 +33,6 @@ func GetProductsByID(c *gin.Context, db *sql.DB) {
 	c.JSON(http.StatusOK, gin.H{"products": products})
 }
 
-// const uploadPath = "./uploads" // โฟลเดอร์สำหรับเก็บรูป
-
 func CreateProduct(c *gin.Context, db *sql.DB) {
 	var newProduct models.Product
 
@@ -48,7 +46,7 @@ func CreateProduct(c *gin.Context, db *sql.DB) {
 	newProduct.ProductCost, _ = strconv.ParseFloat(c.PostForm("product_cost"), 64)
 	newProduct.UserId, _ = strconv.Atoi(c.PostForm("user_id"))
 
-	// 📌 รับไฟล์จาก Form-Data
+	//รับไฟล์จาก Form-Data
 	file, err := c.FormFile("product_image")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "กรุณาอัปโหลดรูปภาพ"})
@@ -63,10 +61,10 @@ func CreateProduct(c *gin.Context, db *sql.DB) {
 	}
 	defer fileOpen.Close()
 
-	// 📌 ตั้งชื่อไฟล์ใหม่
+	//ตั้งชื่อไฟล์ใหม่
 	fileName := fmt.Sprintf("%d-%s", time.Now().Unix(), file.Filename)
 	fmt.Println("fileName: ", fileName)
-	// 🚀 อัปโหลดไป Cloudinary
+	//อัปโหลดไป Cloudinary
 	imageURL, err := services.UploadToCloudinary(fileOpen, fileName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "อัปโหลดรูปไป Cloudinary ล้มเหลว"})

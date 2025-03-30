@@ -19,31 +19,39 @@ function PackingPage() {
     useEffect(() => {
         const fetchOrdersAndBoxes = async () => {
             try {
-                const responseOrders = await fetch('http://localhost:8080/api/orderdels');
-                const responseBoxes = await fetch('http://localhost:8080/api/boxes');
-
-                if (!responseOrders.ok || !responseBoxes.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-
-                const dataOrders = await responseOrders.json();
-                const dataBoxes = await responseBoxes.json();
-
-                console.log(dataBoxes.boxes);
-                console.log(dataOrders.orderdels)
+                const [responseOrders, responseBoxes] = await Promise.all([
+                    fetch('http://localhost:8080/api/orderdels'),
+                    fetch('http://localhost:8080/api/boxes')
+                ]);
+    
+                if (!responseOrders.ok || !responseBoxes.ok) throw new Error('Failed to fetch data');
+    
+                const [dataOrders, dataBoxes] = await Promise.all([
+                    responseOrders.json(),
+                    responseBoxes.json()
+                ]);
+    
                 setBoxes(dataBoxes.boxes);
-                setOrder(dataOrders.orderdels);// เข้าถึง array orders จาก key 'orders'
-
-                setSize(dataOrders.orderdels ? dataOrders.orderdels.length : 0);
-                // เข้าถึง array boxes จาก key 'boxes'
+                setOrder(dataOrders.orderdels);
+                setSize(dataOrders.orderdels?.length || 0);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
-
-        fetchOrdersAndBoxes(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
+    
+        fetchOrdersAndBoxes();
     }, []);
+    
+    
+    const [blockedBoxes, setBlockedBoxes] = useState<number[]>([]);
 
+    const handleBoxChange = (boxId: number) => {
+        setBlockedBoxes(prev => 
+            prev.includes(boxId) 
+            ? prev.filter(id => id !== boxId) 
+            : [...prev, boxId]
+        );
+    };
     const handleModeChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
         setMode(event.target.value); // เปลี่ยนค่า mode ตามที่เลือก
     };
@@ -90,31 +98,37 @@ function PackingPage() {
     };
 
     const handleGenerate = async () => {
-        console.log("Mode being sent:", mode); // เพิ่มการ log เพื่อดูค่า mode
+        console.log("Mode being sent:", mode, "Blocked boxes:", blockedBoxes);
+    
         try {
             const response = await fetch('http://localhost:8080/api/generate', {
-                method: 'POST', // เปลี่ยนเป็น POST
-                headers: {
-                    'Content-Type': 'application/json', // ตั้งค่า header ให้เป็น JSON
-                },
-                body: JSON.stringify({ mode: mode }), // ส่ง mode ไปยัง backend
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode, blocked_boxes: blockedBoxes }) // ✅ เปลี่ยนเป็น "blocked_boxes"
             });
-
+    
             if (response.ok) {
                 const result = await response.json();
-                console.log("result is", result); // แสดงผลลัพธ์จาก backend
+                console.log("result is", result);
             } else {
                 console.error('Error generating order:', response.statusText);
             }
-
-            const customer = await fetch('http://localhost:8080/api/customers');
-            const customer_data = await customer.json();
-            console.log("customer id is", customer_data.customer[customer_data.customer.length - 1].customer_id)
-
-            const history = await fetch('http://localhost:8080/api/history');
-            const data = await history.json();
-            console.log("historyid is", data.history[data.history.length - 1].package_id)
-            navigate('/Generate', { state: { message: data.history[data.history.length - 1].package_id, cus_id: customer_data.customer[customer_data.customer.length - 1].customer_id } });
+    
+            const [customerRes, historyRes] = await Promise.all([
+                fetch('http://localhost:8080/api/customers'),
+                fetch('http://localhost:8080/api/history')
+            ]);
+    
+            const [customerData, historyData] = await Promise.all([
+                customerRes.json(),
+                historyRes.json()
+            ]);
+    
+            const lastCustomerId = customerData.customer.at(-1)?.customer_id;
+            const lastHistoryId = historyData.history.at(-1)?.package_id;
+    
+            navigate('/Generate', { state: { message: lastHistoryId, cus_id: lastCustomerId } });
+    
         } catch (error) {
             console.error('Error:', error);
         }
@@ -136,23 +150,21 @@ function PackingPage() {
                                 </Link>
                             </label>
                             {boxes.length > 0 &&
-                                <div className='flex gap-5 mb-2'>
-                                    {boxes.map((item, index) => (
-                                        <div key={item.box_id || index} className='flex items-center'>
-                                            <input
-                                                type="checkbox"
-                                                name="radio"
-                                                className="checkbox mr-1"
-                                                value={item.box_name.charAt(0)}
-
-                                            // จัดการการเปลี่ยนแปลง
-                                            />
-                                            <label> {item.box_name.charAt(0)} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ{item.box_amount}</label>
-
-                                        </div>
-                                    ))}
-                                </div>
-                            }
+    <div className='flex gap-5 mb-2'>
+        {boxes.map((item, index) => (
+            <div key={item.box_id || index} className='flex items-center'>
+                <input
+                    type="checkbox"
+                    className="checkbox mr-1"
+                    value={item.box_id}
+                    checked={blockedBoxes.includes(item.box_id)}
+                    onChange={() => handleBoxChange(item.box_id)}
+                />
+                <label> {item.box_name} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ {item.box_amount} </label>
+            </div>
+        ))}
+    </div>
+}
                             <div className='flex items-center'>
                                 <input
                                     type="radio"

@@ -14,9 +14,7 @@ import (
 )
 
 func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error) {
-	var requestBody struct {
-		Mode string `json:"mode"`
-	}
+	var requestBody models.RequestBody
 
 	if err := c.BindJSON(&requestBody); err != nil {
 		log.Println("Error binding JSON: ", err)
@@ -26,6 +24,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	mode := requestBody.Mode
 	// mode := "boxes"
 	fmt.Println(mode)
+	fmt.Println("Blocked Boxes:", requestBody.BlockedBoxes)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight, box_cost FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
 			od.order_del_id, p.product_id,
@@ -104,8 +103,8 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	sortProducts(products)
 	fmt.Println("boxs: ", boxSizes)
 	fmt.Println("products: ", products)
-
-	boxes, totalProductCost, totalBoxCost, totalCost := packing(products, boxSizes, mode) //อย่าลืมแก้กลับเป๋นเหมือนเดิม
+	availableBoxes := filterAvailableBoxes(boxSizes, requestBody.BlockedBoxes)
+	boxes, totalProductCost, totalBoxCost, totalCost := packing(products, availableBoxes, mode) //อย่าลืมแก้กลับเป๋นเหมือนเดิม
 	fmt.Printf("จำนวนกล่องที่ใช้: %d\n", len(boxes))
 	var productgen []*models.HistoryOrder
 
@@ -128,6 +127,15 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		if err != nil {
 			log.Println("Error updating box amount: ", err)
 			return nil, err
+		}
+	}
+	for _, products := range boxes {
+		for _, product := range products.Products {
+			_, err := db.Exec(`UPDATE products SET product_amount = product_amount - 1 WHERE product_name = $1`, product.ProductName)
+			if err != nil {
+				log.Println("Error updating box amount: ", err)
+				return nil, err
+			}
 		}
 	}
 
@@ -199,18 +207,18 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		}
 
 	}
-	query := `DELETE FROM order_dels`
-	result, err := db.Exec(query)
-	if err != nil {
-		log.Println("Error deleting order details: ", err)
-	}
+	// query := `DELETE FROM order_dels`
+	// result, err := db.Exec(query)
+	// if err != nil {
+	// 	log.Println("Error deleting order details: ", err)
+	// }
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		log.Println("Error getting rows affected: ", err)
-	} else {
-		log.Println("Rows affected: ", rowsAffected)
-	}
+	// rowsAffected, err := result.RowsAffected()
+	// if err != nil {
+	// 	log.Println("Error getting rows affected: ", err)
+	// } else {
+	// 	log.Println("Rows affected: ", rowsAffected)
+	// }
 
 	fmt.Println("productgen: ", productgen)
 	return productgen, nil
@@ -222,7 +230,24 @@ func calculateBoxWeight(products []models.Product) float64 {
 	}
 	return totalWeight
 }
+func filterAvailableBoxes(allBoxes []models.Box, blockedBoxes []int) []models.Box {
+	available := []models.Box{}
+	blockedSet := make(map[int]bool)
 
+	// สร้าง map สำหรับกล่องที่ถูกบล็อก
+	for _, id := range blockedBoxes {
+		blockedSet[id] = true
+	}
+
+	// กรองกล่องที่ไม่ได้ถูกบล็อก
+	for _, box := range allBoxes {
+		if !blockedSet[box.BoxID] {
+			available = append(available, box)
+		}
+	}
+
+	return available
+}
 func packing(products []models.Product, boxSizes []models.Box, mode string) ([]models.PackedBox, float64, float64, float64) {
 	var boxes []models.PackedBox
 	remainingProducts := products
@@ -321,23 +346,13 @@ func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products
 		boxVol := size.BoxWidth * size.BoxHeight * size.BoxLength
 		fitCount := calculateFitCount(product, size.BoxWidth, size.BoxHeight, size.BoxLength)
 		productVol := calculateProductVolume(products)
-		// fmt.Println("size.Name: ", size.BoxName)
-		// fmt.Println("orderWeight: ", product.ProductWeight)
-		// fmt.Println("size.MaxWeight: ", size.BoxMaxWeight)
 		// ตรวจสอบเงื่อนไขน้ำหนักก่อน
 		if product.ProductWeight <= size.BoxMaxWeight {
-			// fmt.Println("size.count: ", size.BoxAmount)
-			// fmt.Println("order.Width: ", product.ProductWidth)
-			// fmt.Println("order.Height: ", product.ProductHeight)
-			// fmt.Println("order.Long: ", product.ProductLength)
 			if mode == "boxes" {
 				// ตรวจสอบว่าขนาดกล่องสามารถใส่สินค้าได้
 				if size.BoxAmount > 0 && size.BoxWidth >= product.ProductWidth && size.BoxHeight >= product.ProductHeight && size.BoxLength >= product.ProductLength {
 					// กรณีสินค้าขนาดเท่ากัน
-					// fmt.Println("productSameSize: ", productSameSize)
 					if productSameSize {
-						// fmt.Println("fitCount: ", math.Floor(fitCount))
-						// fmt.Println("orderCount: ", productCount)
 						if fitCount >= productCount {
 							selectedBox = size
 							found = true
@@ -349,9 +364,6 @@ func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products
 						}
 					} else {
 						// กรณีสินค้าขนาดไม่เท่ากัน คำนวณพื้นที่ที่สามารถใส่ได้
-						// fmt.Println("boxVol: ", boxVol)
-						// fmt.Println("productVol: ", productVol)
-						// fmt.Println("maxFitVol: ", maxFitVol)
 						if boxVol >= productVol {
 							selectedBox = size
 							found = true
