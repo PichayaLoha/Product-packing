@@ -20,8 +20,16 @@ interface Product {
 function Productcard({ product, onQuantityChange }: { product: Product; onQuantityChange: (quantity: number) => void; }) {
 
     const [quantity, setQuantity] = useState<number>(1);
-    const increment = () => setQuantity((prev) => prev + 1);
-    const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+    const increment = () => {
+        if (quantity < product.product_amount) {
+            return setQuantity((prev) => prev + 1);
+        }
+    }
+    const decrement = () => {
+        if (quantity >= 1) {
+            setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+        }
+    }
 
     const handleAddProduct = async (productId: number) => {
         const newItem = {

@@ -13,6 +13,7 @@ interface Product {
     product_amount: number;
     product_cost: number;
     user_id: number;
+    product_image: string;
 }
 
 
@@ -41,7 +42,7 @@ function Productpage() {
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
     //
-    const handleQuantityChange = (product_id) => {
+    const handleQuantityChange = (product_id: number): void => {
         setProduct(prevOrders => prevOrders.filter(product => product.product_id !== product_id));
     };
 

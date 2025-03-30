@@ -2,10 +2,20 @@ import React, { useEffect, useState } from 'react'
 import Menupage from '../menupage';
 import { useNavigate } from 'react-router-dom';
 
+interface History {
+    package_id: number;
+    package_amount: number;
+    customer_firstname: string;
+    customer_lastname: string;
+    package_status: string;
+    history_id: number;
+}
+
+
 function History_page() {
     const navegate = useNavigate();
-    const [order, setOrder] = useState([]);
-    const [filteredOrder, setFilteredOrder] = useState([]);
+    const [history, setHistory] = useState<History[]>([]);
+    const [filteredOrder, setFilteredOrder] = useState<History[]>([]);
     const [size, setSize] = useState(0);
     const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'packed', 'unpacked'
 
@@ -16,7 +26,7 @@ function History_page() {
 
             console.log("data is:", dataOrders.history);
 
-            setOrder(dataOrders.history);
+            setHistory(dataOrders.history);
             setFilteredOrder(dataOrders.history);
             setSize(dataOrders.history ? dataOrders.history.length : 0);
         } catch (error) {
@@ -30,14 +40,14 @@ function History_page() {
 
     useEffect(() => {
         if (statusFilter === 'all') {
-            setFilteredOrder(order);
+            setFilteredOrder(history);
         } else {
-            const filtered = order.filter(item =>
+            const filtered = history.filter(item =>
                 item.package_status.toLowerCase() === statusFilter.toLowerCase()
             );
             setFilteredOrder(filtered);
         }
-    }, [statusFilter, order]);
+    }, [statusFilter, history]);
 
     const historyDeletehandle = async (historyId: number) => {
         try {
@@ -45,7 +55,7 @@ function History_page() {
                 method: 'DELETE',
             });
             if (response.ok) {
-                setOrder(prevOrders => prevOrders.filter(order => order.history_id !== historyId));
+                setHistory(prevOrders => prevOrders.filter(order => order.history_id !== historyId));
                 alert("ลบเรียบร้อยแล้ว");
                 fetchOrdersAndBoxes();
             } else {
@@ -105,7 +115,7 @@ function History_page() {
                                     </thead>
                                     {filteredOrder.length > 0 ? (
                                         <tbody className='text-white text-base'>
-                                            {filteredOrder.map((item, index) => (
+                                            {filteredOrder.map((item: History, index: number) => (
                                                 <tr key={item.package_id}>
                                                     <td>{index + 1}</td>
                                                     <td>{item.package_amount}</td>
@@ -139,7 +149,7 @@ function History_page() {
                                         <tbody>
                                             <tr>
                                                 <td colSpan={5} className="text-center py-4 text-white">
-                                                    ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
+                                                    ไม่พบข้อมูล
                                                 </td>
                                             </tr>
                                         </tbody>

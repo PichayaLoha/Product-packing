@@ -61,7 +61,7 @@ const Modal: React.FC<MyModalProps> = ({ isOpen, onClose, onSubmit }) => {
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Address</label>
-            <input
+              <input
               type="text"
               value={address}
               placeholder="ที่อยู่"

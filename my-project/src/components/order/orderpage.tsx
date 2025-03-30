@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Menupage from '../menupage';
+import { Link } from 'react-router-dom';
+
+interface Product {
+    product_image: string;
+    product_name: string;
+}
+
+interface Order {
+    order_del_id: number;
+    product: Product;
+    product_amount: number;
+    order_del_date: string;
+    order_id: number;
+}
 
 function OrderTablePage() {
-    const [order, setOrder] = useState([]);
+    const [order, setOrder] = useState<Order[]>([]);
     const [size, setSize] = useState(0);
     // ดึงข้อมูล orders จาก backend เมื่อ component โหลดconst 
     const fetchOrders = async () => {
@@ -22,7 +36,7 @@ function OrderTablePage() {
         fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
-    const handleDeleteOrder = async (orderId :number) => {
+    const handleDeleteOrder = async (orderId: number) => {
         const confirmDelete = window.confirm("คุณแน่ใจหรือว่าต้องการลบออเดอร์นี้?");
         if (confirmDelete) {
             try {
@@ -67,9 +81,9 @@ function OrderTablePage() {
                                                 <th></th>
                                             </tr>
                                         </thead>
-                                        {size > 0 &&
+                                        {size > 0 ? (
                                             <tbody>
-                                                {order.map((item, index) => (
+                                                {order.map((item: Order, index: number) => (
                                                     <tr key={index}>
                                                         <th>{index + 1}</th>
                                                         <td><figure className="flex justify-center w-full h-24 ">
@@ -93,6 +107,18 @@ function OrderTablePage() {
                                                     </tr>
                                                 ))}
                                             </tbody>
+                                        ) : (
+                                            <tbody>
+                                                <tr className=''>
+                                                    <td colSpan={6} >
+                                                        <p className='text-center text-2xl text-red-500'>ไม่พบสินค้าที่เตรียมคำนวณ</p>
+                                                        <Link to="/Product">
+                                                            <button className='btn px-8 my-2 text-2xl btn-info drop-shadow-md'>Go to Product</button>
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        )
                                         }
                                     </table>
                                 </div>
