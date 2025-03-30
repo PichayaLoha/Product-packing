@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from 'react'
 import Menupage from '../menupage'
 import { Link, useNavigate } from 'react-router-dom';
+import { tr } from 'framer-motion/client';
+
+interface Box {
+    box_id: number;
+    box_name: string;
+    box_width: string;
+    box_length: string;
+    box_height: string;
+    box_maxweight: string;
+    box_amount: string;
+}
 
 function Boxesmanage() {
-    const navigate = useNavigate();
-    const [boxes, setBoxes] = useState([]);
-    const [boxlong, setBoxlong] = useState([]);
-    const [size, setSize] = useState(0);
+    const [boxes, setBoxes] = useState<Box[]>([]);
 
     const [box_name, setBoxname] = useState("");
-    const [box_width, setBoxwidth] = useState("");
-    const [box_length, setBoxlength] = useState("");
-    const [box_height, setheBoxheight] = useState("");
-    const [box_maxweight, setBoxmaxweight] = useState("");
-    const [box_amount, setBoxamount] = useState("");
+    const [box_width, setBoxwidth] = useState<string>("");
+    const [box_length, setBoxlength] = useState<string>("");
+    const [box_height, setheBoxheight] = useState<string>("");
+    const [box_maxweight, setBoxmaxweight] = useState<string>("");
+    const [box_amount, setBoxamount] = useState<string>("");
     const [box_id, setBoxid] = useState("");
 
     const [isDisabled, setIsDisabled] = useState(true);
-
+    //ed is edit zone 
     const [box_name_ed, setBoxname_ed] = useState("");
-    const [box_width_ed, setBoxwidth_ed] = useState("");
-    const [box_length_ed, setBoxlength_ed] = useState("");
-    const [box_height_ed, setheBoxheight_ed] = useState("");
-    const [box_maxweight_ed, setBoxmaxweight_ed] = useState("");
-    const [box_amount_ed, setBoxamount_ed] = useState("");
+    const [box_width_ed, setBoxwidth_ed] = useState<string>("");
+    const [box_length_ed, setBoxlength_ed] = useState<string>("");
+    const [box_height_ed, setheBoxheight_ed] = useState<string>("");
+    const [box_maxweight_ed, setBoxmaxweight_ed] = useState<string>("");
+    const [box_amount_ed, setBoxamount_ed] = useState<string>("");
     const [box_id_ed, setBoxid_ed] = useState("");
 
-    const fetchOrdersAndBoxes = async () => {
+    const fetchOrdersAndBoxes = async (): Promise<void> => {
         try {
             const responseBoxes = await fetch('http://localhost:8080/api/boxes');
 
@@ -36,7 +44,6 @@ function Boxesmanage() {
             const dataBoxes = await responseBoxes.json();
             console.log(dataBoxes.boxes);
             setBoxes(dataBoxes.boxes);
-            setSize(dataBoxes.boxes ? dataBoxes.boxes.length : 0);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -77,20 +84,34 @@ function Boxesmanage() {
         }
     };
 
-    const selectupdateboxes = (boxId: number) => {
+    const selectupdateboxes = (boxId: number): void => {
         const selectedBox = boxes.find(({ box_id }) => box_id === boxId);
-        console.log(selectedBox);
-        setBoxname_ed(selectedBox.box_name)
-        setBoxwidth_ed(selectedBox.box_width)
-        setBoxlength_ed(selectedBox.box_length)
-        setheBoxheight_ed(selectedBox.box_height)
-        setBoxmaxweight_ed(selectedBox.box_maxweight)
-        setBoxamount_ed(selectedBox.box_amount)
-        setBoxid_ed(selectedBox.box_id)
-        setIsDisabled(!isDisabled);
+        if (!selectedBox) {
+            console.error("Box not found");
+            return;
+        }
+        else {
+            setBoxname_ed(selectedBox.box_name)
+            setBoxwidth_ed(selectedBox.box_width)
+            setBoxlength_ed(selectedBox.box_length)
+            setheBoxheight_ed(selectedBox.box_height)
+            setBoxmaxweight_ed(selectedBox.box_maxweight)
+            setBoxamount_ed(selectedBox.box_amount)
+            setBoxid_ed(selectedBox.box_id.toString())
+            setIsDisabled(false);
+        }
     }
 
     const clearUpdateboxes = () => {
+        setBoxname("")
+        setBoxwidth("")
+        setBoxlength("")
+        setheBoxheight("")
+        setBoxmaxweight("")
+        setBoxamount("")
+        setBoxid("")
+    }
+    const clearUpdateboxesed = () => {
         setBoxname_ed("")
         setBoxwidth_ed("")
         setBoxlength_ed("")
@@ -98,6 +119,7 @@ function Boxesmanage() {
         setBoxmaxweight_ed("")
         setBoxamount_ed("")
         setBoxid_ed("")
+        setIsDisabled(true);
     }
 
     const handleUpdateboxes = async () => {
@@ -136,7 +158,7 @@ function Boxesmanage() {
         }
     };
 
-    const handleDeleteboxes = async (boxId) => {
+    const handleDeleteboxes = async (boxId: number): Promise<void> => {
         const confirmDelete = window.confirm("คุณแน่ใจหรือว่าต้องการลบออเดอร์นี้?");
         if (confirmDelete) {
             try {
@@ -164,7 +186,7 @@ function Boxesmanage() {
                 <div className="col-span-6">
                     <div className='m-7 '>
                         <div className='mb-3 flex items-center'>
-                            <p className='text-2xl font-semibold'>Order</p>
+                            <p className='text-2xl font-semibold'>Boxes</p>
                         </div>
                         <div className='flex justify-start'>
                             <div style={{ width: "100%" }}>
@@ -281,7 +303,7 @@ function Boxesmanage() {
                                 <div className="card-actions justify-center">
                                     <button className="btn bg-green-400 btn-sm" onClick={handleAddboxes}>Add</button>
 
-                                    <button className="btn btn-info btn-sm">Clear</button>
+                                    <button className="btn btn-info btn-sm" onClick={clearUpdateboxes}>Clear</button>
 
                                 </div>
                             </div>
@@ -360,7 +382,7 @@ function Boxesmanage() {
                                 <div className="card-actions justify-center">
                                     <button className="btn bg-green-400 btn-sm" onClick={handleUpdateboxes}>Confirm</button>
 
-                                    <button className="btn btn-info btn-sm">Clear</button>
+                                    <button className="btn btn-info btn-sm" onClick={clearUpdateboxesed}>Clear</button>
 
                                 </div>
                             </div>

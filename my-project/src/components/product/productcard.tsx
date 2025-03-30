@@ -16,16 +16,22 @@ interface Product {
 
 
 
-function Productcard({ product, onQuantityChange }: { product: Product }) {
+
+function Productcard({ product, onQuantityChange }: { product: Product; onQuantityChange: (quantity: number) => void; }) {
 
     const [quantity, setQuantity] = useState<number>(1);
-    const increment = () => setQuantity((prev) => prev + 1);
-    const decrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+    const increment = () => {
+        if (quantity < product.product_amount) {
+            return setQuantity((prev) => prev + 1);
+        }
+    }
+    const decrement = () => {
+        if (quantity >= 1) {
+            setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+        }
+    }
 
     const handleAddProduct = async (productId: number) => {
-        // if (!image) return alert("กรุณาเลือกรูปก่อน");
-        // product_image:
-
         const newItem = {
             product_id: productId,
             product_amount: quantity,
@@ -42,6 +48,7 @@ function Productcard({ product, onQuantityChange }: { product: Product }) {
             console.log(newItem)
             if (response.ok) {
                 alert("เพิ่มเรียบร้อยแล้ว")
+                setQuantity(1);
                 // navigate('/Order');
             } else {
                 console.error('Error adding item:', response.statusText);
@@ -74,11 +81,11 @@ function Productcard({ product, onQuantityChange }: { product: Product }) {
     return (
         <div>
             <div className="bg-base-500 shadow-xl rounded-xl sm:px-0 xl:px-5 p-5 ">
-                <figure className="flex justify-center">
-                    <img width={250} height={250}
+                <figure className="flex justify-center w-full h-60 ">
+                    <img style={{ width: "70%", height: "90%" }}
                         src={product.product_image}
                         alt="Shoes"
-                        className="rounded-xl shadow-md" />
+                        className="rounded-xl object-contain" />
                 </figure>
                 <div className="inline text-center justify-center">
                     <div className='my-1'>
@@ -88,7 +95,7 @@ function Productcard({ product, onQuantityChange }: { product: Product }) {
                         <p className='sm:text-xs md:text-sm xl:text-md'>W x L x H : <label className='text-zinc-500 '>{product.product_width} x {product.product_length} x {product.product_height} cm</label></p>
                     </div>
                     <div>
-                        <p className='sm:text-xs md:text-sm xl:text-md'>น้ำหนัก : <label className='text-zinc-500'>{product.product_weight} g.</label></p>
+                        <p className='sm:text-xs md:text-sm xl:text-md'>น้ำหนัก : <label className='text-zinc-500'>{product.product_weight} kg.</label></p>
                     </div>
                     <div>
                         <p className='sm:text-xs md:text-sm xl:text-md'>ราคา : <label className='text-zinc-500'>{product.product_cost} บาท</label></p>
@@ -100,9 +107,12 @@ function Productcard({ product, onQuantityChange }: { product: Product }) {
                         <div className="flex items-center space-x-0">
                             <button onClick={decrement} className="btn btn-square btn-sm btn-outline btn-error"> - </button>
                             <input
-                                type="number"
+                                type="text"
                                 value={quantity}
-                                readOnly
+                                onChange={(e) => {
+                                    setQuantity(Number(e.target.value))
+                                }
+                                }
                                 className="py-1 w-14 border rounded-md text-center"
                             />
                             <button onClick={increment} className="btn btn-square btn-sm btn-outline btn-success"> + </button>

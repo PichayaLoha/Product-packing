@@ -20,8 +20,16 @@ const Modal: React.FC<MyModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [phone, setPhone] = useState("");
 
   const handleSubmit = () => {
-    onSubmit({ firstname, lastname, address, postal, phone });
-    onClose();
+    if (firstname === "" || lastname === "" || address === "" || postal === "") {
+      alert("คุณยังไม่กรอกข้อมูล");
+    }
+    else if (!/^\d{10}$/.test(phone)) {
+      alert("เบอร์โทรศัพท์ ไม่ถูกต้อง");
+    }
+    else {
+      onSubmit({ firstname, lastname, address, postal, phone });
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -53,7 +61,7 @@ const Modal: React.FC<MyModalProps> = ({ isOpen, onClose, onSubmit }) => {
           </div>
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Address</label>
-            <input
+              <input
               type="text"
               value={address}
               placeholder="ที่อยู่"

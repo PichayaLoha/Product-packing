@@ -2,12 +2,29 @@ package services
 
 import (
 	"database/sql"
+	"fmt"
 	"go-backend/models"
 	"log"
 )
 
 func GetHistory(db *sql.DB) ([]models.History, error) {
-	rows, err := db.Query(`SELECT package_id, package_amount, package_time, package_status FROM packages_order`)
+	rows, err := db.Query(`
+                SELECT 
+                        po.package_id, 
+                        po.package_amount, 
+                        po.package_time, 
+                        po.package_status,
+						po.package_product_cost,
+						po.package_box_cost,
+						po.package_total_cost,
+                        c.customer_firstname,
+                        c.customer_lastname,
+                        c.customer_address,
+                        c.customer_postal,
+                        c.customer_phone
+                FROM packages_order po
+                INNER JOIN customers c ON po.customer_id = c.customer_id
+        `)
 	if err != nil {
 		log.Println("Error querying history: ", err)
 		return nil, err
@@ -18,7 +35,20 @@ func GetHistory(db *sql.DB) ([]models.History, error) {
 
 	for rows.Next() {
 		var history1 models.History
-		if err := rows.Scan(&history1.HistoryID, &history1.HistoryAmount, &history1.HistoryTime, &history1.HistoryStatus); err != nil {
+		if err := rows.Scan(
+			&history1.HistoryID,
+			&history1.HistoryAmount,
+			&history1.HistoryTime,
+			&history1.HistoryStatus,
+			&history1.HistoryProductCost,
+			&history1.HistoryBoxCost,
+			&history1.HistoryTotalCost,
+			&history1.CustomerFirstName,
+			&history1.CustomerLastName,
+			&history1.CustomerAddress,
+			&history1.CustomerPostal,
+			&history1.CustomerPhone,
+		); err != nil {
 			log.Println("Error scanning history row: ", err)
 			return nil, err
 		}
@@ -34,6 +64,9 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
             ho.package_amount,
             ho.package_time,
             ho.package_status,
+			ho.package_product_cost,
+			ho.package_box_cost,
+			ho.package_total_cost,
             hd.package_del_id,
             hd.package_del_boxsize,
             bd.package_box_id,
@@ -70,12 +103,7 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			genBoxDelX        sql.NullFloat64
 			genBoxDelY        sql.NullFloat64
 			genBoxDelZ        sql.NullFloat64
-			productID         sql.NullString // เปลี่ยนจาก string เป็น sql.NullString
-			// genProductName    sql.NullString
-			// genProductHeight  sql.NullFloat64
-			// genProductLength  sql.NullFloat64
-			// genProductWidth   sql.NullFloat64
-			// genProductWeight  sql.NullFloat64
+			productID         sql.NullString
 		)
 
 		err := rows.Scan(
@@ -83,6 +111,9 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			&history.HistoryAmount,
 			&history.HistoryTime,
 			&history.HistoryStatus,
+			&history.HistoryProductCost,
+			&history.HistoryBoxCost,
+			&history.HistoryTotalCost,
 			&historyDelID,
 			&historyDelBoxSize,
 			&genBoxDelID,
@@ -104,15 +135,15 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 		// ตรวจสอบว่า productID เป็น NULL หรือไม่
 		if productID.Valid {
 			// เรียกฟังก์ชัน GetProductsByID เพื่อดึงข้อมูลสินค้า
-			products, err := GetProductsByID(db, productID.String)
+			hisroryboxdels, err := GetProductsByID(db, productID.String)
 			if err != nil {
-				log.Println("Error fetching products: ", err)
+				log.Println("Error fetching hisroryboxdels: ", err)
 				return models.History{}, err
 			}
 
-			// ตรวจสอบว่ามีสินค้าใน products หรือไม่
-			if len(products) > 0 {
-				product := products[0] // ใช้สินค้าแรกในรายการ (ถ้ามี)
+			// ตรวจสอบว่ามีสินค้าใน hisroryboxdels หรือไม่
+			if len(hisroryboxdels) > 0 {
+				hisroryboxdel := hisroryboxdels[0] // ใช้สินค้าแรกในรายการ (ถ้ามี)
 				if _, exists := historyDelsMap[historyDelID]; !exists {
 					historyDelsMap[historyDelID] = &models.HistoryDel{
 						HistoryDelID:      historyDelID,
@@ -127,11 +158,11 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 						GenBoxDelX:      genBoxDelX.Float64,
 						GenBoxDelY:      genBoxDelY.Float64,
 						GenBoxDelZ:      genBoxDelZ.Float64,
-						GenBoxDelName:   product.ProductName,
-						GenBoxDelHeight: product.ProductHeight,
-						GenBoxDelLength: product.ProductLength,
-						GenBoxDelWidth:  product.ProductWidth,
-						GenBoxDelWeight: product.ProductWeight,
+						GenBoxDelName:   hisroryboxdel.ProductName,
+						GenBoxDelHeight: hisroryboxdel.ProductHeight,
+						GenBoxDelLength: hisroryboxdel.ProductLength,
+						GenBoxDelWidth:  hisroryboxdel.ProductWidth,
+						GenBoxDelWeight: hisroryboxdel.ProductWeight,
 					}
 
 					historyDelsMap[historyDelID].GenBoxDels = append(historyDelsMap[historyDelID].GenBoxDels, genBoxDel)
@@ -148,10 +179,45 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 	return history, nil
 }
 
+func GetHistoryBoxDetail(db *sql.DB, hisroryboxdelID string) ([]models.PackageDetail, error) {
+	query := `SELECT 
+		pbd.package_box_id, pbd.package_box_x, pbd.package_box_y, pbd.package_box_z,
+		pd.package_del_id,
+		b.box_id, b.box_name, b.box_width, b.box_length, b.box_height,
+		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height 
+	FROM package_box_dels pbd
+	JOIN package_dels pd ON pbd.package_del_id = pd.package_del_id
+	JOIN boxes b ON pd.package_del_boxsize = b.box_name
+	JOIN products p ON pbd.product_id = p.product_id
+	WHERE pd.package_del_id = $1;`
+
+	rows, err := db.Query(query, hisroryboxdelID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var packageDetails []models.PackageDetail
+
+	for rows.Next() {
+		var detail models.PackageDetail
+		if err := rows.Scan(
+			&detail.PackageBoxID, &detail.PackageBoxX, &detail.PackageBoxY, &detail.PackageBoxZ,
+			&detail.PackageDelID,
+			&detail.BoxID, &detail.BoxName, &detail.BoxWidth, &detail.BoxLength, &detail.BoxHeight,
+			&detail.ProductID, &detail.ProductName, &detail.ProductWidth, &detail.ProductLength, &detail.ProductHeight,
+		); err != nil {
+			return nil, err
+		}
+		packageDetails = append(packageDetails, detail)
+	}
+
+	return packageDetails, nil
+}
 func UpdateHistory(db *sql.DB, updatedHistory *models.HistoryOrder, historyID string) error {
-	query := `UPDATE package_order
-			  SET history_status = $1
-			  WHERE history_id = $2`
+	query := `UPDATE packages_order
+			  SET package_status = $1
+			  WHERE package_id = $2`
 	_, err := db.Exec(query, updatedHistory.HistoryStatus, historyID)
 	if err != nil {
 		log.Println("Error updating history: ", err)
@@ -160,21 +226,55 @@ func UpdateHistory(db *sql.DB, updatedHistory *models.HistoryOrder, historyID st
 	return nil
 }
 
-// func DeleteHistory(db *sql.DB, historyID string) (int64, error) {
-// 	query := `DELETE FROM gen_history_order WHERE history_id = $1`
-// 	query2 := `DELETE FROM gen_box_del WHERE history_id = $1`
-// 	query3 := `DELETE FROM gen_history_order WHERE history_id = $1`
-// 	result, err := db.Exec(query, historyID)
-// 	if err != nil {
-// 		log.Println("Error deleting history: ", err)
-// 		return 0, err
-// 	}
+func DeleteHistory(db *sql.DB, packageID string) (int64, error) {
+	tx, err := db.Begin() // ✅ เริ่ม transaction
+	if err != nil {
+		return 0, err
+	}
 
-// 	rowsAffected, err := result.RowsAffected()
-// 	if err != nil {
-// 		log.Println("Error getting rows affected: ", err)
-// 		return 0, err
-// 	}
+	//ลบข้อมูลจาก package_box_dels ก่อน
+	queryBoxDels := `DELETE FROM package_box_dels WHERE package_del_id IN 
+                     (SELECT package_del_id FROM package_dels WHERE package_id = $1)`
+	_, err = tx.Exec(queryBoxDels, packageID)
+	if err != nil {
+		tx.Rollback()
+		log.Println("Error deleting from package_box_dels:", err)
+		return 0, err
+	}
 
-// 	return rowsAffected, nil
-// }
+	//ลบข้อมูลจาก package_dels
+	queryDels := `DELETE FROM package_dels WHERE package_id = $1`
+	_, err = tx.Exec(queryDels, packageID)
+	if err != nil {
+		tx.Rollback()
+		log.Println("Error deleting from package_dels:", err)
+		return 0, err
+	}
+
+	queryOrder := `DELETE FROM packages_order WHERE package_id = $1`
+	result, err := tx.Exec(queryOrder, packageID)
+	if err != nil {
+		tx.Rollback()
+		log.Println("Error deleting from packages_order:", err)
+		return 0, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting rows affected:", err)
+		return 0, err
+	}
+
+	if rowsAffected == 0 {
+		log.Println("No history found for packageID:", packageID)
+		return 0, fmt.Errorf("History not found")
+	}
+
+	// ✅ Commit การลบทั้งหมด
+	err = tx.Commit()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, nil
+}

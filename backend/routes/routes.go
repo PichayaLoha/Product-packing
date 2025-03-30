@@ -40,6 +40,9 @@ func Router(db *sql.DB) *gin.Engine {
 	router.GET("/api/history/:id", func(c *gin.Context) {
 		controllers.GetHistoryDetail(c, db)
 	})
+	router.GET("/api/historydel/:hisroryboxdel_id", func(c *gin.Context) {
+		controllers.GetHistoryBoxDetail(c, db)
+	})
 	router.GET("/api/customers", func(c *gin.Context) {
 		controllers.GetCustomers(c, db)
 	})
@@ -95,7 +98,9 @@ func Router(db *sql.DB) *gin.Engine {
 	router.DELETE("/api/customers/:customer_id", func(c *gin.Context) {
 		controllers.DeleteCustomer(c, db)
 	})
-
+	router.DELETE("/api/history/:history_id", func(c *gin.Context) {
+		controllers.DeleteHistory(c, db)
+	})
 	// ================= PUT =================
 	router.PUT("/api/boxes/:box_id", func(c *gin.Context) {
 		controllers.UpdateBoxes(c, db)

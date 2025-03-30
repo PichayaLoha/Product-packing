@@ -4,12 +4,11 @@ import { Link, useNavigate } from 'react-router-dom'
 
 function Menupage() {
     const navigate = useNavigate();
-
+    const token = localStorage.getItem("authToken");
     const handleLogout = async () => {
         console.log("Logout function called");  // ✅ Debug
-        const token = localStorage.getItem("token");
-        console.log("Token before logout:", token);
 
+        console.log("Token before logout:", token);
         try {
             const response = await fetch("http://localhost:8080/api/logout", {
                 method: "POST",
@@ -35,14 +34,20 @@ function Menupage() {
     };
 
     return (
-        <div className="col-span-2 bg-purple-500 h-screen">
+        <div className="col-span-2 bg-cyan-700">
             <div className='m-5 mt-8'>
+                {token && (
+                    <div className="bg-green-500 text-white p-2 rounded-lg mb-4 flex items-center shadow-md">
+                        <div className="h-2 w-2 bg-lime-300 rounded-full mr-2 animate-pulse"></div>
+                        <p className="font-medium truncate">{'User logged in'}</p>
+                    </div>
+                )}
                 <div className='grid justify-center items-center mb-7'>
                     <Link to="/">
                         <p className='font-mono md:text-lg lg:text-3xl xl:text-4xl font-semibold text-white drop-shadow-md transition-all p-3 rounded-xl hover:bg-violet-600'>Plackkhong</p>
                     </Link>
                 </div>
-                <div className='flex flex-col items-center   drop-shadow-md'>
+                <div className='flex flex-col items-center  drop-shadow-md'>
                     <Link to="/Product">
                         <button className='btn px-8 my-2  drop-shadow-md'>Product</button>
                     </Link>

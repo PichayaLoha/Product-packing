@@ -11,7 +11,7 @@ function EditOrderPage() {
     const [product_height, setHeight] = useState("");
     const [product_weight, setWeight] = useState("");
     const [product_amount, setAmount] = useState("");
-    const [product_userid, setUserId] = useState("");
+    const [userid, setUserId] = useState("");
 
     console.log(order_id)
     useEffect(() => {
@@ -19,19 +19,17 @@ function EditOrderPage() {
             try {
                 const response = await fetch(`http://localhost:8080/api/products/${order_id}`);
                 const data = await response.json();
-
                 // ตรวจสอบข้อมูลที่ได้รับ
-                console.log("Fetched data:", data.products[0].product_name);
+                console.log("Fetched data:", data.products[0].user_id);
                 console.log("Fetched data:", data);
-                if (data && data.product) {
-                    setProductName(data.product.product_name || ""); // อัปเดตชื่อสินค้า
-                    setWidth(data.product.product_width || ""); // อัปเดตความกว้าง
-                    setLength(data.product.product_length || ""); // อัปเดตความยาว
-                    setHeight(data.product.product_height || ""); // อัปเดตความสูง
-                    setWeight(data.product.product_weight || ""); // อัปเดตน้ำหนัก
-                    setAmount(data.product.product_amount || ""); // อัปเดตจำนวน
-                    setUserId(data.product.product_userid || ""); // อัปเดตจำนวน
-                }
+                setProductName(data.products[0].product_name || ""); // อัปเดตชื่อสินค้า
+                setWidth(data.products[0].product_width || ""); // อัปเดตความกว้าง
+                setLength(data.products[0].product_length || ""); // อัปเดตความยาว
+                setHeight(data.products[0].product_height || ""); // อัปเดตความสูง
+                setWeight(data.products[0].product_weight || ""); // อัปเดตน้ำหนัก
+                setAmount(data.products[0].product_amount || ""); // อัปเดตจำนวน
+                setUserId(data.products[0].user_id || ""); // อัปเดตจำนวน
+
             } catch (error) {
                 console.error('Error fetching order:', error);
             }
@@ -49,7 +47,7 @@ function EditOrderPage() {
             product_height: parseFloat(product_height),
             product_weight: parseFloat(product_weight),
             product_amount: parseInt(product_amount),
-            product_userid: parseInt(product_userid)
+            userid: parseInt(userid)
         };
         console.log(product_name)
         try {
@@ -147,7 +145,7 @@ function EditOrderPage() {
                                     <input
                                         type="text"
                                         placeholder="userid"
-                                        value={product_userid}
+                                        value={userid}
                                         onChange={(e) => setUserId(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>

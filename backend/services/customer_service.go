@@ -51,21 +51,19 @@ func GetCustomersByID(db *sql.DB, customerID string) ([]models.Customer, error) 
 	return customers, nil
 }
 
-func CreateCustomers(db *sql.DB, newCustomer *models.Customer) error {
-
+func CreateCustomers(db *sql.DB, newCustomer *models.Customer) (int, error) {
+	var customerID int
 	query := `INSERT INTO customers (customer_firstname, customer_lastname, customer_address, customer_phone, customer_postal) 
                VALUES ($1, $2, $3, $4, $5) 
                RETURNING customer_id`
-	err := db.QueryRow(query, newCustomer.CustomerFirstName, newCustomer.CustomerLastName, newCustomer.CustomerAddress, newCustomer.CustomerPhone, newCustomer.CustomerPostal).Scan(&newCustomer.CustomerID)
+	err := db.QueryRow(query, newCustomer.CustomerFirstName, newCustomer.CustomerLastName, newCustomer.CustomerAddress, newCustomer.CustomerPhone, newCustomer.CustomerPostal).Scan(&customerID)
 
 	if err != nil {
 		log.Println("Error inserting customer: ", err)
-		return err
+		return 0, err
 	}
-	return nil
-
+	return customerID, nil
 }
-
 func UpdateCustomers(db *sql.DB, updatedCustomers *models.Customer, customerID string) error {
 
 	query := `UPDATE customers

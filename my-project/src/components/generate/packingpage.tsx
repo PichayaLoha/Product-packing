@@ -4,10 +4,37 @@ import { Link, useNavigate } from 'react-router-dom';
 import { IoSettingsOutline } from "react-icons/io5";
 import MyModal from "./modal";
 
+interface Order {
+    product: {
+        product_id: number;
+        product_name: string;
+        product_weight: number;
+        product_width: number;
+        product_length: number;
+        product_height: number;
+        product_image: string;
+        product_time: string;
+    };
+    product_amount: number;
+    product_id: number;
+    order_id: number;
+    order_del_id: number;
+}
+
+interface Box {
+    box_id: number;
+    box_name: string;
+    box_width: string;
+    box_length: string;
+    box_height: string;
+    box_maxweight: string;
+    box_amount: string;
+}
+
 function PackingPage() {
     const navigate = useNavigate();
-    const [order, setOrder] = useState([]);
-    const [boxes, setBoxes] = useState([]);
+    const [order, setOrder] = useState<Order[]>([]);
+    const [boxes, setBoxes] = useState<Box[]>([]);
     const [size, setSize] = useState(0);
     const [mode, setMode] = useState("boxes"); // เก็บโหมดที่เลือก
 
@@ -19,32 +46,40 @@ function PackingPage() {
     useEffect(() => {
         const fetchOrdersAndBoxes = async () => {
             try {
-                const responseOrders = await fetch('http://localhost:8080/api/orderdels');
-                const responseBoxes = await fetch('http://localhost:8080/api/boxes');
-
-                if (!responseOrders.ok || !responseBoxes.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-
-                const dataOrders = await responseOrders.json();
-                const dataBoxes = await responseBoxes.json();
-
-                console.log(dataBoxes.boxes);
-                console.log(dataOrders.orderdels)
+                const [responseOrders, responseBoxes] = await Promise.all([
+                    fetch('http://localhost:8080/api/orderdels'),
+                    fetch('http://localhost:8080/api/boxes')
+                ]);
+    
+                if (!responseOrders.ok || !responseBoxes.ok) throw new Error('Failed to fetch data');
+    
+                const [dataOrders, dataBoxes] = await Promise.all([
+                    responseOrders.json(),
+                    responseBoxes.json()
+                ]);
+    
                 setBoxes(dataBoxes.boxes);
-                setOrder(dataOrders.orderdels);// เข้าถึง array orders จาก key 'orders'
-
-                setSize(dataOrders.orderdels ? dataOrders.orderdels.length : 0);
-                // เข้าถึง array boxes จาก key 'boxes'
+                setOrder(dataOrders.orderdels);
+                setSize(dataOrders.orderdels?.length || 0);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
-
-        fetchOrdersAndBoxes(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
+    
+        fetchOrdersAndBoxes();
     }, []);
+    
+    
+    const [blockedBoxes, setBlockedBoxes] = useState<number[]>([]);
 
-    const handleModeChange = (event) => {
+    const handleBoxChange = (boxId: number) => {
+        setBlockedBoxes(prev => 
+            prev.includes(boxId) 
+            ? prev.filter(id => id !== boxId) 
+            : [...prev, boxId]
+        );
+    };
+    const handleModeChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
         setMode(event.target.value); // เปลี่ยนค่า mode ตามที่เลือก
     };
 
@@ -63,8 +98,7 @@ function PackingPage() {
             customer_lastname: data.lastname,
             customer_address: data.address,
             customer_postal: data.postal,
-            customer_phone: data.phone
-            ,
+            customer_phone: data.phone,
         };
 
         try {
@@ -91,31 +125,37 @@ function PackingPage() {
     };
 
     const handleGenerate = async () => {
-        console.log("Mode being sent:", mode); // เพิ่มการ log เพื่อดูค่า mode
+        console.log("Mode being sent:", mode, "Blocked boxes:", blockedBoxes);
+    
         try {
             const response = await fetch('http://localhost:8080/api/generate', {
-                method: 'POST', // เปลี่ยนเป็น POST
-                headers: {
-                    'Content-Type': 'application/json', // ตั้งค่า header ให้เป็น JSON
-                },
-                body: JSON.stringify({ mode: mode }), // ส่ง mode ไปยัง backend
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode, blocked_boxes: blockedBoxes }) // ✅ เปลี่ยนเป็น "blocked_boxes"
             });
-
+    
             if (response.ok) {
                 const result = await response.json();
-                console.log("result is", result); // แสดงผลลัพธ์จาก backend
+                console.log("result is", result);
             } else {
                 console.error('Error generating order:', response.statusText);
             }
-
-            const customer = await fetch('http://localhost:8080/api/customers');
-            const customer_data = await customer.json();
-            console.log("customer id is", customer_data.customer[customer_data.customer.length - 1].customer_id)
-
-            const history = await fetch('http://localhost:8080/api/history');
-            const data = await history.json();
-            console.log("historyid is", data.history[data.history.length - 1].package_id)
-            navigate('/Generate', { state: { message: data.history[data.history.length - 1].package_id, cus_id: customer_data.customer[customer_data.customer.length - 1].customer_id } });
+    
+            const [customerRes, historyRes] = await Promise.all([
+                fetch('http://localhost:8080/api/customers'),
+                fetch('http://localhost:8080/api/history')
+            ]);
+    
+            const [customerData, historyData] = await Promise.all([
+                customerRes.json(),
+                historyRes.json()
+            ]);
+    
+            const lastCustomerId = customerData.customer.at(-1)?.customer_id;
+            const lastHistoryId = historyData.history.at(-1)?.package_id;
+    
+            navigate('/Generate', { state: { message: lastHistoryId, cus_id: lastCustomerId } });
+    
         } catch (error) {
             console.error('Error:', error);
         }
@@ -137,23 +177,21 @@ function PackingPage() {
                                 </Link>
                             </label>
                             {boxes.length > 0 &&
-                                <div className='flex gap-5 mb-2'>
-                                    {boxes.map((item, index) => (
-                                        <div key={item.box_id || index} className='flex items-center'>
-                                            <input
-                                                type="checkbox"
-                                                name="radio"
-                                                className="checkbox mr-1"
-                                                value={item.box_name.charAt(0)}
-
-                                            // จัดการการเปลี่ยนแปลง
-                                            />
-                                            <label> {item.box_name.charAt(0)} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ{item.box_amount}</label>
-
-                                        </div>
-                                    ))}
-                                </div>
-                            }
+    <div className='flex gap-5 mb-2'>
+        {boxes.map((item, index) => (
+            <div key={item.box_id || index} className='flex items-center'>
+                <input
+                    type="checkbox"
+                    className="checkbox mr-1"
+                    value={item.box_id}
+                    checked={blockedBoxes.includes(item.box_id)}
+                    onChange={() => handleBoxChange(item.box_id)}
+                />
+                <label> {item.box_name} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ {item.box_amount} </label>
+            </div>
+        ))}
+    </div>
+}
                             <div className='flex items-center'>
                                 <input
                                     type="radio"
@@ -185,40 +223,63 @@ function PackingPage() {
                                         <thead>
                                             <tr className='bg-cyan-700 text-white text-base'>
                                                 <th>Number</th>
+                                                <th>Product Image</th>
                                                 <th>Product Name</th>
+                                                <th>Weight(kg.)</th>
+                                                <th>Amount</th>
                                                 <th>Width(cm.)</th>
                                                 <th>Length(cm.)</th>
                                                 <th>Height(cm.)</th>
-                                                <th>Weight(g.)</th>
-                                                <th>Amount</th>
+
                                                 <th>Added</th>
                                             </tr>
                                         </thead>
-                                        {size > 0 &&
+                                        {size > 0 ? (
                                             <tbody>
-                                                {order.map((item, index) => (
+                                                {order.map((item: Order, index) => (
                                                     <tr key={index}>
                                                         <th>{index + 1}</th>
+                                                        <td><figure className="flex justify-center w-full h-24 ">
+                                                            <img style={{ width: "70%", height: "100%" }}
+                                                                src={item.product.product_image}
+                                                                alt="Shoes"
+                                                                className="rounded-xl object-contain" />
+                                                        </figure>
+                                                        </td>
                                                         <td>{item.product.product_name}</td>
+                                                        <td>{item.product.product_weight}</td>
+                                                        <td>{item.product_amount}</td>
                                                         <td>{item.product.product_width}</td>
                                                         <td>{item.product.product_length}</td>
                                                         <td>{item.product.product_height}</td>
-                                                        <td>{item.product.product_weight}</td>
-                                                        <td>{item.product_amount}</td>
+
                                                         <td>{new Date(item.product.product_time).toLocaleString()}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
-                                        }
+                                        ):(
+                                            <tbody>
+                                                <tr className=''>
+                                                    <td colSpan={9} >
+                                                        <p className='text-center text-2xl text-red-500'>ไม่พบสินค้าที่เตรียมคำนวณ</p>
+                                                        <Link to="/Product">
+                                                            <button className='btn px-8 my-2 text-2xl btn-info drop-shadow-md'>Go to Product</button>
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        )}
                                     </table>
                                 </div>
                             </div>
                         </div>
+                        {size > 0 && (
                         <div className='flex justify-center'>
                             {/* <Link to='/Generate'> */}
                             <button className='btn btn-lg bg-green-300 text-xl' onClick={handleOpenModal}>Generate</button>
                             {/* </Link> */}
                         </div>
+                    )}
                     </div>
                 </div>
             </div>

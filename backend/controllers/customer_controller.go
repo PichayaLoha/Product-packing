@@ -40,7 +40,7 @@ func CreateCustomers(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	if err := services.CreateCustomers(db, &newCustomer); err != nil {
+	if _, err := services.CreateCustomers(db, &newCustomer); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create customer"})
 		return
 	}
@@ -62,8 +62,6 @@ func UpdateCustomers(c *gin.Context, db *sql.DB) {
 		})
 		return
 	}
-
-	// updatedProduct.ProductTime = time.Now()
 
 	if err := services.UpdateCustomers(db, &updatedCustomer, customerID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
