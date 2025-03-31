@@ -73,7 +73,7 @@ function PackingPage() {
         if (boxes.length > 0) { // ✅ เช็คว่า boxes มีค่าแล้ว และยังไม่เคยเซ็ตค่า
             setBlockedBoxes(
                 boxes
-                    .filter(box => box.box_amount) // ✅ เอาเฉพาะอันที่ไม่มี amount (box_amount = 0 หรือ undefined)
+                    .filter(box => !box.box_amount) // ✅ เอาเฉพาะอันที่ไม่มี amount (box_amount = 0 หรือ undefined)
                     .map(box => box.box_id) // ✅ ดึงเฉพาะ box_id ที่ต้องการให้ติ๊ก
             );
         }
@@ -87,10 +87,11 @@ function PackingPage() {
                 ? prev.filter(id => id !== boxId)
                 : [...prev, boxId]
         );
+        console.log("blockedBoxes", blockedBoxes);
     };
 
     // sort boxes by volume (width * length * height)
-    const sortedBoxes = [...boxes].sort((a, b) => 
+    const sortedBoxes = [...boxes].sort((a, b) =>
         parseFloat(a.box_width) * parseFloat(a.box_length) * parseFloat(a.box_height) -
         parseFloat(b.box_width) * parseFloat(b.box_length) * parseFloat(b.box_height)
     );
@@ -195,13 +196,13 @@ function PackingPage() {
                             </label>
                             {boxes.length > 0 &&
                                 <div className='flex gap-5 mb-2'>
-                                  {sortedBoxes.map((item, index) => (
+                                    {sortedBoxes.map((item, index) => (
                                         <div key={item.box_id || index} className='flex items-center'>
                                             <input
                                                 type="checkbox"
                                                 className="checkbox mr-1"
                                                 value={item.box_id}
-                                                checked={blockedBoxes.includes(item.box_id)}
+                                                checked={!blockedBoxes.includes(item.box_id)}
                                                 onChange={() => handleBoxChange(item.box_id)}
                                             />
                                             <label> {item.box_name} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ {item.box_amount} </label>

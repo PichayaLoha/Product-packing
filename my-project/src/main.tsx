@@ -5,8 +5,6 @@ import Productpage from "./components/product/productpage.tsx";
 import AddProductPage from "./components/product/addproductpage.tsx";
 import EditProductPage from "./components/product/editproductpage.tsx";
 import Orderpage from "./components/order/orderpage.tsx";
-import Addorder from "./components/order/addorderpage.tsx";
-import Editorderpage from "./components/order/editorderpage.tsx";
 import Packingpage from "./components/generate/packingpage.tsx";
 import Historypage from "./components/history/historypage.tsx";
 import Historydetailpage from "./components/history/historydetailpage.tsx";
@@ -29,8 +27,6 @@ const Main = () => {
           {/* <Route element={<ProtectedRoute />}> */}
           <Route path="/" element={<App />} />
           <Route path="/Order" element={<Orderpage />} />
-          <Route path="/Addorder" element={<Addorder />} />
-          <Route path="/Editorder/:order_id" element={<Editorderpage />} />
           <Route path="/Product" element={<Productpage />} />
           <Route path="/Addproduct" element={<AddProductPage />} />
           <Route path="/Editproduct/:product_id" element={<EditProductPage />} />
