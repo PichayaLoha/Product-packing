@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Menupage from '../menupage';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +9,10 @@ interface History {
     customer_lastname: string;
     package_status: string;
     history_id: number;
+    package_product_id: number;
+    package_product_name: string;
+    package_product_amount: number;
+    package_product_cost: number;
 }
 
 
@@ -16,7 +20,7 @@ function History_page() {
     const navegate = useNavigate();
     const [history, setHistory] = useState<History[]>([]);
     const [filteredOrder, setFilteredOrder] = useState<History[]>([]);
-    const [size, setSize] = useState(0);
+    // const [size, setSize] = useState(0);
     const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'packed', 'unpacked'
 
     const fetchOrdersAndBoxes = async () => {
@@ -28,7 +32,7 @@ function History_page() {
 
             setHistory(dataOrders.history);
             setFilteredOrder(dataOrders.history);
-            setSize(dataOrders.history ? dataOrders.history.length : 0);
+            // setSize(dataOrders.history ? dataOrders.history.length : 0);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -110,6 +114,7 @@ function History_page() {
                                             <th>จำนวนกล่อง</th>
                                             <th>ชื่อ</th>
                                             <th>status</th>
+                                            <th>Total Product cost</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -126,6 +131,11 @@ function History_page() {
                                                             : 'bg-yellow-500 text-white'
                                                             }`}>
                                                             {item.package_status}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`px-2 py-1 rounded-full font-medium text-md`}>
+                                                            {item.package_product_cost} บาท
                                                         </span>
                                                     </td>
                                                     <td>

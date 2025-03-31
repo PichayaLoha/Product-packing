@@ -14,7 +14,6 @@ function AddProductPage() {
     const [weight, setWeight] = useState("");
     const [amount, setAmount] = useState("");
     const [cost, setCost] = useState("");
-    const [userId, setuserId] = useState("");
 
     const [image, setImage] = useState<File | null>();
     const [preview, setPreview] = useState<string | null>();
@@ -43,7 +42,6 @@ function AddProductPage() {
         formData.append("product_weight", weight);
         formData.append("product_amount", amount);
         formData.append("product_cost", cost);
-        formData.append("user_id", userId);
 
         if (image) {
             formData.append("product_image", image); // 📌 เพิ่มรูปภาพ
@@ -145,15 +143,6 @@ function AddProductPage() {
                                         onChange={(e) => setAmount(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
-                                {/* <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ผู้ใช้</span>
-                                    <input
-                                        type="text"
-                                        placeholder="userid"
-                                        value={userId}
-                                        onChange={(e) => setuserId(e.target.value)} // อัปเดต state
-                                        className="input input-bordered input-sm w-full max-w-xs" />
-                                </label> */}
                                 <label className="form-control w-full max-w-xs">
                                     <input className="file-input file-input-bordered file-input-info file-input-xs w-full max-w-xs " type="file" onChange={handleImageChange} accept="image/*" name="fileToUpload" />
                                 </label>

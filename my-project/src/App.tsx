@@ -1,14 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Menupage from './components/menupage';
 import ProtectedRoute from './ProtectedRoute';
 import './App.css';
 import { Link } from 'react-router-dom';
 
+
+interface Product {
+  product_image: string;
+  product_name: string;
+}
+interface Order {
+  order_del_id: number;
+  product: Product;
+  product_amount: number;
+  order_del_date: string;
+  order_id: number;
+}
+interface History {
+  package_id: number;
+  package_amount: number;
+  customer_firstname: string;
+  customer_lastname: string;
+  package_status: string;
+  history_id: number;
+}
+
+
 function OrderTablePage() {
-  const [order, setOrder] = useState([]);
-  const [size, setSize] = useState(0);
-  const [hissize, setHissize] = useState(0);
-  const [history, setHistory] = useState([]);
+  const [order, setOrder] = useState<Order[]>([]);
+  const [size, setSize] = useState<number>(0);
+  const [hissize, setHissize] = useState<number>(0);
+  const [history, setHistory] = useState<History[]>([]);
 
   // ดึงข้อมูล orders จาก backend เมื่อ component โหลด
   useEffect(() => {
@@ -115,38 +137,6 @@ function OrderTablePage() {
                 </div>
               </div>
             </div>
-            {/* <div className='flex '>
-            <div style={{}}>
-              <div className="overflow-x-auto border rounded-xl border-slate-200">
-                <table className="table table-zebra text-center ">
-                  <thead>
-                    <tr className='bg-cyan-700 text-white text-base md:text-xs'>
-                      <th className='w-14'>Number</th>
-                      <th>Product Image</th>
-                      <th>Product Name</th>
-                      <th>Amount</th>
-                      <th>Added</th>
-                    </tr>
-                  </thead>
-                  {size > 0 &&
-                    <tbody>
-                      {product.map((item, index) => (
-                        <tr key={index}>
-                          <th>{index + 1}</th>
-                          <td className='flex justify-center'>
-                            <img src="https://cdn.discordapp.com/attachments/1100135488007966861/1135827214911426651/IMG_20230213_221222_847.jpg?ex=66d214c6&is=66d0c346&hm=dbf0cc1c87dcafdce18656e6ba18b8baf8677849f7eff2569c504a69e3450825&" alt="" className='w-20' />
-                          </td>
-                          <td>{item.product_name}</td>
-                          <td>{item.product_amount}</td>
-                          <td>{item.product_time}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  }
-                </table>
-              </div>
-            </div>
-          </div> */}
           </div>
         </div>
       </div>

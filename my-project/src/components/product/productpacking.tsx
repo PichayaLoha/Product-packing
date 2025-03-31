@@ -1,10 +1,50 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Edges, Text, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const colors = [
+// Define types
+interface ProductData {
+  package_box_id: number;
+  product_name: string;
+  product_length: number;
+  product_width: number;
+  product_height: number;
+  package_box_x: number;
+  package_box_y: number;
+  package_box_z: number;
+  box_name: string;
+  box_length: number;
+  box_width: number;
+  box_height: number;
+}
+
+interface ProductProps {
+  size: [number, number, number];
+  position: [number, number, number];
+  color: string;
+  name: string;
+}
+
+interface BoxProps {
+  boxSize: [number, number, number];
+  products: ProductData[];
+  rotation: [number, number, number];
+  boxName: string;
+}
+
+interface ProductNameColor {
+  name: string;
+  color: string;
+}
+
+interface LocationState {
+  package_dels_id?: number;
+  message?: number;
+}
+
+const colors: string[] = [
   "#FF4B4B", // red
   "#4B83FF", // blue
   "#4BFF91", // green
@@ -15,7 +55,7 @@ const colors = [
   "#964BFF", // purple
 ];
 
-const getRandomColor = (usedColors) => {
+const getRandomColor = (usedColors: Set<string>): string => {
   let color = colors[Math.floor(Math.random() * colors.length)];
   while (usedColors.has(color)) {
     color = colors[Math.floor(Math.random() * colors.length)];
@@ -24,15 +64,15 @@ const getRandomColor = (usedColors) => {
 };
 
 // สร้างออบเจ็กต์เพื่อเก็บสีของสินค้าแต่ละชื่อ
-const productColors = {};
+const productColors: Record<string, string> = {};
 
 const Product = ({
   size,
   position,
   color,
   name
-}) => {
-  const [hovered, setHovered] = useState(false);
+}: ProductProps) => {
+  const [hovered, setHovered] = useState<boolean>(false);
 
   return (
     <group position={position}>
@@ -73,7 +113,7 @@ const Box = ({
   products,
   rotation,
   boxName
-}) => {
+}: BoxProps) => {
   const startX = -boxSize[0] / 2;
   const startY = -boxSize[1] / 2;
   const startZ = -boxSize[2] / 2;
@@ -106,7 +146,7 @@ const Box = ({
       </Text>
 
       {/* Products */}
-      {products.map((product, index) => {
+      {products.map((product) => {
         const x = startX + product.product_length / 8 + product.package_box_x / 4;
         const y = startY + product.product_height / 8 + product.package_box_y / 4;
         const z = startZ + product.product_width / 8 + product.package_box_z / 4;
@@ -135,17 +175,16 @@ const Box = ({
 
 const ProductPacking = () => {
   const location = useLocation();
-  const { package_dels_id } = location.state || {};
-  const { message: package_id } = location.state || {};
+  const { package_dels_id, message: package_id } = (location.state as LocationState) || {};
   console.log("package_dels_id received:", package_dels_id);
   console.log("package_id received:", package_id);
 
   const API_URL = package_dels_id ? `http://localhost:8080/api/historydel/${package_dels_id}` : null;
-  const [boxSize, setBoxSize] = useState([0, 0, 0]);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [boxName, setBoxName] = useState("");
-  const [productNames, setProductNames] = useState([]);
+  const [boxSize, setBoxSize] = useState<[number, number, number]>([0, 0, 0]);
+  const [products, setProducts] = useState<ProductData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [boxName, setBoxName] = useState<string>("");
+  const [productNames, setProductNames] = useState<ProductNameColor[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -157,7 +196,7 @@ const ProductPacking = () => {
         }
 
         const response = await fetch(API_URL);
-        const data = await response.json();
+        const data: ProductData[] = await response.json();
         console.log("API data:", data);
 
         if (Array.isArray(data) && data.length > 0) {
@@ -214,12 +253,12 @@ const ProductPacking = () => {
     </div>
   );
 
-  const rotation = [0, 20.5, 0];
+  const rotation: [number, number, number] = [0, 20.5, 0];
 
   return (
     <div className="relative h-screen w-screen bg-gray-900">
       {/* Back button */}
-      {package_id !== "generate" ? (
+      {String(package_id) !== "generate" ? (
         <button
           className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md 
                   shadow-lg transition-colors flex items-center z-10"
@@ -229,12 +268,17 @@ const ProductPacking = () => {
           </svg>
           Back to Historydetail
         </button>
-      ) : (<button
-        className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-        onClick={() => navigate('/History')}
-      >
-        Back to History
-      </button>
+      ) : (
+        <button
+          className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md 
+                  shadow-lg transition-colors flex items-center z-10"
+          onClick={() => navigate('/History')}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+          Back to History
+        </button>
       )}
       {/* Box info panel */}
       <div className="absolute top-4 right-4 bg-gray-800 bg-opacity-90 p-4 rounded-md shadow-lg z-10 text-white">

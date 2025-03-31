@@ -40,45 +40,62 @@ function PackingPage() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const fetchOrdersAndBoxes = async () => {
+        try {
+            const [responseOrders, responseBoxes] = await Promise.all([
+                fetch('http://localhost:8080/api/orderdels'),
+                fetch('http://localhost:8080/api/boxes')
+            ]);
 
+            if (!responseOrders.ok || !responseBoxes.ok) throw new Error('Failed to fetch data');
 
+            const [dataOrders, dataBoxes] = await Promise.all([
+                responseOrders.json(),
+                responseBoxes.json()
+            ]);
+
+            console.log("Box", dataBoxes.boxes)
+            console.log("Order", dataOrders.orderdels)
+
+            setBoxes(dataBoxes.boxes);
+            setOrder(dataOrders.orderdels);
+            setSize(dataOrders.orderdels?.length || 0);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchOrdersAndBoxes = async () => {
-            try {
-                const [responseOrders, responseBoxes] = await Promise.all([
-                    fetch('http://localhost:8080/api/orderdels'),
-                    fetch('http://localhost:8080/api/boxes')
-                ]);
-    
-                if (!responseOrders.ok || !responseBoxes.ok) throw new Error('Failed to fetch data');
-    
-                const [dataOrders, dataBoxes] = await Promise.all([
-                    responseOrders.json(),
-                    responseBoxes.json()
-                ]);
-    
-                setBoxes(dataBoxes.boxes);
-                setOrder(dataOrders.orderdels);
-                setSize(dataOrders.orderdels?.length || 0);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-    
-        fetchOrdersAndBoxes();
+        fetchOrdersAndBoxes(); // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูล
     }, []);
-    
-    
+
+    useEffect(() => {
+        if (boxes.length > 0) { // ✅ เช็คว่า boxes มีค่าแล้ว และยังไม่เคยเซ็ตค่า
+            setBlockedBoxes(
+                boxes
+                    .filter(box => box.box_amount) // ✅ เอาเฉพาะอันที่ไม่มี amount (box_amount = 0 หรือ undefined)
+                    .map(box => box.box_id) // ✅ ดึงเฉพาะ box_id ที่ต้องการให้ติ๊ก
+            );
+        }
+    }, [boxes]);
+
     const [blockedBoxes, setBlockedBoxes] = useState<number[]>([]);
 
     const handleBoxChange = (boxId: number) => {
-        setBlockedBoxes(prev => 
-            prev.includes(boxId) 
-            ? prev.filter(id => id !== boxId) 
-            : [...prev, boxId]
+        setBlockedBoxes(prev =>
+            prev.includes(boxId)
+                ? prev.filter(id => id !== boxId)
+                : [...prev, boxId]
         );
     };
+
+    // sort boxes by volume (width * length * height)
+    const sortedBoxes = [...boxes].sort((a, b) => 
+        parseFloat(a.box_width) * parseFloat(a.box_length) * parseFloat(a.box_height) -
+        parseFloat(b.box_width) * parseFloat(b.box_length) * parseFloat(b.box_height)
+    );
+
+
     const handleModeChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
         setMode(event.target.value); // เปลี่ยนค่า mode ตามที่เลือก
     };
@@ -126,36 +143,36 @@ function PackingPage() {
 
     const handleGenerate = async () => {
         console.log("Mode being sent:", mode, "Blocked boxes:", blockedBoxes);
-    
+
         try {
             const response = await fetch('http://localhost:8080/api/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mode, blocked_boxes: blockedBoxes }) // ✅ เปลี่ยนเป็น "blocked_boxes"
             });
-    
+
             if (response.ok) {
                 const result = await response.json();
                 console.log("result is", result);
             } else {
                 console.error('Error generating order:', response.statusText);
             }
-    
+
             const [customerRes, historyRes] = await Promise.all([
                 fetch('http://localhost:8080/api/customers'),
                 fetch('http://localhost:8080/api/history')
             ]);
-    
+
             const [customerData, historyData] = await Promise.all([
                 customerRes.json(),
                 historyRes.json()
             ]);
-    
+
             const lastCustomerId = customerData.customer.at(-1)?.customer_id;
             const lastHistoryId = historyData.history.at(-1)?.package_id;
-    
+
             navigate('/Generate', { state: { message: lastHistoryId, cus_id: lastCustomerId } });
-    
+
         } catch (error) {
             console.error('Error:', error);
         }
@@ -177,21 +194,21 @@ function PackingPage() {
                                 </Link>
                             </label>
                             {boxes.length > 0 &&
-    <div className='flex gap-5 mb-2'>
-        {boxes.map((item, index) => (
-            <div key={item.box_id || index} className='flex items-center'>
-                <input
-                    type="checkbox"
-                    className="checkbox mr-1"
-                    value={item.box_id}
-                    checked={blockedBoxes.includes(item.box_id)}
-                    onChange={() => handleBoxChange(item.box_id)}
-                />
-                <label> {item.box_name} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ {item.box_amount} </label>
-            </div>
-        ))}
-    </div>
-}
+                                <div className='flex gap-5 mb-2'>
+                                  {sortedBoxes.map((item, index) => (
+                                        <div key={item.box_id || index} className='flex items-center'>
+                                            <input
+                                                type="checkbox"
+                                                className="checkbox mr-1"
+                                                value={item.box_id}
+                                                checked={blockedBoxes.includes(item.box_id)}
+                                                onChange={() => handleBoxChange(item.box_id)}
+                                            />
+                                            <label> {item.box_name} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ {item.box_amount} </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            }
                             <div className='flex items-center'>
                                 <input
                                     type="radio"
@@ -257,7 +274,7 @@ function PackingPage() {
                                                     </tr>
                                                 ))}
                                             </tbody>
-                                        ):(
+                                        ) : (
                                             <tbody>
                                                 <tr className=''>
                                                     <td colSpan={9} >
@@ -274,12 +291,12 @@ function PackingPage() {
                             </div>
                         </div>
                         {size > 0 && (
-                        <div className='flex justify-center'>
-                            {/* <Link to='/Generate'> */}
-                            <button className='btn btn-lg bg-green-300 text-xl' onClick={handleOpenModal}>Generate</button>
-                            {/* </Link> */}
-                        </div>
-                    )}
+                            <div className='flex justify-center'>
+                                {/* <Link to='/Generate'> */}
+                                <button className='btn btn-lg bg-green-300 text-xl' onClick={handleOpenModal}>Generate</button>
+                                {/* </Link> */}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

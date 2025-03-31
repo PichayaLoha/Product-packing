@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Menupage from '../menupage'
-import { Link, useNavigate } from 'react-router-dom';
-import { tr } from 'framer-motion/client';
 
 interface Box {
     box_id: number;

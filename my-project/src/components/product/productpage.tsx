@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Menupage from '../menupage';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import Productcard from './productcard';
 
 interface Product {
@@ -18,7 +18,6 @@ interface Product {
 
 
 function Productpage() {
-    // const navigate = useNavigate();
     const [product, setProduct] = useState<Product[]>([]);
     const [size, setSize] = useState(0);
 
@@ -41,7 +40,6 @@ function Productpage() {
         fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
-    //
     const handleQuantityChange = (product_id: number): void => {
         setProduct(prevOrders => prevOrders.filter(product => product.product_id !== product_id));
     };

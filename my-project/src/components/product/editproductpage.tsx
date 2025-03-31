@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Menupage from '../menupage';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
