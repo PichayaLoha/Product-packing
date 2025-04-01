@@ -451,9 +451,10 @@ func calculateProductVolume(box []models.Product) float64 {
 }
 
 func canPlace(box []models.Product, product models.Product, boxWidth, boxHeight, boxLong float64) ([3]float64, bool) {
-	for x := 0.0; x <= boxLong-product.ProductLength; x++ {
-		for y := 0.0; y <= boxHeight-product.ProductHeight; y++ {
+	for y := 0.0; y <= boxHeight-product.ProductHeight; y++ {
+		for x := 0.0; x <= boxLong-product.ProductLength; x++ {
 			for z := 0.0; z <= boxWidth-product.ProductWidth; z++ {
+
 				if position(box, product, x, y, z) {
 					return [3]float64{x, y, z}, true
 				}
