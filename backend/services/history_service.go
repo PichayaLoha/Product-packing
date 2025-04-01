@@ -184,7 +184,7 @@ func GetHistoryBoxDetail(db *sql.DB, hisroryboxdelID string) ([]models.PackageDe
 		pbd.package_box_id, pbd.package_box_x, pbd.package_box_y, pbd.package_box_z,
 		pd.package_del_id,
 		b.box_id, b.box_name, b.box_width, b.box_length, b.box_height,
-		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height 
+		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height, p.product_image
 	FROM package_box_dels pbd
 	JOIN package_dels pd ON pbd.package_del_id = pd.package_del_id
 	JOIN boxes b ON pd.package_del_boxsize = b.box_name
@@ -205,7 +205,7 @@ func GetHistoryBoxDetail(db *sql.DB, hisroryboxdelID string) ([]models.PackageDe
 			&detail.PackageBoxID, &detail.PackageBoxX, &detail.PackageBoxY, &detail.PackageBoxZ,
 			&detail.PackageDelID,
 			&detail.BoxID, &detail.BoxName, &detail.BoxWidth, &detail.BoxLength, &detail.BoxHeight,
-			&detail.ProductID, &detail.ProductName, &detail.ProductWidth, &detail.ProductLength, &detail.ProductHeight,
+			&detail.ProductID, &detail.ProductName, &detail.ProductWidth, &detail.ProductLength, &detail.ProductHeight, &detail.ProductImage,
 		); err != nil {
 			return nil, err
 		}

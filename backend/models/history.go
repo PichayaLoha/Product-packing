@@ -72,4 +72,5 @@ type PackageDetail struct {
 	ProductWidth  float64 `json:"product_width"`
 	ProductLength float64 `json:"product_length"`
 	ProductHeight float64 `json:"product_height"`
+	ProductImage  string  `json:"product_image"`
 }
