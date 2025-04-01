@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    chunkSizeWarningLimit: 1000, // ขนาด chunk warning ที่ต้องการ (KB)
+    chunkSizeWarningLimit: 5000, // ขนาด chunk warning ที่ต้องการ (KB)
   },
 })
 // import { defineConfig } from "vite";
