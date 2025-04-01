@@ -9,6 +9,7 @@ interface Box {
     box_height: string;
     box_maxweight: string;
     box_amount: string;
+    box_cost: string;
 }
 
 function Boxesmanage() {
@@ -20,7 +21,9 @@ function Boxesmanage() {
     const [box_height, setheBoxheight] = useState<string>("");
     const [box_maxweight, setBoxmaxweight] = useState<string>("");
     const [box_amount, setBoxamount] = useState<string>("");
+    const [box_cost, setBoxcost] = useState<string>("");
     const [box_id, setBoxid] = useState("");
+    const [nameError, setNameError] = useState<string>("");
 
     const [isDisabled, setIsDisabled] = useState(true);
     //ed is edit zone 
@@ -30,7 +33,9 @@ function Boxesmanage() {
     const [box_height_ed, setheBoxheight_ed] = useState<string>("");
     const [box_maxweight_ed, setBoxmaxweight_ed] = useState<string>("");
     const [box_amount_ed, setBoxamount_ed] = useState<string>("");
+    const [box_cost_ed, setBoxcost_ed] = useState<string>("");
     const [box_id_ed, setBoxid_ed] = useState("");
+    const [nameErrorEd, setNameErrorEd] = useState<string>("");
 
     const fetchOrdersAndBoxes = async (): Promise<void> => {
         try {
@@ -50,36 +55,12 @@ function Boxesmanage() {
         fetchOrdersAndBoxes(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
     }, []);
 
-    const handleAddboxes = async () => {
-        const newItem = {
-            box_name,
-            box_height: parseFloat(box_height),
-            box_length: parseFloat(box_length),
-            box_width: parseFloat(box_width),
-            box_maxweight: parseFloat(box_maxweight),
-            box_amount: parseInt(box_amount),
-            box_id: parseInt(box_id)
-        };
-
-        try {
-            const response = await fetch('http://localhost:8080/api/boxes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newItem),
-            });
-            console.log(newItem)
-            if (response.ok) {
-                // นำทางไปยังหน้าผลลัพธ์
-                alert("adding box complete");
-                fetchOrdersAndBoxes();
-            } else {
-                console.error('Error adding item:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    // Function to check for duplicate box names
+    const checkDuplicateName = (name: string, currentId?: string): boolean => {
+        return boxes.some(box =>
+            box.box_name.toLowerCase() === name.toLowerCase() &&
+            (currentId === undefined || box.box_id.toString() !== currentId)
+        );
     };
 
     const selectupdateboxes = (boxId: number): void => {
@@ -95,19 +76,23 @@ function Boxesmanage() {
             setheBoxheight_ed(selectedBox.box_height)
             setBoxmaxweight_ed(selectedBox.box_maxweight)
             setBoxamount_ed(selectedBox.box_amount)
+            setBoxcost_ed(selectedBox.box_cost)
             setBoxid_ed(selectedBox.box_id.toString())
+            setNameErrorEd("");
             setIsDisabled(false);
         }
     }
 
-    const clearUpdateboxes = () => {
+    const clearAddboxes = () => {
         setBoxname("")
         setBoxwidth("")
         setBoxlength("")
         setheBoxheight("")
         setBoxmaxweight("")
         setBoxamount("")
+        setBoxcost("")
         setBoxid("")
+        setNameError("");
     }
     const clearUpdateboxesed = () => {
         setBoxname_ed("")
@@ -117,10 +102,69 @@ function Boxesmanage() {
         setBoxmaxweight_ed("")
         setBoxamount_ed("")
         setBoxid_ed("")
+        setBoxcost_ed("")
+        setNameErrorEd("");
         setIsDisabled(true);
     }
 
+    const handleAddboxes = async () => {
+        // Validate box name
+        if (!box_name.trim()) {
+            setNameError("กรุณากรอกชื่อกล่อง");
+            return;
+        }
+
+        // Check for duplicate box name
+        if (checkDuplicateName(box_name)) {
+            setNameError("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+            return;
+        }
+
+        const newItem = {
+            box_name,
+            box_height: parseFloat(box_height),
+            box_length: parseFloat(box_length),
+            box_width: parseFloat(box_width),
+            box_maxweight: parseFloat(box_maxweight),
+            box_amount: parseInt(box_amount),
+            box_cost: parseFloat(box_cost),
+            box_id: parseInt(box_id)
+        };
+        console.log(JSON.stringify(newItem))
+        try {
+            const response = await fetch('http://localhost:8080/api/boxes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newItem),
+            });
+            console.log(newItem)
+            if (response.ok) {
+                // นำทางไปยังหน้าผลลัพธ์
+                alert("adding box complete");
+                clearAddboxes();
+                fetchOrdersAndBoxes();
+            } else {
+                console.error('Error adding item:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     const handleUpdateboxes = async () => {
+        // Validate box name
+        if (!box_name_ed.trim()) {
+            setNameErrorEd("กรุณากรอกชื่อกล่อง");
+            return;
+        }
+
+        // Check for duplicate box name, excluding the current box being edited
+        if (checkDuplicateName(box_name_ed, box_id_ed)) {
+            setNameErrorEd("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+            return;
+        }
 
         const newItem = {
             box_name: box_name_ed,
@@ -129,6 +173,7 @@ function Boxesmanage() {
             box_width: parseFloat(box_width_ed),
             box_maxweight: parseFloat(box_maxweight_ed),
             box_amount: parseInt(box_amount_ed),
+            box_cost: parseFloat(box_cost_ed), // Fixed to use box_cost_ed
             // box_id: parseInt(box_id_ed)
         };
 
@@ -145,7 +190,7 @@ function Boxesmanage() {
                 // นำทางไปยังหน้าผลลัพธ์
                 alert("Updating box complete");
                 fetchOrdersAndBoxes();
-                clearUpdateboxes();
+                clearUpdateboxesed();
                 setIsDisabled(!isDisabled);
 
             } else {
@@ -177,6 +222,34 @@ function Boxesmanage() {
         }
     };
 
+    // Handle box name change to validate in real-time
+    const handleBoxNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = e.target.value;
+        setBoxname(newName);
+
+        if (!newName.trim()) {
+            setNameError("กรุณากรอกชื่อกล่อง");
+        } else if (checkDuplicateName(newName)) {
+            setNameError("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+        } else {
+            setNameError("");
+        }
+    };
+
+    // Handle edit box name change to validate in real-time
+    const handleBoxNameEdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = e.target.value;
+        setBoxname_ed(newName);
+
+        if (!newName.trim()) {
+            setNameErrorEd("กรุณากรอกชื่อกล่อง");
+        } else if (checkDuplicateName(newName, box_id_ed)) {
+            setNameErrorEd("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+        } else {
+            setNameErrorEd("");
+        }
+    };
+
     return (
         <div>
             <div className="grid grid-cols-12 h-screen">
@@ -194,11 +267,13 @@ function Boxesmanage() {
                                             <tr className='bg-cyan-700 text-white text-base'>
                                                 <th>Number</th>
                                                 <th>Boxsize</th>
+                                                <th>Box cost</th>
                                                 <th>Amount</th>
                                                 <th>Width</th>
                                                 <th>Length</th>
                                                 <th>Height</th>
                                                 <th>Maxweight</th>
+
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -208,11 +283,13 @@ function Boxesmanage() {
                                                     <tr key={index}>
                                                         <th>{index + 1}</th>
                                                         <td>{item.box_name}</td>
+                                                        <td>{item.box_cost}</td>
                                                         <td>{item.box_amount}</td>
                                                         <td>{item.box_width}</td>
                                                         <td>{item.box_length}</td>
                                                         <td>{item.box_height}</td>
                                                         <td>{item.box_maxweight}</td>
+
                                                         <td>
 
                                                             <button className='btn btn-xs bg-orange-300' onClick={() => { selectupdateboxes(item.box_id) }}>แก้ไข</button>
@@ -236,20 +313,21 @@ function Boxesmanage() {
                 </div>
                 <div className="col-span-4">
                     {/* addboxes */}
-                    <div className='flex justify-center items-center m-24'>
+                    <div className='flex justify-center items-center m-12'>
                         <div className="card bg-base-100 w-96 shadow-xl">
                             <div className="card-body">
                                 <div className="card-title justify-center"><h2 >เพิ่มกล่อง</h2></div>
 
                                 <div className='grid grid-cols-2 gap-4'>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ชื่อสินค้า</span>
+                                        <span className="label-text">ชื่อกล่อง</span>
                                         <input
                                             type="text"
-                                            placeholder="ชื่อสินค้า"
+                                            placeholder="ชื่อกล่อง"
                                             value={box_name}
-                                            onChange={(e) => setBoxname(e.target.value)} // อัปเดต state
-                                            className="input input-bordered input-sm w-full max-w-xs" />
+                                            onChange={handleBoxNameChange}
+                                            className={`input input-bordered input-sm w-full max-w-xs ${nameError ? 'input-error' : ''}`} />
+                                        {nameError && <span className="text-xs text-red-500">{nameError}</span>}
                                     </label>
 
                                     <label className="form-control w-full max-w-xs">
@@ -280,12 +358,21 @@ function Boxesmanage() {
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">น้ำหนัก</span>
+                                        <span className="label-text">น้ำหนักสูงสุด</span>
                                         <input
                                             type="text"
-                                            placeholder="น้ำหนัก"
+                                            placeholder="กิโลกรัม"
                                             value={box_maxweight}
                                             onChange={(e) => setBoxmaxweight(e.target.value)} // อัปเดต state
+                                            className="input input-bordered input-sm w-full max-w-xs" />
+                                    </label>
+                                    <label className="form-control w-full max-w-xs">
+                                        <span className="label-text">ราคากล่อง</span>
+                                        <input
+                                            type="text"
+                                            placeholder="บาท"
+                                            value={box_cost}
+                                            onChange={(e) => setBoxcost(e.target.value)} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
@@ -301,7 +388,7 @@ function Boxesmanage() {
                                 <div className="card-actions justify-center">
                                     <button className="btn bg-green-400 btn-sm" onClick={handleAddboxes}>Add</button>
 
-                                    <button className="btn btn-info btn-sm" onClick={clearUpdateboxes}>Clear</button>
+                                    <button className="btn btn-info btn-sm" onClick={clearAddboxes}>Clear</button>
 
                                 </div>
                             </div>
@@ -316,14 +403,15 @@ function Boxesmanage() {
 
                                 <div className='grid grid-cols-2 gap-4'>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ชื่อสินค้า</span>
+                                        <span className="label-text">ชื่อกล่อง</span>
                                         <input
                                             type="text"
-                                            placeholder="ชื่อสินค้า"
+                                            placeholder="ชื่อกล่อง"
                                             value={box_name_ed}
-                                            onChange={(e) => setBoxname_ed(e.target.value)} // อัปเดต state
+                                            onChange={handleBoxNameEdChange}
                                             disabled={isDisabled}
-                                            className="input input-bordered input-sm w-full max-w-xs" />
+                                            className={`input input-bordered input-sm w-full max-w-xs ${nameErrorEd ? 'input-error' : ''}`} />
+                                        {nameErrorEd && <span className="text-xs text-red-500">{nameErrorEd}</span>}
                                     </label>
 
                                     <label className="form-control w-full max-w-xs">
@@ -357,13 +445,23 @@ function Boxesmanage() {
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">น้ำหนัก</span>
+                                        <span className="label-text">น้ำหนักสูงสุด</span>
                                         <input
                                             type="text"
-                                            placeholder="น้ำหนัก"
+                                            placeholder="กิโลกรัม"
                                             value={box_maxweight_ed}
                                             onChange={(e) => setBoxmaxweight_ed(e.target.value)} // อัปเดต state
                                             disabled={isDisabled}
+                                            className="input input-bordered input-sm w-full max-w-xs" />
+                                    </label>
+                                    <label className="form-control w-full max-w-xs">
+                                        <span className="label-text">ราคากล่อง</span>
+                                        <input
+                                            type="text"
+                                            placeholder="บาท"
+                                            value={box_cost_ed}
+                                            onChange={(e) => setBoxcost_ed(e.target.value)}
+                                            disabled={isDisabled} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">

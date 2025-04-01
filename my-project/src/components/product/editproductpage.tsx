@@ -20,7 +20,7 @@ function EditProductPage() {
             try {
                 const response = await fetch(`http://localhost:8080/api/products/${product_id}`);
                 const data = await response.json();
-
+                console.log(data.products[0])
                 // ตรวจสอบข้อมูลที่ได้รับ
                 console.log("Fetched data:", data.products[0].product_name);
                 if (data && data.products) {
@@ -51,7 +51,6 @@ function EditProductPage() {
             product_weight: parseFloat(product_weight),
             product_amount: parseInt(product_amount),
             product_cost: parseFloat(product_cost),
-            user_id: parseInt(user_id)
         };
         console.log(product_name)
         try {
@@ -152,15 +151,6 @@ function EditProductPage() {
                                         onChange={(e) => setAmount(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs"
                                     />
-                                </label>
-                                <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ผู้ใช้</span>
-                                    <input
-                                        type="text"
-                                        placeholder="userid"
-                                        value={user_id}
-                                        onChange={(e) => setUserId(e.target.value)} // อัปเดต state
-                                        className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                             </div>
                             <div className="card-actions justify-center">

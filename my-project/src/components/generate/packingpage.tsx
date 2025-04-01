@@ -189,7 +189,7 @@ function PackingPage() {
 
                         <div className='mb-3'>
                             <label className='flex items-center text-2xl font-semibold mb-3'>
-                                Size
+                            ขนาดกล่องที่ใช้
                                 <Link to="/Boxesmanage" className='ml-2 btn btn-sm'>
                                     <IoSettingsOutline style={{ scale: "1.2" }} />
                                 </Link>
@@ -210,6 +210,10 @@ function PackingPage() {
                                     ))}
                                 </div>
                             }
+                            {boxes.length === 0 && (
+                                <p className='text-center text-2xl text-red-500'>ไม่พบกล่องที่เตรียมคำนวณ</p>
+                            )}
+                            <p className='text-2xl font-semibold mb-2'>Mode</p>
                             <div className='flex items-center'>
                                 <input
                                     type="radio"

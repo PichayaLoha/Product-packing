@@ -11,11 +11,9 @@ interface Product {
     product_amount: number;
     product_cost: number;
     user_id: number;
-    product_image: string
+    product_image: string;
+    product_time: string; // Added product_time field
 }
-
-
-
 
 function Productcard({ product, onQuantityChange }: { product: Product; onQuantityChange: (quantity: number) => void; }) {
 
@@ -78,6 +76,7 @@ function Productcard({ product, onQuantityChange }: { product: Product; onQuanti
             }
         }
     };
+    
     return (
         <div>
             <div className="bg-base-500 shadow-xl rounded-xl sm:px-0 xl:px-5 p-5 ">
@@ -102,6 +101,9 @@ function Productcard({ product, onQuantityChange }: { product: Product; onQuanti
                     </div>
                     <div>
                         <p className='sm:text-xs md:text-sm xl:text-md'>จำนวนสินค้า : <label className='text-zinc-500'>{product.product_amount} ชิ้้น</label></p>
+                    </div>
+                    <div>
+                        <p className='sm:text-xs md:text-sm xl:text-md'>วันที่เพิ่ม : <label className='text-zinc-500'>{new Date(product.product_time).toLocaleDateString('th-TH')}</label></p>
                     </div>
                     <div className="card-actions justify-center my-1">
                         <div className="flex items-center space-x-0">

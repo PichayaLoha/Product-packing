@@ -14,6 +14,7 @@ interface OrderItem {
         package_box_x: number;
         package_box_y: number;
         package_box_z: number;
+        product_image: string;
     }[];
 }
 
@@ -105,11 +106,12 @@ function Historydetailpage() {
                                             <tr>
                                                 <td colSpan={5} className='bg-stone-500'>
                                                     <div className="p-5 overflow-x-auto bg-white">
-                                                        <table className="table">
+                                                        <table className="table  text-center">
                                                             <thead>
                                                                 <tr>
                                                                     <th>Number</th>
                                                                     <th>Product Name</th>
+                                                                    <th>Product Image</th>
                                                                     <th>Hight</th>
                                                                     <th>Lenght</th>
                                                                     <th>Widght</th>
@@ -124,6 +126,12 @@ function Historydetailpage() {
                                                                     <tr key={product.package_box_id}>
                                                                         <th>{productIndex + 1}</th>
                                                                         <td>{product.product_name}</td>
+                                                                        <td><figure className="flex justify-center w-full h-24 ">
+                                                            <img style={{ width: "70%", height: "100%" }}
+                                                                src={product.product_image}
+                                                                alt="Shoes"
+                                                                className="rounded-xl object-contain" />
+                                                        </figure></td>
                                                                         <td>{product.product_height}</td>
                                                                         <td>{product.product_length}</td>
                                                                         <td>{product.product_width}</td>

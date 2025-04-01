@@ -74,7 +74,7 @@ function OrderTablePage() {
                                         <thead>
                                             <tr className='bg-cyan-700 text-white text-base'>
                                                 <th>Number</th>
-                                                <th>image</th>
+                                                <th>Product image</th>
                                                 <th>Product Name</th>
                                                 <th>Amount</th>
                                                 <th>Added</th>
