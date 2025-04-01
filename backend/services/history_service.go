@@ -163,6 +163,7 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 						GenBoxDelLength: hisroryboxdel.ProductLength,
 						GenBoxDelWidth:  hisroryboxdel.ProductWidth,
 						GenBoxDelWeight: hisroryboxdel.ProductWeight,
+						GenBoxDelImage:  hisroryboxdel.ProductImage,
 					}
 
 					historyDelsMap[historyDelID].GenBoxDels = append(historyDelsMap[historyDelID].GenBoxDels, genBoxDel)

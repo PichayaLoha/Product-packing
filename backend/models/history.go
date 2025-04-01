@@ -37,6 +37,7 @@ type GenBoxDel struct {
 	GenBoxDelY      float64  `json:"package_box_y"`
 	GenBoxDelZ      float64  `json:"package_box_z"`
 	GenBlockedBoxes []string `json:"blockedBoxes"`
+	GenBoxDelImage  string   `json:"product_image"`
 }
 
 type History struct {
