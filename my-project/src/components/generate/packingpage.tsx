@@ -189,7 +189,7 @@ function PackingPage() {
 
                         <div className='mb-3'>
                             <label className='flex items-center text-2xl font-semibold mb-3'>
-                            ขนาดกล่องที่ใช้
+                                ขนาดกล่องที่ใช้
                                 <Link to="/Boxesmanage" className='ml-2 btn btn-sm'>
                                     <IoSettingsOutline style={{ scale: "1.2" }} />
                                 </Link>

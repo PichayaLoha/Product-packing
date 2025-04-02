@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Menupage from '../menupage';
 import { Link } from 'react-router-dom';
 import Productcard from './productcard';
+import { AuthContext } from '../auth/AuthContext';
+import { getToken } from '../auth/auth';
 
 interface Product {
     product_id: number;
@@ -21,9 +23,14 @@ function Productpage() {
     const [product, setProduct] = useState<Product[]>([]);
     const [size, setSize] = useState(0);
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest'); // สถานะสำหรับการเรียงลำดับ
-
+    const [userId, setUserId] = useState<String>(""); // สถานะสำหรับ userId
+     
     // ดึงข้อมูล products จาก backend เมื่อ component โหลด
+    const authContext = useContext(AuthContext);
+
     useEffect(() => {
+        const userId = localStorage.getItem("userId");
+        setUserId(userId || "");
         const fetchProducts = async () => {
             try {
                 const response = await fetch('http://localhost:8080/api/products');
@@ -38,7 +45,7 @@ function Productpage() {
         };
 
         fetchProducts();
-    }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
+    }, [authContext, sortOrder]); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
 
     // ฟังก์ชันเรียงลำดับสินค้าตามเวลา
     const sortProductsByTime = (products: Product[], order: 'newest' | 'oldest') => {
@@ -73,13 +80,13 @@ function Productpage() {
                         <div className='mb-3 flex items-center justify-between'>
                             <div className='flex items-center'>
                                 <p className='text-2xl font-semibold'>Product</p>
-                                <Link to='/Addproduct'>
+                                <Link to='/Addproduct' state={{ "userId": userId }}>
                                     <button className='btn btn-outline bg-sky-900 ml-5 text-lg text-white'>Add Product</button>
                                 </Link>
                             </div>
                             <div>
-                                <button 
-                                    onClick={toggleSortOrder} 
+                                <button
+                                    onClick={toggleSortOrder}
                                     className='btn btn-outline flex items-center gap-2'
                                 >
                                     <span>เรียงตามเวลา: {sortOrder === 'newest' ? 'ใหม่-เก่า' : 'เก่า-ใหม่'}</span>
@@ -90,7 +97,7 @@ function Productpage() {
                         {size > 0 &&
                             <div className='grid grid-cols-4 gap-4'>
                                 {product.map((product) => (
-                                    <Productcard key={product.product_id} product={product} onQuantityChange={handleQuantityChange} />
+                                    <Productcard key={product.product_id} product={product} userId={userId}  onQuantityChange={handleQuantityChange} />
                                 ))}
                             </div>
                         }

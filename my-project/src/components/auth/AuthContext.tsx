@@ -46,11 +46,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // ตรวจสอบ Token ทุก 10 วินาที
     useEffect(() => {
         const interval = setInterval(() => {
-            setHasAlerted(true);
+
             const currentToken = getToken();
             if (!currentToken && !hasAlerted) {
                 alert("Session expired. Please login again.");
                 removeToken();
+                setHasAlerted(true);
                 setTokenState(null);
                 setUserIdState(null); // ลบ userId เมื่อออกจากระบบ
                 navigate("/login");
@@ -59,6 +60,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         return () => clearInterval(interval);
     }, [navigate, hasAlerted]);
+
+    // รีเซ็ต hasAlerted เมื่อ Token เปลี่ยน
+    useEffect(() => {
+        if (token) {
+            setHasAlerted(false);
+        }
+    }, [token]);
 
     return (
         <AuthContext.Provider value={{ token, setToken, userId, setUserId }}>

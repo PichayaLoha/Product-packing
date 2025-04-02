@@ -90,7 +90,7 @@ function OrderTablePage() {
                             <th>{index + 1}</th>
                             <td>{item.product.product_name}</td>
                             <td>{item.product_amount}</td>
-                            <td>{item.order_del_date}</td>
+                            <td>{new Date(item.order_del_date).toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>

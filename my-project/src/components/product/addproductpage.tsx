@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import Menupage from '../menupage';
-import { useNavigate, Link } from 'react-router-dom'; // เพิ่ม Link ที่นี่
+import { useNavigate, Link, useLocation } from 'react-router-dom'; // เพิ่ม Link ที่นี่
 interface ImageChangeEvent extends React.ChangeEvent<HTMLInputElement> {
     target: HTMLInputElement & { files: FileList };
 }
 
 function AddProductPage() {
+    const state = useLocation().state;
     const navigate = useNavigate();
     const [product_name, setproduct_name] = useState("");
     const [width, setWidth] = useState("");
@@ -42,7 +43,8 @@ function AddProductPage() {
         formData.append("product_weight", weight);
         formData.append("product_amount", amount);
         formData.append("product_cost", cost);
-
+        formData.append("user_id", state.userId);
+        console.log("w;glsekg", state.userId);
         if (image) {
             formData.append("product_image", image); // 📌 เพิ่มรูปภาพ
         } else {

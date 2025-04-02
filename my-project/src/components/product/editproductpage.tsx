@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import Menupage from '../menupage';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 function EditProductPage() {
+    const state = useLocation().state;
     const navigate = useNavigate();
     const { product_id } = useParams();
     const [product_name, setProductName] = useState("");
@@ -12,7 +13,7 @@ function EditProductPage() {
     const [product_weight, setWeight] = useState("");
     const [product_amount, setAmount] = useState("");
     const [product_cost, setCost] = useState("");
-    const [user_id, setUserId] = useState("");
+    // const [user_id, setUserId] = useState("");
 
     console.log(product_id)
     useEffect(() => {
@@ -31,7 +32,7 @@ function EditProductPage() {
                     setWeight(data.products[0].product_weight || ""); // อัปเดตน้ำหนัก
                     setAmount(data.products[0].product_amount || ""); // อัปเดตจำนวน
                     setCost(data.products[0].product_cost || ""); // อัปเดตจำนวน
-                    setUserId(data.products[0].user_id || ""); // อัปเดตจำนวน
+                    // setUserId(data.products[0].user_id || ""); // อัปเดตจำนวน
                 }
             } catch (error) {
                 console.error('Error fetching order:', error);
@@ -43,6 +44,7 @@ function EditProductPage() {
     console.log(product_name)
     // ฟังก์ชันสำหรับจัดการการแก้ไขรายการ
     const handleEditItem = async () => {
+        console.log(state.userId)
         const updatedItem = {
             product_name,
             product_width: parseFloat(product_width),
@@ -51,8 +53,10 @@ function EditProductPage() {
             product_weight: parseFloat(product_weight),
             product_amount: parseInt(product_amount),
             product_cost: parseFloat(product_cost),
+            user_id: parseInt(state.userId) // userId ที่ดึงมาจาก state
+        // product_image: image, // ถ้าต้องการอัปเดตรูปภาพด้วย
+
         };
-        console.log(product_name)
         try {
             const response = await fetch(`http://localhost:8080/api/products/${product_id}`, {
                 method: 'PUT',

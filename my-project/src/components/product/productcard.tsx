@@ -15,7 +15,7 @@ interface Product {
     product_time: string; // Added product_time field
 }
 
-function Productcard({ product, onQuantityChange }: { product: Product; onQuantityChange: (quantity: number) => void; }) {
+function Productcard({ product,userId, onQuantityChange }: { product: Product; userId:String; onQuantityChange: (quantity: number) => void; }) {
 
     const [quantity, setQuantity] = useState<number>(1);
     const increment = () => {
@@ -122,7 +122,7 @@ function Productcard({ product, onQuantityChange }: { product: Product; onQuanti
                     </div>
                     <div className="card-actions justify-center">
                         <button className="btn btn-success text-white" onClick={() => { handleAddProduct(product.product_id) }}>เพิ่มสินค้า</button>
-                        <Link to={`/Editproduct/${product.product_id}`}>
+                        <Link to={`/Editproduct/${product.product_id}`} state={{ "userId": userId }}>
                             <button className="btn btn-primary">แก้ไข</button>
                         </Link>
                         <button className="btn btn-error text-white" onClick={() => handleDeleteProduct(product.product_id)}>ลบ</button>
