@@ -59,30 +59,35 @@ func GetHistory(db *sql.DB) ([]models.History, error) {
 }
 func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 	query := `
-        SELECT
-            ho.package_id,
-            ho.package_amount,
-            ho.package_time,
-            ho.package_status,
-			ho.package_product_cost,
-			ho.package_box_cost,
-			ho.package_total_cost,
-            hd.package_del_id,
-            hd.package_del_boxsize,
-            bd.package_box_id,
-            bd.package_box_x,
-            bd.package_box_y,
-            bd.package_box_z,
-			bd.product_id
-        FROM
-            packages_order ho
-        LEFT JOIN
-            package_dels hd ON ho.package_id = hd.package_id
-        LEFT JOIN
-            package_box_dels bd ON hd.package_del_id = bd.package_del_id
-        WHERE
-            ho.package_id = $1;
-    `
+    SELECT
+        ho.package_id,
+        ho.package_amount,
+        ho.package_time,
+        ho.package_status,
+        ho.package_product_cost,
+        ho.package_box_cost,
+        ho.package_total_cost,
+        ho.package_user_id,  -- เพิ่ม user_id
+        u.user_firstname,
+        u.user_lastname,
+        hd.package_del_id,
+        hd.package_del_boxsize,
+        bd.package_box_id,
+        bd.package_box_x,
+        bd.package_box_y,
+        bd.package_box_z,
+        bd.product_id
+    FROM
+        packages_order ho
+    LEFT JOIN
+        package_dels hd ON ho.package_id = hd.package_id
+    LEFT JOIN
+        package_box_dels bd ON hd.package_del_id = bd.package_del_id
+    LEFT JOIN
+        users u ON ho.package_user_id = u.user_id  -- เชื่อม users ด้วย package_user_id
+    WHERE
+        ho.package_id = $1;
+`
 
 	rows, err := db.Query(query, historyID)
 
@@ -104,6 +109,8 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			genBoxDelY        sql.NullFloat64
 			genBoxDelZ        sql.NullFloat64
 			productID         sql.NullString
+			userFirstname     sql.NullString
+			userLastname      sql.NullString
 		)
 
 		err := rows.Scan(
@@ -114,6 +121,9 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			&history.HistoryProductCost,
 			&history.HistoryBoxCost,
 			&history.HistoryTotalCost,
+			&history.HistoryUserID, // ✅ เพิ่มการดึง user_id
+			&userFirstname,         // ✅ ดึง firstname
+			&userLastname,          // ✅ ดึง lastname
 			&historyDelID,
 			&historyDelBoxSize,
 			&genBoxDelID,
@@ -121,11 +131,6 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			&genBoxDelY,
 			&genBoxDelZ,
 			&productID,
-			// &genProductName,
-			// &genProductHeight,
-			// &genProductLength,
-			// &genProductWidth,
-			// &genProductWeight,
 		)
 		if err != nil {
 			log.Println("Error scanning history detail: ", err)
