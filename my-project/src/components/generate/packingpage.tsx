@@ -32,6 +32,7 @@ interface Box {
 }
 
 function PackingPage() {
+
     const navigate = useNavigate();
     const [order, setOrder] = useState<Order[]>([]);
     const [boxes, setBoxes] = useState<Box[]>([]);
@@ -39,8 +40,11 @@ function PackingPage() {
     const [mode, setMode] = useState("boxes"); // เก็บโหมดที่เลือก
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userId, setUserId] = useState<string>(""); // สถานะสำหรับ userId
 
     const fetchOrdersAndBoxes = async () => {
+        const userId = localStorage.getItem("userId");
+        setUserId(userId || "");
         try {
             const [responseOrders, responseBoxes] = await Promise.all([
                 fetch('http://localhost:8080/api/orderdels'),
@@ -90,7 +94,6 @@ function PackingPage() {
         console.log("blockedBoxes", blockedBoxes);
     };
 
-    // sort boxes by volume (width * length * height)
     const sortedBoxes = [...boxes].sort((a, b) =>
         parseFloat(a.box_width) * parseFloat(a.box_length) * parseFloat(a.box_height) -
         parseFloat(b.box_width) * parseFloat(b.box_length) * parseFloat(b.box_height)
@@ -129,6 +132,7 @@ function PackingPage() {
             });
 
             if (response.ok) {
+                console.log("userid is", userId)
                 console.log("result is", newItem);
                 alert("เพิ่ม customer เรียบร้อยแล้ว");
                 handleGenerate()
@@ -149,7 +153,7 @@ function PackingPage() {
             const response = await fetch('http://localhost:8080/api/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ mode, blocked_boxes: blockedBoxes }) // ✅ เปลี่ยนเป็น "blocked_boxes"
+                body: JSON.stringify({ mode, blocked_boxes: blockedBoxes, user_id: parseInt(userId) })
             });
 
             if (response.ok) {

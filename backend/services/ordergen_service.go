@@ -24,6 +24,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	mode := requestBody.Mode
 	fmt.Println(mode)
 	fmt.Println("Blocked Boxes:", requestBody.BlockedBoxes)
+	fmt.Println("UserId is :", requestBody.UserId)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight, box_cost FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
 			od.order_del_id, p.product_id,
