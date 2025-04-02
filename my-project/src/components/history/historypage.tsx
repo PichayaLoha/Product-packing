@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import Menupage from '../menupage';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../auth/AuthContext';
 
 interface History {
     package_id: number;
@@ -22,6 +23,10 @@ function History_page() {
     const [filteredOrder, setFilteredOrder] = useState<History[]>([]);
     const [size, setSize] = useState(0);
     const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'packed', 'unpacked'
+
+    const auth = useContext(AuthContext);
+    const userRole = auth?.userRole || localStorage.getItem("user_role");
+    const canEditOrDelete = userRole === "admin" || userRole === "packer";
 
     const fetchOrdersAndBoxes = async () => {
         try {
@@ -141,6 +146,7 @@ function History_page() {
                                                             {item.package_product_cost} บาท
                                                         </span>
                                                     </td>
+                                                   { canEditOrDelete && (
                                                     <td>
                                                         <button
                                                             className='btn btn-sm bg-green-500 border-green-500 hover:bg-green-600'
@@ -155,6 +161,7 @@ function History_page() {
                                                             Delete
                                                         </button>
                                                     </td>
+                                                    )}
                                                 </tr>
                                             ))}
                                         </tbody>

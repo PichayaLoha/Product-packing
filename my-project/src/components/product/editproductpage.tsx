@@ -30,7 +30,7 @@ function EditProductPage() {
                     setLength(data.products[0].product_length || ""); // อัปเดตความยาว  
                     setHeight(data.products[0].product_height || ""); // อัปเดตความสูง
                     setWeight(data.products[0].product_weight || ""); // อัปเดตน้ำหนัก
-                    setAmount(data.products[0].product_amount || ""); // อัปเดตจำนวน
+                    setAmount(data.products[0].product_amount || 0); // อัปเดตจำนวน
                     setCost(data.products[0].product_cost || ""); // อัปเดตจำนวน
                     // setUserId(data.products[0].user_id || ""); // อัปเดตจำนวน
                 }

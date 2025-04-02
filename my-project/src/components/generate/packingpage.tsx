@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Menupage from '../menupage';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoSettingsOutline } from "react-icons/io5";
 import MyModal from "./modal";
+import { AuthContext } from '../auth/AuthContext';
 
 interface Order {
     product: {
@@ -41,6 +42,10 @@ function PackingPage() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [userId, setUserId] = useState<string>(""); // สถานะสำหรับ userId
+
+    const auth = useContext(AuthContext);
+    const userRole = auth?.userRole || localStorage.getItem("user_role");
+    const canEditOrDelete = userRole === "admin" || userRole === "packer";
 
     const fetchOrdersAndBoxes = async () => {
         const userId = localStorage.getItem("userId");
@@ -195,50 +200,74 @@ function PackingPage() {
                         <div className='mb-3'>
                             <label className='flex items-center text-2xl font-semibold mb-3'>
                                 Box size
-                                <Link to="/Boxesmanage" className='ml-2 btn btn-sm'>
+                                {canEditOrDelete ? (
+                                    <Link to="/Boxesmanage" className='ml-2 btn btn-sm'>
+                                        <IoSettingsOutline style={{ scale: "1.2" }} />
+                                    </Link>
+                                ) : (
+                                    // <Link  className='ml-2 btn btn-sm'>
                                     <IoSettingsOutline style={{ scale: "1.2" }} />
-                                </Link>
+                                    // </Link>
+                                )
+                                }
+
+
                             </label>
-                            {boxes.length > 0 &&
-                                <div className='flex gap-5 mb-2'>
-                                    {sortedBoxes.map((item, index) => (
-                                        <div key={item.box_id || index} className='flex items-center'>
-                                            <input
-                                                type="checkbox"
-                                                className="checkbox mr-1"
-                                                value={item.box_id}
-                                                checked={!blockedBoxes.includes(item.box_id)}
-                                                onChange={() => handleBoxChange(item.box_id)}
-                                            />
-                                            <label> {item.box_name} [{item.box_width}x{item.box_length}x{item.box_height}] Left : {item.box_amount} </label>
+                            {canEditOrDelete ? (
+                                boxes.length > 0 ? (
+                                    <div className="overflow-x-auto pb-2">
+                                        <div className="flex flex-row flex-nowrap gap-4 min-w-max">
+                                            {sortedBoxes.map((item, index) => (
+                                                <div
+                                                    key={item.box_id || index}
+                                                    className="flex items-center border border-gray-200 rounded-md px-3 py-2 bg-gray-50 hover:bg-gray-100"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        className="checkbox mr-2"
+                                                        value={item.box_id}
+                                                        checked={!blockedBoxes.includes(item.box_id)}
+                                                        onChange={() => handleBoxChange(item.box_id)}
+                                                    />
+                                                    <div>
+                                                        <span className="font-medium">{item.box_name}</span>
+                                                        <span className="ml-1">[{item.box_width}x{item.box_length}x{item.box_height}]</span>
+                                                        <span className="ml-1 text-gray-600">Left: {item.box_amount}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
-                            }
-                            {boxes.length === 0 && (
-                                <p className='text-center text-2xl text-red-500'>ไม่พบกล่องที่เตรียมคำนวณ</p>
+                                    </div>
+                                ) : (
+                                    <p className='text-center text-2xl text-red-500'>ไม่พบกล่องที่เตรียมคำนวณ</p>
+                                )
+                            ) : (
+                                <p className='text-left text-xl text-red-500'>ไม่สามารถแก้ไขได้</p>
                             )}
                             <p className='text-2xl font-semibold mb-2'>Mode</p>
-                            <div className='flex items-center'>
-                                <input
-                                    type="radio"
-                                    name="radio-1"
-                                    className="radio mr-1"
-                                    value="boxes"
-                                    checked={mode === "boxes"}
-                                    onChange={handleModeChange} // จัดการการเปลี่ยนแปลง
-                                />
-                                <label> Minimize the number of boxes</label>
-                                <input
-                                    type="radio"
-                                    name="radio-1"
-                                    className="radio ml-3"
-                                    value="space"
-                                    checked={mode === "space"}
-                                    onChange={handleModeChange} // จัดการการเปลี่ยนแปลง
-                                />
-                                <label className="ml-1">Optimize box space</label>
-                            </div>
+                            {canEditOrDelete ? (
+                                <div className='flex items-center'>
+                                    <input
+                                        type="radio"
+                                        name="radio-1"
+                                        className="radio mr-1"
+                                        value="boxes"
+                                        checked={mode === "boxes"}
+                                        onChange={handleModeChange} // จัดการการเปลี่ยนแปลง
+                                    />
+                                    <label> Minimize the number of boxes</label>
+                                    <input
+                                        type="radio"
+                                        name="radio-1"
+                                        className="radio ml-3"
+                                        value="space"
+                                        checked={mode === "space"}
+                                        onChange={handleModeChange} // จัดการการเปลี่ยนแปลง
+                                    />
+                                    <label className="ml-1">Optimize box space</label>
+                                </div>) : (
+                                <p className='text-left text-xl text-red-500'>ไม่สามารถแก้ไขได้</p>
+                            )}
                         </div>
                         <div className='mb-3 flex items-center'>
                             <p className='text-2xl font-semibold'>Order</p>
@@ -300,11 +329,16 @@ function PackingPage() {
                                 </div>
                             </div>
                         </div>
-                        {size > 0 && (
+
+                        {size > 0 && canEditOrDelete ? (
                             <div className='flex justify-center'>
                                 {/* <Link to='/Generate'> */}
                                 <button className='btn btn-lg bg-green-300 text-xl' onClick={handleOpenModal}>Generate</button>
                                 {/* </Link> */}
+                            </div>
+                        ) : (
+                            <div className='flex justify-center'>
+                                <button className='btn btn-lg bg-green-300 text-xl' onClick={handleOpenModal} disabled>Generate</button>
                             </div>
                         )}
                     </div>

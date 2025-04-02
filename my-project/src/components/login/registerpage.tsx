@@ -27,35 +27,70 @@ const Register: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
-        if (!validateForm()) return;
+        if (role === "admin") {
+            const confirmDelete = window.confirm("Are you sure you want to register as admin?");
+            if (confirmDelete) {
+                if (!validateForm()) return;
 
-        try {
-            const response = await fetch("http://localhost:8080/api/user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    user_name: username, 
-                    user_password: password,
-                    user_firstname: firstname,
-                    user_lastname: lastname,
-                    user_role: role
-                }),
-            });
+                try {
+                    const response = await fetch("http://localhost:8080/api/user", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            user_name: username,
+                            user_password: password,
+                            user_firstname: firstname,
+                            user_lastname: lastname,
+                            user_role: role
+                        }),
+                    });
 
-            const data = await response.json();
+                    const data = await response.json();
 
-            if (response.ok) {
-                setUserId(data.user_id);
-                setToken(data.token, 120);
-                alert("Register succesfully!");
-                navigate("/");
-            } else {
-                setError(data.error || "Cannot register user.");
+                    if (response.ok) {
+                        setUserId(data.user_id);
+                        setToken(data.token, 120);
+                        alert("Register successfully!");
+                        navigate("/");
+                    } else {
+                        setError(data.error || "Cannot register user.");
+                    }
+                } catch (error) {
+                    setError("There was an error. Please try again.");
+                }
             }
-        } catch (error) {
-            setError("There was an error. Please try again.");
         }
+        else {
+            if (!validateForm()) return;
+
+            try {
+                const response = await fetch("http://localhost:8080/api/user", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        user_name: username,
+                        user_password: password,
+                        user_firstname: firstname,
+                        user_lastname: lastname,
+                        user_role: role
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    setUserId(data.user_id);
+                    setToken(data.token, 120);
+                    alert("Register successfully!");
+                    navigate("/");
+                } else {
+                    setError(data.error || "Cannot register user.");
+                }
+            } catch (error) {
+                setError("There was an error. Please try again.");
+            }
+        }
+
     };
 
     return (
@@ -141,6 +176,7 @@ const Register: React.FC = () => {
                             >
                                 <option value="packer">Packer</option>
                                 <option value="inventory manager">Inventory manager</option>
+                                <option value="admin" className='text-orange-500'>!Admin</option>
                             </select>
                         </div>
 
@@ -149,10 +185,10 @@ const Register: React.FC = () => {
                         <button type="submit" className="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full mb-4">
                             Register
                         </button>
-                        
+
                         <div className="text-center">
                             <span className="text-gray-600">Already have an account? </span>
-                            <a 
+                            <a
                                 className="text-indigo-600 hover:underline cursor-pointer"
                                 onClick={() => navigate("/login")}
                             >
