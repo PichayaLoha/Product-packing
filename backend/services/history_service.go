@@ -190,11 +190,14 @@ func GetHistoryBoxDetail(db *sql.DB, hisroryboxdelID string) ([]models.PackageDe
 		pbd.package_box_id, pbd.package_box_x, pbd.package_box_y, pbd.package_box_z,
 		pd.package_del_id,
 		b.box_id, b.box_name, b.box_width, b.box_length, b.box_height,
-		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height, p.product_image
+		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height, p.product_image,
+		u.user_firstname, u.user_lastname  -- ✅ เพิ่มชื่อผู้ใช้
 	FROM package_box_dels pbd
 	JOIN package_dels pd ON pbd.package_del_id = pd.package_del_id
 	JOIN boxes b ON pd.package_del_boxsize = b.box_name
 	JOIN products p ON pbd.product_id = p.product_id
+	JOIN packages_order ho ON pd.package_id = ho.package_id  -- ✅ เพิ่มเพื่อดึง package_user_id
+	JOIN users u ON ho.package_user_id = u.user_id  -- ✅ เชื่อม users
 	WHERE pd.package_del_id = $1;`
 
 	rows, err := db.Query(query, hisroryboxdelID)
@@ -212,9 +215,11 @@ func GetHistoryBoxDetail(db *sql.DB, hisroryboxdelID string) ([]models.PackageDe
 			&detail.PackageDelID,
 			&detail.BoxID, &detail.BoxName, &detail.BoxWidth, &detail.BoxLength, &detail.BoxHeight,
 			&detail.ProductID, &detail.ProductName, &detail.ProductWidth, &detail.ProductLength, &detail.ProductHeight, &detail.ProductImage,
+			&detail.UserFirstName, &detail.UserLastName, // ✅ อ่านค่าชื่อผู้ใช้
 		); err != nil {
 			return nil, err
 		}
+
 		packageDetails = append(packageDetails, detail)
 	}
 
