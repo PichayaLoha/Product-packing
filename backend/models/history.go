@@ -55,6 +55,8 @@ type History struct {
 	CustomerAddress    string            `json:"customer_address"`
 	CustomerPostal     string            `json:"customer_postal"`
 	CustomerPhone      string            `json:"customer_phone"`
+	UserFirstName      string            `json:"user_firstname"`
+	UserLastName       string            `json:"user_lastname"`
 	HistoryUserID      int               `json:"package_user_id"`
 }
 

@@ -109,8 +109,8 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			genBoxDelY        sql.NullFloat64
 			genBoxDelZ        sql.NullFloat64
 			productID         sql.NullString
-			userFirstname     sql.NullString
-			userLastname      sql.NullString
+			// userFirstname     sql.NullString
+			// userLastname      sql.NullString
 		)
 
 		err := rows.Scan(
@@ -121,9 +121,9 @@ func GetHistoryByID(db *sql.DB, historyID string) (models.History, error) {
 			&history.HistoryProductCost,
 			&history.HistoryBoxCost,
 			&history.HistoryTotalCost,
-			&history.HistoryUserID, // ✅ เพิ่มการดึง user_id
-			&userFirstname,         // ✅ ดึง firstname
-			&userLastname,          // ✅ ดึง lastname
+			&history.HistoryUserID,
+			&history.UserFirstName,
+			&history.UserLastName,
 			&historyDelID,
 			&historyDelBoxSize,
 			&genBoxDelID,
