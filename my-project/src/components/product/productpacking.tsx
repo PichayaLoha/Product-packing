@@ -295,7 +295,7 @@ const ProductPacking = () => {
 
       {/* Products legend */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-gray-800 bg-opacity-90 p-4 rounded-md shadow-lg z-10 text-white">
-        <h3 className="text-lg font-bold mb-2 border-b border-gray-700 pb-2">สินค้า</h3>
+        <h3 className="text-lg font-bold mb-2 border-b border-gray-700 pb-2">Product</h3>
         <ul className="flex flex-wrap gap-4 justify-center">
           {productNames.map((product, index) => (
             <li key={index} className="flex items-center">

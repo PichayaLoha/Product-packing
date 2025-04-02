@@ -134,7 +134,8 @@ function PackingPage() {
             if (response.ok) {
                 console.log("userid is", userId)
                 console.log("result is", newItem);
-                alert("เพิ่ม customer เรียบร้อยแล้ว");
+                alert("Add customer success");
+                handleCloseModal(); // ปิด modal หลังจากส่งข้อมูล
                 handleGenerate()
                 // แสดงผลลัพธ์จาก backend
             } else {
@@ -193,7 +194,7 @@ function PackingPage() {
 
                         <div className='mb-3'>
                             <label className='flex items-center text-2xl font-semibold mb-3'>
-                                ขนาดกล่องที่ใช้
+                                Box size
                                 <Link to="/Boxesmanage" className='ml-2 btn btn-sm'>
                                     <IoSettingsOutline style={{ scale: "1.2" }} />
                                 </Link>
@@ -209,7 +210,7 @@ function PackingPage() {
                                                 checked={!blockedBoxes.includes(item.box_id)}
                                                 onChange={() => handleBoxChange(item.box_id)}
                                             />
-                                            <label> {item.box_name} ({item.box_width}x{item.box_length}x{item.box_height}) เหลือ {item.box_amount} </label>
+                                            <label> {item.box_name} [{item.box_width}x{item.box_length}x{item.box_height}] Left : {item.box_amount} </label>
                                         </div>
                                     ))}
                                 </div>
@@ -227,7 +228,7 @@ function PackingPage() {
                                     checked={mode === "boxes"}
                                     onChange={handleModeChange} // จัดการการเปลี่ยนแปลง
                                 />
-                                <label> ประหยัดจำนวนกล่อง</label>
+                                <label> Minimize the number of boxes</label>
                                 <input
                                     type="radio"
                                     name="radio-1"
@@ -236,7 +237,7 @@ function PackingPage() {
                                     checked={mode === "space"}
                                     onChange={handleModeChange} // จัดการการเปลี่ยนแปลง
                                 />
-                                <label className="ml-1">ประหยัดพื้นที่กล่อง</label>
+                                <label className="ml-1">Optimize box space</label>
                             </div>
                         </div>
                         <div className='mb-3 flex items-center'>

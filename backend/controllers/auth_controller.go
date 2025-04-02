@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"go-backend/middleware"
 	"go-backend/models"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +29,8 @@ func Login(db *sql.DB) gin.HandlerFunc {
 		// ค้นหา user ใน database
 		err := db.QueryRow("SELECT user_id, user_name, user_passwordhash, user_role FROM users WHERE user_name = $1", req.Username).
 			Scan(&user.UserID, &user.UserName, &user.UserPasswordHash, &user.UserRole)
+
+		fmt.Println(user.UserID, user.UserName, user.UserPasswordHash, user.UserRole)
 
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
@@ -55,6 +57,7 @@ func Login(db *sql.DB) gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"token":   token,
 			"user_id": user.UserID,
+			"user_role":    user.UserRole,
 		})
 	}
 }

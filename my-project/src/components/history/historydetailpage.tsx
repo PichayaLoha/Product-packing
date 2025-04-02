@@ -26,6 +26,8 @@ function Historydetailpage() {
     const [order, setOrder] = useState<OrderItem[]>([]);
     const [check, setCheck] = useState();
 
+    const [create_firstname, setCreateFirstname] = useState(0);
+    const [create_lastname, setCreateLastname] = useState(0);
     useEffect(() => {
         const fetchOrders = async () => {
             try {
@@ -33,6 +35,10 @@ function Historydetailpage() {
                 const response = await fetch(`http://localhost:8080/api/history/${message}`);
                 const data = await response.json();
                 console.log("test", data);
+
+                setCreateFirstname(data.user_firstname);
+                setCreateLastname(data.user_lastname);
+
                 setCheck(data.package_status);
                 setOrder(data.history_dels || []);
             } catch (error) {
@@ -80,16 +86,20 @@ function Historydetailpage() {
                         </button>
                     )}
                 </div>
+                <div className='flex mb-5 items-end'>
+                    <p className='text-xl mr-5'>Created by : {create_firstname } {create_lastname}</p>
+                    
+                </div>
                 <div className='flex justify-center'>
                     <div style={{ width: "90%" }}>
                         <div className="overflow-x-auto border rounded-xl border-slate-200">
                             <table className="table table-zebra text-center">
                                 <thead>
                                     <tr className='bg-cyan-700 text-white text-base'>
-                                        <th>ลำดับ</th>
-                                        <th>ขนาดกล่อง</th>
-                                        <th>จำนวนของในกล่อง</th>
-                                        <th>ชื่อ</th>
+                                        <th>No.</th>
+                                        <th>Box size</th>
+                                        <th>Items per box</th>
+                                        <th>Customer name</th>
                                         <th></th>
                                     </tr>
                                 </thead>

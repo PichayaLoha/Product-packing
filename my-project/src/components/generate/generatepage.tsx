@@ -63,9 +63,9 @@ function Generatepage() {
             <div className="col-span-10 m-5">
                 <div className='mb-5'>
                     <Link to='/Product'>
-                        <button className='btn'>กลับไปหน้าเพิ่ม Product</button>
+                        <button className='btn'>Back to Product page</button>
                     </Link>
-                    <p>จำนวนกล่องท้ังหมด : {history.length} กล่อง</p>
+                    <p>Total Box : {history.length} Box</p>
                     {/* <p>กล่องขนาด F :[4]    E:[4]    D:[4]    G:[4]   S:[4]   M:[4]    L:[4]</p> */}
 
                 </div>
@@ -75,11 +75,11 @@ function Generatepage() {
                             <table className="table table-zebra text-center">
                                 <thead>
                                     <tr className='bg-cyan-700 text-white text-base'>
-                                        <th>ลำดับ</th>
-                                        <th>ขนาดกล่อง</th>
-                                        <th>จำนวนสินค้า</th>
-                                        <th>ชื่อลูกค้า</th>
-                                        <th>ชื่อลูกค้า</th>
+                                        <th>No.</th>
+                                        <th>Box size</th>
+                                        <th>Item per box</th>
+                                        <th>Customer name</th>
+                                        <th>Preview</th>
                                     </tr>
                                 </thead>
                                 {/* รายการกล่องทั้งหมดของ orderนั้นๆ */}

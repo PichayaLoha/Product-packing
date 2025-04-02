@@ -25,7 +25,8 @@ function Menupage() {
             console.error("Logout error:", error);
         } finally {
             console.log("Removing token from localStorage...");
-            localStorage.removeItem("token");
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("userId");
             console.log("Token after logout:", localStorage.getItem("token"));
             navigate("/login");
             alert("Logged out successfully");
@@ -43,7 +44,7 @@ function Menupage() {
                 )}
                 <div className='grid justify-center items-center mb-7'>
                     <Link to="/">
-                        <p className='font-mono md:text-lg lg:text-3xl xl:text-4xl font-semibold text-white drop-shadow-md transition-all p-3 rounded-xl hover:bg-violet-600'>Plackkhong</p>
+                        <p className='font-mono md:text-lg lg:text-3xl xl:text-3xl font-semibold text-white drop-shadow-md transition-all p-3 rounded-xl hover:bg-violet-600'>Product Packing</p>
                     </Link>
                 </div>
                 <div className='flex flex-col items-center  drop-shadow-md'>
@@ -54,12 +55,12 @@ function Menupage() {
                         <button className='btn px-9 my-2  drop-shadow-md'>Order</button>
                     </Link>
                     <Link to="/Packing">
-                        <button className='btn px-8 my-2  drop-shadow-md'>Packing</button>
+                        <button className='btn px-8 my-2  drop-shadow-md'>Generate</button>
                     </Link>
                     <Link to="/History">
                         <button className='btn px-8 my-2  drop-shadow-md'>History</button>
                     </Link>
-                    <button className='btn btn-error px-8 my-2  drop-shadow-md' onClick={handleLogout}>ออก</button>
+                    <button className='btn btn-error px-8 my-2  drop-shadow-md' onClick={handleLogout}>Log out</button>
 
                 </div>
             </div>

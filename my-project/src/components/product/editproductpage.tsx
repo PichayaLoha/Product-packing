@@ -67,6 +67,7 @@ function EditProductPage() {
             });
 
             if (response.ok) {
+                alert("Edit success")
                 navigate('/Product'); // นำทางไปยังหน้าผลลัพธ์เมื่อสำเร็จ
             } else {
                 console.error('Error updating item:', response.statusText);
@@ -84,73 +85,73 @@ function EditProductPage() {
                     <div className="card bg-base-100 w-96 shadow-xl">
                         <div className="card-body">
                             <div className="card-title grid justify-center">
-                                <h2>แก้ไขรายระเอียด</h2>
+                                <h2>Edit product detail</h2>
                             </div>
                             <div className='grid grid-cols-2 gap-4'>
                                 <label className="form-control w-full max-w-xs col-span-2">
-                                    <span className="label-text">ชื่อสินค้า</span>
+                                    <span className="label-text">Product name</span>
                                     <input
                                         type="text"
-                                        placeholder="ชื่อสินค้า"
+                                        placeholder="Product name"
                                         value={product_name} // แสดงชื่อสินค้าที่ดึงมา
                                         onChange={(e) => setProductName(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs"
                                     />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความกว้าง</span>
+                                    <span className="label-text">Width</span>
                                     <input
                                         type="text"
-                                        placeholder="เซนติเมตร"
+                                        placeholder="Cm."
                                         value={product_width} // แสดงความกว้างที่ดึงมา
                                         onChange={(e) => setWidth(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs"
                                     />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความยาว</span>
+                                    <span className="label-text">Length</span>
                                     <input
                                         type="text"
-                                        placeholder="เซนติเมตร"
+                                        placeholder="Cm."
                                         value={product_length} // แสดงความยาวที่ดึงมา
                                         onChange={(e) => setLength(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs"
                                     />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความสูง</span>
+                                    <span className="label-text">Heigth</span>
                                     <input
                                         type="text"
-                                        placeholder="เซนติเมตร"
+                                        placeholder="Cm."
                                         value={product_height} // แสดงความสูงที่ดึงมา
                                         onChange={(e) => setHeight(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs"
                                     />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">น้ำหนัก</span>
+                                    <span className="label-text">Weight</span>
                                     <input
                                         type="text"
-                                        placeholder="น้ำหนัก"
+                                        placeholder="Kg."
                                         value={product_weight} // แสดงน้ำหนักที่ดึงมา
                                         onChange={(e) => setWeight(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs"
                                     />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ราคา</span>
+                                    <span className="label-text">Price</span>
                                     <input
                                         type="text"
-                                        placeholder="บาท"
+                                        placeholder="Baht"
                                         value={product_cost}
                                         onChange={(e) => setCost(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">จำนวน</span>
+                                    <span className="label-text">Amount</span>
                                     <input
                                         type="text"
-                                        placeholder="จำนวน"
+                                        placeholder="Amount"
                                         value={product_amount} // แสดงจำนวนที่ดึงมา
                                         onChange={(e) => setAmount(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs"

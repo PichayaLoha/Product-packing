@@ -1,9 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
-import Menupage from '../menupage';
 import { Link } from 'react-router-dom';
+import Menupage from '../menupage';
 import Productcard from './productcard';
 import { AuthContext } from '../auth/AuthContext';
-import { getToken } from '../auth/auth';
 
 interface Product {
     product_id: number;
@@ -16,27 +15,29 @@ interface Product {
     product_cost: number;
     user_id: number;
     product_image: string;
-    product_time: string; // เพิ่ม product_time
+    product_time: string;
 }
 
 function Productpage() {
-    const [product, setProduct] = useState<Product[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [size, setSize] = useState(0);
-    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest'); // สถานะสำหรับการเรียงลำดับ
-    const [userId, setUserId] = useState<String>(""); // สถานะสำหรับ userId
-     
-    // ดึงข้อมูล products จาก backend เมื่อ component โหลด
+    const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+    const [userId, setUserId] = useState<string>("");
+
+    const auth = useContext(AuthContext);
+    const userRole = auth?.userRole || localStorage.getItem("user_role");
+    const canEditOrDelete = userRole === "admin" || userRole === "inventory manager";
+
     const authContext = useContext(AuthContext);
 
     useEffect(() => {
         const userId = localStorage.getItem("userId");
         setUserId(userId || "");
+
         const fetchProducts = async () => {
             try {
                 const response = await fetch('http://localhost:8080/api/products');
                 const data = await response.json();
-                console.log(data.products);
-                // เรียงลำดับข้อมูลตาม product_time
                 sortProductsByTime(data.products, sortOrder);
                 setSize(data.products ? data.products.length : 0);
             } catch (error) {
@@ -45,63 +46,54 @@ function Productpage() {
         };
 
         fetchProducts();
-    }, [authContext, sortOrder]); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
+    }, [authContext, sortOrder]);
 
-    // ฟังก์ชันเรียงลำดับสินค้าตามเวลา
     const sortProductsByTime = (products: Product[], order: 'newest' | 'oldest') => {
         const sortedProducts = [...products].sort((a, b) => {
             const timeA = new Date(a.product_time).getTime();
             const timeB = new Date(b.product_time).getTime();
             return order === 'newest' ? timeB - timeA : timeA - timeB;
         });
-        setProduct(sortedProducts);
+        setProducts(sortedProducts);
     };
 
-    // สลับการเรียงลำดับ
     const toggleSortOrder = () => {
         const newOrder = sortOrder === 'newest' ? 'oldest' : 'newest';
         setSortOrder(newOrder);
-        sortProductsByTime(product, newOrder);
+        sortProductsByTime(products, newOrder);
     };
 
-    const handleQuantityChange = (product_id: number): void => {
-        setProduct(prevProducts => {
-            const updatedProducts = prevProducts.filter(product => product.product_id !== product_id);
-            return updatedProducts;
-        });
+    const handleQuantityChange = (product_id: number) => {
+        setProducts(prevProducts => prevProducts.filter(product => product.product_id !== product_id));
     };
 
     return (
-        <div>
-            <div className="grid grid-cols-12 h-screen">
-                <Menupage />
-                <div className="col-span-10">
-                    <div className='m-7 '>
-                        <div className='mb-3 flex items-center justify-between'>
-                            <div className='flex items-center'>
-                                <p className='text-2xl font-semibold'>Product</p>
+        <div className="grid grid-cols-12 h-screen">
+            <Menupage />
+            <div className="col-span-10">
+                <div className='m-7'>
+                    <div className='mb-3 flex items-center justify-between'>
+                        <div className='flex items-center'>
+                            <p className='text-2xl font-semibold'>Product</p>
+                            {canEditOrDelete && (
                                 <Link to='/Addproduct' state={{ "userId": userId }}>
                                     <button className='btn btn-outline bg-sky-900 ml-5 text-lg text-white'>Add Product</button>
                                 </Link>
-                            </div>
-                            <div>
-                                <button
-                                    onClick={toggleSortOrder}
-                                    className='btn btn-outline flex items-center gap-2'
-                                >
-                                    <span>เรียงตามเวลา: {sortOrder === 'newest' ? 'ใหม่-เก่า' : 'เก่า-ใหม่'}</span>
-                                    <span className='text-xl'>{sortOrder === 'newest' ? '↓' : '↑'}</span>
-                                </button>
-                            </div>
+                            )}
                         </div>
-                        {size > 0 &&
-                            <div className='grid grid-cols-4 gap-4'>
-                                {product.map((product) => (
-                                    <Productcard key={product.product_id} product={product} userId={userId}  onQuantityChange={handleQuantityChange} />
-                                ))}
-                            </div>
-                        }
+                        <button onClick={toggleSortOrder} className='btn btn-outline flex items-center gap-2'>
+                            <span>Sort by time: {sortOrder === 'newest' ? 'Newest-Oldest' : 'Oldest-Newest'}</span>
+                            <span className='text-xl'>{sortOrder === 'newest' ? '↓' : '↑'}</span>
+                        </button>
                     </div>
+
+                    {size > 0 && (
+                        <div className='grid grid-cols-4 gap-4'>
+                            {products.map(product => (
+                                <Productcard key={product.product_id} product={product} userId={userId} userRole={canEditOrDelete} onQuantityChange={handleQuantityChange} />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

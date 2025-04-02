@@ -19,6 +19,7 @@ function AddProductPage() {
     const [image, setImage] = useState<File | null>();
     const [preview, setPreview] = useState<string | null>();
 
+    const [loading, setLoading] = useState(false);
 
 
     const handleImageChange = (e: ImageChangeEvent) => {
@@ -35,6 +36,13 @@ function AddProductPage() {
     };
 
     const handleAddItem = async () => {
+        if (!image) {
+            alert("Please insert the image first.");
+            return;
+        }
+
+        setLoading(true); // 👉 เริ่มโหลด
+
         const formData = new FormData();
         formData.append("product_name", product_name);
         formData.append("product_height", height);
@@ -44,26 +52,24 @@ function AddProductPage() {
         formData.append("product_amount", amount);
         formData.append("product_cost", cost);
         formData.append("user_id", state.userId);
-        console.log("w;glsekg", state.userId);
-        if (image) {
-            formData.append("product_image", image); // 📌 เพิ่มรูปภาพ
-        } else {
-            alert("โปรดใส่รูปก่อน");
-        }
+        formData.append("product_image", image);
 
         try {
             const response = await fetch("http://localhost:8080/api/products", {
                 method: "POST",
-                body: formData, // 📌 เปลี่ยนจาก JSON เป็น FormData
+                body: formData,
             });
 
             if (response.ok) {
+                alert("Added successfully.");
                 navigate("/Product");
             } else {
                 console.error("Error adding item:", response.statusText);
             }
         } catch (error) {
             console.error("Error:", error);
+        } finally {
+            setLoading(false); // 👉 หยุดโหลด
         }
     };
 
@@ -75,14 +81,14 @@ function AddProductPage() {
                 <div className='flex justify-center items-center h-screen'>
                     <div className="card bg-base-100 w-96 shadow-xl">
                         <div className="card-body">
-                            <div className="card-title grid justify-center"><h2 >เพิ่มสินค้า</h2></div>
+                            <div className="card-title grid justify-center"><h2 >Add product</h2></div>
 
                             <div className='grid grid-cols-2 gap-4'>
                                 <label className="form-control w-full max-w-xs col-span-2">
-                                    <span className="label-text">ชื่อสินค้า</span>
+                                    <span className="label-text">Product name</span>
                                     <input
                                         type="text"
-                                        placeholder="ชื่อสินค้า"
+                                        placeholder="Product name"
                                         value={product_name}
                                         onChange={(e) => {
                                             setproduct_name(e.target.value)
@@ -92,55 +98,55 @@ function AddProductPage() {
                                 </label>
 
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความกว้าง (cm.)</span>
+                                    <span className="label-text">Width (cm.)</span>
                                     <input
                                         type="text"
-                                        placeholder="เซนติเมตร"
+                                        placeholder="cm."
                                         value={width}
                                         onChange={(e) => setWidth(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความยาว (cm.)</span>
+                                    <span className="label-text">Length (cm.)</span>
                                     <input
                                         type="text"
-                                        placeholder="เซนติเมตร"
+                                        placeholder="cm."
                                         value={length}
                                         onChange={(e) => setLength(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ความสูง (cm.)</span>
+                                    <span className="label-text">Height (cm.)</span>
                                     <input
                                         type="text"
-                                        placeholder="เซนติเมตร"
+                                        placeholder="cm."
                                         value={height}
                                         onChange={(e) => setHeight(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">น้ำหนัก (kg.)</span>
+                                    <span className="label-text">Weight (kg.)</span>
                                     <input
                                         type="text"
-                                        placeholder="น้ำหนัก"
+                                        placeholder="Kg."
                                         value={weight}
                                         onChange={(e) => setWeight(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">ราคา (บาท)</span>
+                                    <span className="label-text">Price (Baht)</span>
                                     <input
                                         type="text"
-                                        placeholder="บาท"
+                                        placeholder="Baht"
                                         value={cost}
                                         onChange={(e) => setCost(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
                                 </label>
                                 <label className="form-control w-full max-w-xs">
-                                    <span className="label-text">จำนวน</span>
+                                    <span className="label-text">Amount</span>
                                     <input
                                         type="text"
-                                        placeholder="จำนวน"
+                                        placeholder="Amount"
                                         value={amount}
                                         onChange={(e) => setAmount(e.target.value)} // อัปเดต state
                                         className="input input-bordered input-sm w-full max-w-xs" />
@@ -155,7 +161,13 @@ function AddProductPage() {
                                 </div>
                             </div>
                             <div className="card-actions justify-center">
-                                <button className="btn bg-green-500 btn-sm" onClick={handleAddItem}>Add</button>
+                                <div>
+                                    <button className="btn bg-green-500 btn-sm" onClick={handleAddItem} disabled={loading}>
+                                        {loading ? "Adding..." : "Add Item"}
+                                    </button>
+
+                                    {loading && <div className="spinner"></div>}
+                                </div>
                                 <Link to='/Product'>
                                     <button className="btn btn-error btn-sm">Cancel</button>
                                 </Link>

@@ -54,20 +54,23 @@ function History_page() {
     }, [statusFilter, history]);
 
     const historyDeletehandle = async (historyId: number) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/history/${historyId}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                setHistory(prevOrders => prevOrders.filter(order => order.history_id !== historyId));
-                alert("ลบเรียบร้อยแล้ว");
-                fetchOrdersAndBoxes();
-            } else {
-                console.error('Error deleting product:', response.statusText);
-                alert("เกิดข้อผิดพลาดในการลบประวัติ");
+        const confirmDelete = window.confirm("Are you sure you want to delete this History?");
+        if (confirmDelete) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/history/${historyId}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    setHistory(prevOrders => prevOrders.filter(order => order.history_id !== historyId));
+                    alert("Delete history success");
+                    fetchOrdersAndBoxes();
+                } else {
+                    console.error('Error deleting history:', response.statusText);
+                    alert("Delete history failed.");
+                }
+            } catch (error) {
+                console.error('Error:', error);
             }
-        } catch (error) {
-            console.error('Error:', error);
         }
     }
 
@@ -92,7 +95,7 @@ function History_page() {
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                 >
-                                    <option value="all">ทั้งหมด</option>
+                                    <option value="all">All</option>
                                     <option value="packed">Packed</option>
                                     <option value="unpacked">Unpacked</option>
                                 </select>
@@ -110,11 +113,11 @@ function History_page() {
                                 <table className="table bg-stone-600 text-center">
                                     <thead>
                                         <tr className='bg-cyan-700 text-white text-base'>
-                                            <th>ลำดับ</th>
-                                            <th>จำนวนกล่อง</th>
-                                            <th>ชื่อ</th>
-                                            <th>status</th>
-                                            <th>Total Product cost</th>
+                                            <th>No.</th>
+                                            <th>Box amount</th>
+                                            <th>Customer name</th>
+                                            <th>Status</th>
+                                            <th>Total cost</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -143,13 +146,13 @@ function History_page() {
                                                             className='btn btn-sm bg-green-500 border-green-500 hover:bg-green-600'
                                                             onClick={() => { historyhandle(item.package_id, item.customer_firstname, item.customer_lastname) }}
                                                         >
-                                                            รายละเอียด
+                                                            Detail
                                                         </button>
                                                         <button
                                                             className='btn btn-sm ml-2 bg-red-400 border-red-400 hover:bg-red-500'
                                                             onClick={() => { historyDeletehandle(item.package_id) }}
                                                         >
-                                                            ลบ
+                                                            Delete
                                                         </button>
                                                     </td>
                                                 </tr>

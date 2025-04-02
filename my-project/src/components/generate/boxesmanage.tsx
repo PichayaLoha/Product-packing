@@ -110,13 +110,13 @@ function Boxesmanage() {
     const handleAddboxes = async () => {
         // Validate box name
         if (!box_name.trim()) {
-            setNameError("กรุณากรอกชื่อกล่อง");
+            setNameError("Please enter the box name.");
             return;
         }
 
         // Check for duplicate box name
         if (checkDuplicateName(box_name)) {
-            setNameError("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+            setNameError("The box name already exists.");
             return;
         }
 
@@ -156,13 +156,13 @@ function Boxesmanage() {
     const handleUpdateboxes = async () => {
         // Validate box name
         if (!box_name_ed.trim()) {
-            setNameErrorEd("กรุณากรอกชื่อกล่อง");
+            setNameErrorEd("Please enter the box name.");
             return;
         }
 
         // Check for duplicate box name, excluding the current box being edited
         if (checkDuplicateName(box_name_ed, box_id_ed)) {
-            setNameErrorEd("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+            setNameErrorEd("The box name already exists.");
             return;
         }
 
@@ -202,7 +202,7 @@ function Boxesmanage() {
     };
 
     const handleDeleteboxes = async (boxId: number): Promise<void> => {
-        const confirmDelete = window.confirm("คุณแน่ใจหรือว่าต้องการลบออเดอร์นี้?");
+        const confirmDelete = window.confirm("Are you sure you want to delete this box?");
         if (confirmDelete) {
             try {
                 const response = await fetch(`http://localhost:8080/api/boxes/${boxId}`, {
@@ -211,10 +211,10 @@ function Boxesmanage() {
 
                 if (response.ok) {
                     setBoxes(prevOrders => prevOrders.filter(order => order.box_id !== boxId));
-                    alert("ลบออเดอร์เรียบร้อยแล้ว");
+                    alert("Box has been successfully deleted.");
                 } else {
                     console.error('Error deleting product:', response.statusText);
-                    alert("เกิดข้อผิดพลาดในการลบสินค้า");
+                    alert("An error occurred while deleting the box.");
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -228,9 +228,9 @@ function Boxesmanage() {
         setBoxname(newName);
 
         if (!newName.trim()) {
-            setNameError("กรุณากรอกชื่อกล่อง");
+            setNameError("Please enter the box name.");
         } else if (checkDuplicateName(newName)) {
-            setNameError("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+            setNameError("The box name already exists.");
         } else {
             setNameError("");
         }
@@ -242,9 +242,9 @@ function Boxesmanage() {
         setBoxname_ed(newName);
 
         if (!newName.trim()) {
-            setNameErrorEd("กรุณากรอกชื่อกล่อง");
+            setNameErrorEd("Please enter the box name.");
         } else if (checkDuplicateName(newName, box_id_ed)) {
-            setNameErrorEd("ชื่อกล่องซ้ำกับที่มีอยู่แล้ว กรุณาใช้ชื่ออื่น");
+            setNameErrorEd("The box name already exists.");
         } else {
             setNameErrorEd("");
         }
@@ -292,13 +292,13 @@ function Boxesmanage() {
 
                                                         <td>
 
-                                                            <button className='btn btn-xs bg-orange-300' onClick={() => { selectupdateboxes(item.box_id) }}>แก้ไข</button>
+                                                            <button className='btn btn-xs bg-orange-300' onClick={() => { selectupdateboxes(item.box_id) }}>Edit</button>
 
                                                             <button
                                                                 className='btn btn-xs ml-5 bg-red-400'
                                                                 onClick={() => handleDeleteboxes(item.box_id)}
                                                             >
-                                                                ลบ
+                                                                Delete
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -316,70 +316,69 @@ function Boxesmanage() {
                     <div className='flex justify-center items-center m-12'>
                         <div className="card bg-base-100 w-96 shadow-xl">
                             <div className="card-body">
-                                <div className="card-title justify-center"><h2 >เพิ่มกล่อง</h2></div>
+                                <div className="card-title justify-center"><h2 >Add new box</h2></div>
 
                                 <div className='grid grid-cols-2 gap-4'>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ชื่อกล่อง</span>
+                                        <span className="label-text">Box name</span>
                                         <input
                                             type="text"
-                                            placeholder="ชื่อกล่อง"
+                                            placeholder="name"
                                             value={box_name}
                                             onChange={handleBoxNameChange}
                                             className={`input input-bordered input-sm w-full max-w-xs ${nameError ? 'input-error' : ''}`} />
                                         {nameError && <span className="text-xs text-red-500">{nameError}</span>}
                                     </label>
-
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ความกว้าง</span>
+                                        <span className="label-text">Width</span>
                                         <input
                                             type="text"
-                                            placeholder="เซนติเมตร"
+                                            placeholder="cm."
                                             value={box_width}
                                             onChange={(e) => setBoxwidth(e.target.value)} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ความยาว</span>
+                                        <span className="label-text">Length</span>
                                         <input
                                             type="text"
-                                            placeholder="เซนติเมตร"
+                                            placeholder="cm."
                                             value={box_length}
                                             onChange={(e) => setBoxlength(e.target.value)} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ความสูง</span>
+                                        <span className="label-text">Height</span>
                                         <input
                                             type="text"
-                                            placeholder="เซนติเมตร"
+                                            placeholder="cm."
                                             value={box_height}
                                             onChange={(e) => setheBoxheight(e.target.value)} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">น้ำหนักสูงสุด</span>
+                                        <span className="label-text">Max weight</span>
                                         <input
                                             type="text"
-                                            placeholder="กิโลกรัม"
+                                            placeholder="kg."
                                             value={box_maxweight}
                                             onChange={(e) => setBoxmaxweight(e.target.value)} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ราคากล่อง</span>
+                                        <span className="label-text">Box Price</span>
                                         <input
                                             type="text"
-                                            placeholder="บาท"
+                                            placeholder="baht"
                                             value={box_cost}
                                             onChange={(e) => setBoxcost(e.target.value)} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">จำนวน</span>
+                                        <span className="label-text">Amount</span>
                                         <input
                                             type="text"
-                                            placeholder="จำนวน"
+                                            placeholder="amount"
                                             value={box_amount}
                                             onChange={(e) => setBoxamount(e.target.value)} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
@@ -399,14 +398,14 @@ function Boxesmanage() {
                     <div className='flex justify-center items-center'>
                         <div className="card bg-base-100 w-96 shadow-xl">
                             <div className="card-body">
-                                <div className="card-title justify-center"><h2 >แก้ไขรายระเอียดกล่อง</h2></div>
+                                <div className="card-title justify-center"><h2 >Edit box detail</h2></div>
 
                                 <div className='grid grid-cols-2 gap-4'>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ชื่อกล่อง</span>
+                                        <span className="label-text">Box name</span>
                                         <input
                                             type="text"
-                                            placeholder="ชื่อกล่อง"
+                                            placeholder="name"
                                             value={box_name_ed}
                                             onChange={handleBoxNameEdChange}
                                             disabled={isDisabled}
@@ -415,60 +414,60 @@ function Boxesmanage() {
                                     </label>
 
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ความกว้าง</span>
+                                        <span className="label-text">Width</span>
                                         <input
                                             type="text"
-                                            placeholder="เซนติเมตร"
+                                            placeholder="cm."
                                             value={box_width_ed}
                                             onChange={(e) => setBoxwidth_ed(e.target.value)} // อัปเดต state
                                             disabled={isDisabled}
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ความยาว</span>
+                                        <span className="label-text">Length</span>
                                         <input
                                             type="text"
-                                            placeholder="เซนติเมตร"
+                                            placeholder="cm."
                                             value={box_length_ed}
                                             onChange={(e) => setBoxlength_ed(e.target.value)} // อัปเดต state
                                             disabled={isDisabled}
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ความสูง</span>
+                                        <span className="label-text">Height</span>
                                         <input
                                             type="text"
-                                            placeholder="เซนติเมตร"
+                                            placeholder="cm."
                                             value={box_height_ed}
                                             onChange={(e) => setheBoxheight_ed(e.target.value)} // อัปเดต state
                                             disabled={isDisabled}
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">น้ำหนักสูงสุด</span>
+                                        <span className="label-text">Max weight</span>
                                         <input
                                             type="text"
-                                            placeholder="กิโลกรัม"
+                                            placeholder="kg."
                                             value={box_maxweight_ed}
                                             onChange={(e) => setBoxmaxweight_ed(e.target.value)} // อัปเดต state
                                             disabled={isDisabled}
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">ราคากล่อง</span>
+                                        <span className="label-text">Box price</span>
                                         <input
                                             type="text"
-                                            placeholder="บาท"
+                                            placeholder="baht"
                                             value={box_cost_ed}
                                             onChange={(e) => setBoxcost_ed(e.target.value)}
                                             disabled={isDisabled} // อัปเดต state
                                             className="input input-bordered input-sm w-full max-w-xs" />
                                     </label>
                                     <label className="form-control w-full max-w-xs">
-                                        <span className="label-text">จำนวน</span>
+                                        <span className="label-text">Amount</span>
                                         <input
                                             type="text"
-                                            placeholder="จำนวน"
+                                            placeholder="amount"
                                             value={box_amount_ed}
                                             onChange={(e) => setBoxamount_ed(e.target.value)} // อัปเดต state
                                             disabled={isDisabled}

@@ -114,10 +114,10 @@ function OrderTablePage() {
                   <table className="table bg-stone-500  text-center">
                     <thead>
                       <tr className='bg-cyan-700 text-white text-xs sm:text-xs 2xl:text-sm'>
-                        <th>ลำดับ</th>
-                        <th>จำนวนกล่อง</th>
-                        <th>ชื่อ</th>
-                        <th>status</th>
+                        <th>No.</th>
+                        <th>Box amount</th>
+                        <th>Customer name</th>
+                        <th>Status</th>
                       </tr>
                     </thead>
                     {hissize > 0 &&
