@@ -1,3 +1,4 @@
+// src/context/AuthContext.tsx
 import { createContext, useState, useEffect, ReactNode } from "react";
 import { getToken, setToken as saveToken, removeToken } from "./auth";
 import { useNavigate } from "react-router-dom";
@@ -5,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 interface AuthContextType {
     token: string | null;
     setToken: (token: string | null, expiresInMinutes?: number) => void;
-    userId: number | null;  // ✅ เพิ่ม userId
-    setUserId: (id: number | null) => void;  // ✅ เพิ่ม setUserId
+    userId: string | null;  // เพิ่ม userId
+    setUserId: (userId: string | null) => void;  // ฟังก์ชัน setUserId
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,14 +18,14 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [token, setTokenState] = useState<string | null>(getToken());
-    const [userId, setUserIdState] = useState<number | null>(null);  // ✅ เพิ่ม state userId
-    const [hasAlerted, setHasAlerted] = useState(false);
+    const [userId, setUserIdState] = useState<string | null>(localStorage.getItem("userId")); // ดึง userId จาก localStorage
+    const [hasAlerted, setHasAlerted] = useState(false); // ✅ เช็คว่า alert ออกแล้วหรือยัง
     const navigate = useNavigate();
 
-    // ✅ ฟังก์ชันอัปเดต Token
+    // ฟังก์ชันอัปเดต Token ใน Context
     const setToken = (newToken: string | null, expiresInMinutes?: number) => {
         if (newToken) {
-            saveToken(newToken, expiresInMinutes || 30);
+            saveToken(newToken, expiresInMinutes || 30); // เซฟ Token 30 นาที (ค่าเริ่มต้น)
         } else {
             removeToken();
         }
@@ -32,9 +33,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setHasAlerted(false);
     };
 
-    // ✅ ฟังก์ชันอัปเดต userId
-    const setUserId = (id: number | null) => {
-        setUserIdState(id);
+    // ฟังก์ชันอัปเดต userId ใน Context
+    const setUserId = (newUserId: string | null) => {
+        if (newUserId) {
+            localStorage.setItem("userId", newUserId); // เซฟ userId ลง localStorage
+        } else {
+            localStorage.removeItem("userId"); // ลบ userId ออกจาก localStorage
+        }
+        setUserIdState(newUserId);
     };
 
     // ตรวจสอบ Token ทุก 10 วินาที
@@ -46,7 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 alert("Session expired. Please login again.");
                 removeToken();
                 setTokenState(null);
-                setUserIdState(null);  // ✅ ล้าง userId ด้วย
+                setUserIdState(null); // ลบ userId เมื่อออกจากระบบ
                 navigate("/login");
             }
         }, 10000);
