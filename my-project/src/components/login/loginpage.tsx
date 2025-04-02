@@ -79,8 +79,16 @@ const Login: React.FC = () => {
 
                         {error && <p className="text-red-600">{error}</p>}
 
-                        <button type="submit" className="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full">
+                        <button type="submit" className="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full mb-4">
                             Sign In
+                        </button>
+
+                        <button 
+                            type="button" 
+                            className="btn bg-gray-500 hover:bg-gray-600 text-white w-full"
+                            onClick={() => navigate("/register")}
+                        >
+                            Register
                         </button>
                     </form>
                 </div>
