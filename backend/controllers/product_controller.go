@@ -71,11 +71,11 @@ func CreateProduct(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	// 🖼 เก็บ URL ลง Database
+	// เก็บ URL ลง Database
 	newProduct.ProductImage = imageURL
 	newProduct.ProductTime = time.Now()
 
-	// ✅ บันทึกสินค้า
+	// บันทึกสินค้า
 	if err := services.CreateProduct(db, &newProduct); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถเพิ่มสินค้าได้"})
 		return

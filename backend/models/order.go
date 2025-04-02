@@ -15,4 +15,5 @@ type OrderDetail struct {
 type RequestBody struct {
 	Mode         string `json:"mode"`
 	BlockedBoxes []int  `json:"blocked_boxes"`
+	UserId       int    `json:"user_id"`
 }

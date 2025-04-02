@@ -42,7 +42,6 @@ func CreateBoxes(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	// newOrderdel.OrderDelDate = time.Now()
 	if err := services.CreateBoxes(db, &newBox); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create box"})
 		return
@@ -66,8 +65,6 @@ func UpdateBoxes(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	// updatedProduct.ProductTime = time.Now()
-
 	if err := services.UpdateBoxes(db, &updatedBox, boxID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Unable to update box",
@@ -76,7 +73,7 @@ func UpdateBoxes(c *gin.Context, db *sql.DB) {
 	}
 	updatedBox.BoxID, _ = strconv.Atoi(boxID)
 	c.JSON(http.StatusOK, gin.H{
-		"message": "อัปเดตออเดอร์สำเร็จ",
+		"message": "อัปเดตกล่องสำเร็จ",
 		"box":     updatedBox,
 	})
 }

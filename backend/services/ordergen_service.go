@@ -22,7 +22,6 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	}
 
 	mode := requestBody.Mode
-	// mode := "boxes"
 	fmt.Println(mode)
 	fmt.Println("Blocked Boxes:", requestBody.BlockedBoxes)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight, box_cost FROM boxes`)
@@ -43,11 +42,6 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		log.Println("Error querying products: ", err1)
 		return nil, err
 	}
-	// if !rows1.Next() {
-	// 	log.Println("ไม่มีออเดอร์ในระบบ")
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "ไม่มีออเดอร์ในระบบ"})
-	// 	return nil, nil
-	// }
 	defer rows1.Close()
 
 	var boxSizes []models.Box
@@ -66,25 +60,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 			return boxSizes[i].BoxID < boxSizes[j].BoxID
 
 		})
-		// fmt.Println("boxSizes: ", boxSizes)
 	}
-	// fmt.Println("boxSizes: ", boxSizes)
-
-	// สแกนข้อมูลจากตาราง products
-	// for rows1.Next() {
-	// 	var product models.Product
-	// 	var order models.OrderDetail
-	// 	var productAmount int
-	// 	if err1 := rows1.Scan(&order.OrderDelID, &product.ProductID, &product.ProductName, &product.ProductWidth, &product.ProductLength, &product.ProductHeight, &product.ProductWeight, &productAmount); err1 != nil {
-	// 		log.Println("Error scanning product row: ", err1)
-	// 		return nil, err
-	// 	}
-
-	// 	// ลูปเพิ่มออเดอร์ตามจำนวน product_amount
-	// 	for i := 0; i < productAmount; i++ {
-	// 		products = append(products, product)
-	// 	}
-	// }
 	for rows1.Next() {
 		var product models.Product
 		var order models.OrderDetail
@@ -142,7 +118,7 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	var historyID int
 	historyOrder := models.HistoryOrder{HistoryStatus: "Unpacked"}
 
-	// ✅ ดึง `customer_id` ล่าสุดจาก database
+	// ดึง `customer_id` ล่าสุดจาก database
 	var customerID int
 	queryLastCustomer := `SELECT customer_id FROM customers ORDER BY customer_id DESC LIMIT 1`
 	err = db.QueryRow(queryLastCustomer).Scan(&customerID)
@@ -153,11 +129,11 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 
 	fmt.Println("Latest customer_id:", customerID)
 
-	// ✅ ใช้ `customer_id` ที่เพิ่งสร้างในการ INSERT `packages_order`
-	queryHistoryOrder := `INSERT INTO packages_order (package_time, package_amount, package_status, package_product_cost, package_box_cost, package_total_cost, customer_id)
-                      VALUES (NOW(), $1, $2, $3, $4, $5, $6)
+	// ใช้ `customer_id` ที่เพิ่งสร้างในการ INSERT `packages_order`
+	queryHistoryOrder := `INSERT INTO packages_order (package_time, package_amount, package_status, package_product_cost, package_box_cost, package_total_cost, customer_id, package_user_id)
+                      VALUES (NOW(), $1, $2, $3, $4, $5, $6, $7)
                       RETURNING package_id`
-	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus, totalProductCost, totalBoxCost, totalCost, customerID).Scan(&historyID)
+	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus, totalProductCost, totalBoxCost, totalCost, customerID, requestBody.UserId).Scan(&historyID)
 	if err != nil {
 		log.Println("Error inserting into packages_order:", err)
 		return nil, err
@@ -255,7 +231,7 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) ([]m
 	totalProductCost := 0.0
 	totalBoxCost := 0.0
 
-	// 🛠 ใช้ map เก็บจำนวนกล่องที่ใช้จริง
+	// ใช้ map เก็บจำนวนกล่องที่ใช้จริง
 	boxUsage := make(map[string]int)
 
 	for len(remainingProducts) > 0 {

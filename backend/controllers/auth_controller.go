@@ -51,7 +51,7 @@ func Login(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		// ✅ ส่ง `user_id` และ `token` กลับไป
+		//ส่ง `user_id` และ `token` กลับไป
 		c.JSON(http.StatusOK, gin.H{
 			"token":   token,
 			"user_id": user.UserID,
