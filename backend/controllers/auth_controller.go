@@ -27,8 +27,8 @@ func Login(db *sql.DB) gin.HandlerFunc {
 		}
 
 		// ค้นหา user ใน database
-		err := db.QueryRow("SELECT user_id, user_name, user_passwordhash FROM users WHERE user_name = $1", req.Username).
-			Scan(&user.UserID, &user.UserName, &user.UserPasswordHash)
+		err := db.QueryRow("SELECT user_id, user_name, user_passwordhash, user_role FROM users WHERE user_name = $1", req.Username).
+			Scan(&user.UserID, &user.UserName, &user.UserPasswordHash, &user.UserRole)
 
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})

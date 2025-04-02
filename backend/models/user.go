@@ -7,4 +7,5 @@ type User struct {
 	UserPasswordHash string `json:"user_passwordhash"`
 	UserFirstName    string `json:"user_firstname"`
 	UserLastName     string `json:"user_lastname"`
+	UserRole         string `json:"user_role"`
 }

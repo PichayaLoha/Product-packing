@@ -24,7 +24,6 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	mode := requestBody.Mode
 	fmt.Println(mode)
 	fmt.Println("Blocked Boxes:", requestBody.BlockedBoxes)
-	fmt.Println("UserId is :", requestBody.UserId)
 	rows, err := db.Query(`SELECT box_id, box_name, box_width, box_length, box_height, box_amount , box_maxweight, box_cost FROM boxes`)
 	rows1, err1 := db.Query(`SELECT 
 			od.order_del_id, p.product_id,
@@ -142,7 +141,6 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	fmt.Println("Created package_id:", historyID)
 
 	for _, historyProduct := range productgen {
-		// fmt.Println("historyProduct : ", historyProduct.Products)
 		var genboxDelID int
 		queryHistoryDel := `INSERT INTO package_dels (package_del_boxsize, package_id) 
 							VALUES ($1, $2) 
