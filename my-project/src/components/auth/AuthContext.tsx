@@ -1,4 +1,3 @@
-// src/context/AuthContext.tsx
 import { createContext, useState, useEffect, ReactNode } from "react";
 import { getToken, setToken as saveToken, removeToken } from "./auth";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 interface AuthContextType {
     token: string | null;
     setToken: (token: string | null, expiresInMinutes?: number) => void;
+    userId: number | null;  // ✅ เพิ่ม userId
+    setUserId: (id: number | null) => void;  // ✅ เพิ่ม setUserId
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,18 +17,24 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [token, setTokenState] = useState<string | null>(getToken());
-    const [hasAlerted, setHasAlerted] = useState(false); // ✅ เช็คว่า alert ออกแล้วหรือยัง
+    const [userId, setUserIdState] = useState<number | null>(null);  // ✅ เพิ่ม state userId
+    const [hasAlerted, setHasAlerted] = useState(false);
     const navigate = useNavigate();
 
-    // ฟังก์ชันอัปเดต Token ใน Context
+    // ✅ ฟังก์ชันอัปเดต Token
     const setToken = (newToken: string | null, expiresInMinutes?: number) => {
         if (newToken) {
-            saveToken(newToken, expiresInMinutes || 30); // เซฟ Token 30 นาที (ค่าเริ่มต้น)
+            saveToken(newToken, expiresInMinutes || 30);
         } else {
             removeToken();
         }
         setTokenState(newToken);
         setHasAlerted(false);
+    };
+
+    // ✅ ฟังก์ชันอัปเดต userId
+    const setUserId = (id: number | null) => {
+        setUserIdState(id);
     };
 
     // ตรวจสอบ Token ทุก 10 วินาที
@@ -39,6 +46,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 alert("Session expired. Please login again.");
                 removeToken();
                 setTokenState(null);
+                setUserIdState(null);  // ✅ ล้าง userId ด้วย
                 navigate("/login");
             }
         }, 10000);
@@ -47,7 +55,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }, [navigate, hasAlerted]);
 
     return (
-        <AuthContext.Provider value={{ token, setToken }}>
+        <AuthContext.Provider value={{ token, setToken, userId, setUserId }}>
             {children}
         </AuthContext.Provider>
     );
