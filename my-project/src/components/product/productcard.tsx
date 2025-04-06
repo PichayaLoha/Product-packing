@@ -105,7 +105,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, userId, userRole, on
                     <p className="text-sm">Amount: <span className="text-zinc-500">{product.product_amount} pieces</span></p>
                     <p className="text-sm">Created at: <span className="text-zinc-500">{new Date(product.product_time).toLocaleDateString('th-TH')}</span></p>
                 </div>
-                {product.product_amount === 0 && (
+                {product.product_amount <= 0 && (
                     <div>
                         <div className="text-red-600 text-xl font-bold text-center mt-2">Out of stock</div>
                         <div className='flex justify-center gap-2 mt-2'>

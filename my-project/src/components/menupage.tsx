@@ -54,7 +54,7 @@ function Menupage() {
                         <button className='btn px-9 my-2  drop-shadow-md'>Order</button>
                     </Link>
                     <Link to="/Packing">
-                        <button className='btn px-8 my-2  drop-shadow-md'>Packing</button>
+                        <button className='btn px-8 my-2  drop-shadow-md'>Generate</button>
                     </Link>
                     <Link to="/History">
                         <button className='btn px-8 my-2  drop-shadow-md'>History</button>

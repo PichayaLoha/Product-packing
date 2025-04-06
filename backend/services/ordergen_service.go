@@ -182,18 +182,18 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 		}
 
 	}
-	// query := `DELETE FROM order_dels`
-	// result, err := db.Exec(query)
-	// if err != nil {
-	// 	log.Println("Error deleting order details: ", err)
-	// }
+	query := `DELETE FROM order_dels`
+	result, err := db.Exec(query)
+	if err != nil {
+		log.Println("Error deleting order details: ", err)
+	}
 
-	// rowsAffected, err := result.RowsAffected()
-	// if err != nil {
-	// 	log.Println("Error getting rows affected: ", err)
-	// } else {
-	// 	log.Println("Rows affected: ", rowsAffected)
-	// }
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Println("Error getting rows affected: ", err)
+	} else {
+		log.Println("Rows affected: ", rowsAffected)
+	}
 
 	fmt.Println("productgen: ", productgen)
 	return productgen, nil
