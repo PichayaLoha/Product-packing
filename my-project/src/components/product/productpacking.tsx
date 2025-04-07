@@ -42,6 +42,8 @@ interface ProductNameColor {
 interface LocationState {
   package_dels_id?: number;
   message?: number;
+  cus_firstname?: string;
+  cus_lastname?: string
 }
 
 const colors: string[] = [
@@ -175,7 +177,7 @@ const Box = ({
 
 const ProductPacking = () => {
   const location = useLocation();
-  const { package_dels_id, message: package_id } = (location.state as LocationState) || {};
+  const { package_dels_id, message: package_id, cus_firstname, cus_lastname } = (location.state as LocationState) || {};
   console.log("package_dels_id received:", package_dels_id);
   console.log("package_id received:", package_id);
 
@@ -262,7 +264,7 @@ const ProductPacking = () => {
         <button
           className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md 
                   shadow-lg transition-colors flex items-center z-10"
-          onClick={() => navigate('/Historydetail', { state: { message: package_id } })}>
+          onClick={() => navigate('/Historydetail', { state: { message: package_id , f_name: cus_firstname, l_name: cus_lastname} })}>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
@@ -331,13 +333,13 @@ const ProductPacking = () => {
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
         />
-        <spotLight
+        {/* <spotLight
           position={[-10, 10, 10]}
           angle={0.3}
           penumbra={1}
           intensity={0.8}
           castShadow
-        />
+        /> */}
 
         {/* Environment */}
         <Environment preset="city" />
@@ -356,7 +358,7 @@ const ProductPacking = () => {
           enableZoom={true}
           enableRotate={true}
           minDistance={5}
-          maxDistance={50}
+          maxDistance={25}
         />
 
         {/* Grid helper */}
@@ -367,7 +369,7 @@ const ProductPacking = () => {
         />
 
         {/* Axis helper */}
-        <axesHelper args={[5]} position={[0, -boxSize[1] / 2 - 0.1, 0]} />
+        <axesHelper args={[10]} position={[0, -boxSize[1] / 2 - 0.1, 0]} />
       </Canvas>
     </div>
   );

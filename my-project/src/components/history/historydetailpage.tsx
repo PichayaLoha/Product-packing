@@ -71,7 +71,7 @@ function Historydetailpage() {
 
     const handleRowClick = (packageDelId: number) => {
         console.log("📦 ส่งค่า package_dels_id:", packageDelId); // ✅ Debug ตรวจสอบค่าที่ถูกส่งไป
-        navigate('/productpacking', { state: { package_dels_id: packageDelId, message: message } });
+        navigate('/productpacking', { state: { package_dels_id: packageDelId, message: message, cus_firstname: f_name, cus_lastname: l_name } });
     };
 
     return (
@@ -87,8 +87,8 @@ function Historydetailpage() {
                     )}
                 </div>
                 <div className='flex mb-5 items-end'>
-                    <p className='text-xl mr-5'>Created by : {create_firstname } {create_lastname}</p>
-                    
+                    <p className='text-xl mr-5'>Created by : {create_firstname} {create_lastname}</p>
+
                 </div>
                 <div className='flex justify-center'>
                     <div style={{ width: "90%" }}>
@@ -137,11 +137,11 @@ function Historydetailpage() {
                                                                         <th>{productIndex + 1}</th>
                                                                         <td>{product.product_name}</td>
                                                                         <td><figure className="flex justify-center w-full h-24 ">
-                                                            <img style={{ width: "70%", height: "100%" }}
-                                                                src={product.product_image}
-                                                                alt="Shoes"
-                                                                className="rounded-xl object-contain" />
-                                                        </figure></td>
+                                                                            <img style={{ width: "70%", height: "100%" }}
+                                                                                src={product.product_image}
+                                                                                alt="Shoes"
+                                                                                className="rounded-xl object-contain" />
+                                                                        </figure></td>
                                                                         <td>{product.product_height}</td>
                                                                         <td>{product.product_length}</td>
                                                                         <td>{product.product_width}</td>
