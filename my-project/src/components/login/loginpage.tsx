@@ -11,7 +11,7 @@ const Login: React.FC = () => {
     const authContext = useContext(AuthContext);
     if (!authContext) return <p>Loading...</p>;
 
-    const { setToken, setUserId, setUserRole } = authContext;  // ✅ ใช้ setUserId
+    const { setToken, setUserId } = authContext;  // ✅ ใช้ setUserId
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,10 +28,8 @@ const Login: React.FC = () => {
             if (response.ok) {
                 setUserId(data.user_id);  // ✅ เก็บ user_id ใน Context
                 setToken(data.token, 120);
-                setUserRole(data.user_role); // ✅ เก็บ user_role ใน Context
                 console.log("Token:", data.token);
                 console.log("UserID:", data.user_id);
-                console.log("User Role", data.user_role)
                 alert("Login Success!");
                 navigate("/");
             } else {
@@ -50,7 +48,7 @@ const Login: React.FC = () => {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-xl">
-                    <div className="bg-indigo-600 rounded-t-xl p-4">
+                    <div className="bg-indigo-600 p-4">
                         <h2 className="text-white text-xl font-medium text-center">Login</h2>
                     </div>
 
@@ -81,16 +79,8 @@ const Login: React.FC = () => {
 
                         {error && <p className="text-red-600">{error}</p>}
 
-                        <button type="submit" className="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full mb-4">
+                        <button type="submit" className="btn bg-indigo-600 hover:bg-indigo-700 text-white w-full">
                             Sign In
-                        </button>
-
-                        <button 
-                            type="button" 
-                            className="btn bg-gray-500 hover:bg-gray-600 text-white w-full"
-                            onClick={() => navigate("/register")}
-                        >
-                            Register
                         </button>
                     </form>
                 </div>

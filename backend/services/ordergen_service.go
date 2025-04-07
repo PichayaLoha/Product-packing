@@ -198,14 +198,14 @@ func GenerateProduct(db *sql.DB, c *gin.Context) ([]*models.HistoryOrder, error)
 	fmt.Println("productgen: ", productgen)
 	return productgen, nil
 }
-func calculateBoxWeight(products []models.Product) float64 {
+func calculateBoxWeight(products []models.Product) float64 { // คำนวณน้ำหนักรวมของสินค้าในกล่อง
 	totalWeight := 0.0
 	for _, product := range products {
 		totalWeight += product.ProductWeight
 	}
 	return totalWeight
 }
-func filterAvailableBoxes(allBoxes []models.Box, blockedBoxes []int) []models.Box {
+func filterAvailableBoxes(allBoxes []models.Box, blockedBoxes []int) []models.Box { // ฟังก์ชันกรองกล่องที่ไม่ถูกบล็อก
 	available := []models.Box{}
 	blockedSet := make(map[int]bool)
 
@@ -223,7 +223,7 @@ func filterAvailableBoxes(allBoxes []models.Box, blockedBoxes []int) []models.Bo
 
 	return available
 }
-func packing(products []models.Product, boxSizes []models.Box, mode string) ([]models.PackedBox, float64, float64, float64) {
+func packing(products []models.Product, boxSizes []models.Box, mode string) ([]models.PackedBox, float64, float64, float64) { // ฟังก์ชันบรรจุสินค้าในกล่อง
 	var boxes []models.PackedBox
 	remainingProducts := products
 	totalCost := 0.0
@@ -251,7 +251,7 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) ([]m
 			continue
 		}
 
-		bestFitIndex := -1
+		bestFitIndex := -1 //บอกว่าในตอนเริ่มต้นยังไม่ได้พบกล่องที่เหมาะสมสำหรับบรรจุสินค้านั้น ๆ
 		for i, box := range boxes {
 			pos, canPlace := canPlace(box.Products, remainingProducts[0], box.Size.BoxWidth, box.Size.BoxHeight, box.Size.BoxLength)
 			currentBoxWeight := calculateBoxWeight(box.Products)
@@ -263,9 +263,9 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) ([]m
 			}
 		}
 
-		if bestFitIndex != -1 {
-			boxes[bestFitIndex].Products = append(boxes[bestFitIndex].Products, remainingProducts[0])
-			remainingProducts = remainingProducts[1:]
+		if bestFitIndex != -1 { // ถ้าพบกล่องที่เหมาะสม
+			boxes[bestFitIndex].Products = append(boxes[bestFitIndex].Products, remainingProducts[0]) // เพิ่มสินค้าเข้าไปในกล่องที่พบ
+			remainingProducts = remainingProducts[1:] // ลบสินค้าที่บรรจุแล้วออกจากรายการ
 		} else {
 			newBoxSize, found := findSuitableBoxSize(remainingProducts[0], boxSizes, remainingProducts, mode)
 			if found {
@@ -308,7 +308,7 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) ([]m
 	return boxes, totalProductCost, totalBoxCost, totalCost
 }
 
-func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products []models.Product, mode string) (models.Box, bool) {
+func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products []models.Product, mode string) (models.Box, bool) { // ฟังก์ชันค้นหาขนาดกล่องที่เหมาะสมที่สุด
 	var selectedBox models.Box
 	maxFitCount := 0.0
 	maxFitVol := 0.0
@@ -393,7 +393,7 @@ func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products
 	return selectedBox, found
 }
 
-func areProductsSameSize(products []models.Product) bool {
+func areProductsSameSize(products []models.Product) bool { // ฟังก์ชันตรวจสอบว่าสินค้าทั้งหมดมีขนาดเท่ากันหรือไม่
 	if len(products) == 0 {
 		return true
 	}
@@ -406,7 +406,7 @@ func areProductsSameSize(products []models.Product) bool {
 	return true
 }
 
-func calculateFitCount(product models.Product, boxWidth, boxHeight, boxLong float64) float64 {
+func calculateFitCount(product models.Product, boxWidth, boxHeight, boxLong float64) float64 { // คำนวณจำนวนสินค้าที่สามารถใส่ในกล่องได้
 	countWidth := boxWidth / product.ProductWidth
 	countHeight := boxHeight / product.ProductHeight
 	countLong := boxLong / product.ProductLength
@@ -416,7 +416,7 @@ func calculateFitCount(product models.Product, boxWidth, boxHeight, boxLong floa
 	return math.Floor(countWidth) * math.Floor(countHeight) * math.Floor(countLong)
 }
 
-func calculateProductVolume(box []models.Product) float64 {
+func calculateProductVolume(box []models.Product) float64 { // คำนวณปริมาตรของสินค้าในกล่อง
 	usedVolume := 0.0
 	for _, product := range box {
 		usedVolume += product.ProductWidth * product.ProductHeight * product.ProductLength
@@ -425,7 +425,7 @@ func calculateProductVolume(box []models.Product) float64 {
 	return usedVolume
 }
 
-func canPlace(box []models.Product, product models.Product, boxWidth, boxHeight, boxLong float64) ([3]float64, bool) {
+func canPlace(box []models.Product, product models.Product, boxWidth, boxHeight, boxLong float64) ([3]float64, bool) { // ฟังก์ชันตรวจสอบว่าสามารถวางสินค้าในกล่องได้หรือไม่
 	for y := 0.0; y <= boxHeight-product.ProductHeight; y++ {
 		for x := 0.0; x <= boxLong-product.ProductLength; x++ {
 			for z := 0.0; z <= boxWidth-product.ProductWidth; z++ {
@@ -438,7 +438,7 @@ func canPlace(box []models.Product, product models.Product, boxWidth, boxHeight,
 	}
 	return [3]float64{}, false
 }
-func position(box []models.Product, product models.Product, x, y, z float64) bool {
+func position(box []models.Product, product models.Product, x, y, z float64) bool { // ฟังก์ชันตรวจสอบตำแหน่งของสินค้าในกล่อง
 	for _, placedProduct := range box {
 		if !(x+product.ProductLength <= placedProduct.X ||
 			x >= placedProduct.X+placedProduct.ProductLength ||
