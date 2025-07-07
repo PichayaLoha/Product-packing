@@ -82,10 +82,7 @@ func CreateProduct(db *sql.DB, newProduct *models.Product) error {
 	return nil
 }
 func UploadToCloudinary(file multipart.File, fileName string) (string, error) {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	
 	// ดึงค่า Cloudinary Credentials จาก Environment Variables
 	fmt.Println("file ", file)
 	cld, err := cloudinary.NewFromParams(
