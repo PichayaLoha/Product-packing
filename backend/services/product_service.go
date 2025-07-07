@@ -11,7 +11,6 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
-	"github.com/joho/godotenv"
 )
 
 func GetProducts(db *sql.DB) ([]models.Product, error) {
@@ -82,7 +81,7 @@ func CreateProduct(db *sql.DB, newProduct *models.Product) error {
 	return nil
 }
 func UploadToCloudinary(file multipart.File, fileName string) (string, error) {
-	
+
 	// ดึงค่า Cloudinary Credentials จาก Environment Variables
 	fmt.Println("file ", file)
 	cld, err := cloudinary.NewFromParams(
