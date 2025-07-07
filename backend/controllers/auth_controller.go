@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"go-backend/middleware"
 	"go-backend/models"
-	"github.com/gin-gonic/gin"
 )
 
 // ฟังก์ชัน Login
@@ -55,9 +55,9 @@ func Login(db *sql.DB) gin.HandlerFunc {
 
 		//ส่ง `user_id` และ `token` กลับไป
 		c.JSON(http.StatusOK, gin.H{
-			"token":   token,
-			"user_id": user.UserID,
-			"user_role":    user.UserRole,
+			"token":     token,
+			"user_id":   user.UserID,
+			"user_role": user.UserRole,
 		})
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"go-backend/models"
 	"log"
+	"time"
 )
 
 func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
@@ -48,6 +49,8 @@ func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
 }
 
 func CreateOrderdels(db *sql.DB, newOrderdel *models.OrderDetail) error {
+
+	newOrderdel.OrderDelDate = time.Now()
 
 	query := `INSERT INTO order_dels (product_amount, product_id, order_del_date) 
                VALUES ($1, $2, $3) 

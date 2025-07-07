@@ -6,7 +6,6 @@ import (
 	"go-backend/services"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,7 +27,6 @@ func CreateOrderdels(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	newOrderdel.OrderDelDate = time.Now()
 	if err := services.CreateOrderdels(db, &newOrderdel); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to create order"})
 		return
