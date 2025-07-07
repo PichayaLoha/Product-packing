@@ -2,86 +2,66 @@ package controllers
 
 import (
 	"database/sql"
-	"go-backend/models"
 	"go-backend/services"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetHistory(c *gin.Context, db *sql.DB) {
-	history, err := services.GetHistory(db)
+	histories, err := services.GetHistory(db)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve History"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"history": history})
+	c.JSON(http.StatusOK, histories)
 }
 
 func GetHistoryDetail(c *gin.Context, db *sql.DB) {
-	id := c.Param("id")
-	historyDetail, err := services.GetHistoryByID(db, id)
+	historyID := c.Param("id")
+	history, err := services.GetHistoryDetail(db, historyID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve history detail"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, historyDetail)
+	c.JSON(http.StatusOK, history)
 }
 
 func GetHistoryBoxDetail(c *gin.Context, db *sql.DB) {
-	id := c.Param("hisroryboxdel_id")
-	historyDetail, err := services.GetHistoryBoxDetail(db, id)
+	historyBoxDelID := c.Param("hisroryboxdel_id")
+	boxDetails, err := services.GetHistoryBoxDetail(db, historyBoxDelID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve history box detail"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, historyDetail)
+	c.JSON(http.StatusOK, boxDetails)
 }
 
 func UpdateHistory(c *gin.Context, db *sql.DB) {
-	var updatedHistory models.HistoryOrder
-
 	historyID := c.Param("history_id")
-	if err := c.ShouldBindJSON(&updatedHistory); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid request",
-		})
+	var requestBody struct {
+		Status string `json:"status"`
+	}
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := services.UpdateHistory(db, &updatedHistory, historyID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Unable to update history",
-		})
+	err := services.UpdateHistory(db, historyID, requestBody.Status)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "อัปเดตสเตตัสสำเร็จ",
-		"history": updatedHistory,
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "History updated successfully"})
 }
+
 func DeleteHistory(c *gin.Context, db *sql.DB) {
 	historyID := c.Param("history_id")
 
-	rowsAffected, err := services.DeleteHistory(db, historyID)
+	err := services.DeleteHistory(db, historyID)
 	if err != nil {
-		log.Println("Error deleting history: ", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Unable to delete history",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	if rowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "History not found",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "History deleted successfully",
-	})
+	c.JSON(http.StatusOK, gin.H{"message": "History deleted successfully"})
 }

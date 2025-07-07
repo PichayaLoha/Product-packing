@@ -7,42 +7,46 @@ import (
 	"time"
 )
 
-func GetOrderdels(db *sql.DB) ([]models.OrderDetail, error) {
+// OrderDetailResponse is a struct that combines OrderDetail and Product information for client responses.
+type OrderDetailResponse struct {
+	models.OrderDetail
+	Product models.Product `json:"product"`
+}
+
+func GetOrderdels(db *sql.DB) ([]OrderDetailResponse, error) {
 	rows, err := db.Query(`
-		SELECT 
-			od.order_del_id, od.product_amount, od.product_id, od.order_del_date,
-			p.product_name, p.product_height, p.product_length, p.product_width,
-			p.product_time, p.product_amount, p.product_weight, p.product_cost,
-			p.user_id, p.product_image
-		FROM order_dels od
-		INNER JOIN products p ON od.product_id = p.product_id
-	`)
+        SELECT 
+            od.order_del_id, od.product_amount, od.product_id, od.order_del_date,
+            p.product_name, p.product_height, p.product_length, p.product_width,
+            p.product_time, p.product_amount, p.product_weight, p.product_cost,
+            p.user_id, p.product_image
+        FROM order_dels od
+        INNER JOIN products p ON od.product_id = p.product_id
+    `)
 	if err != nil {
 		log.Println("Error querying orders: ", err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	var orderdels []models.OrderDetail
+	var orderdels []OrderDetailResponse
 
 	for rows.Next() {
-		var orderdel models.OrderDetail
-		var product models.Product
+		var res OrderDetailResponse
 
-		// Scan ข้อมูลของ order_dels และ product
 		if err := rows.Scan(
-			&orderdel.OrderDelID, &orderdel.ProductAmount, &orderdel.ProductID, &orderdel.OrderDelDate,
-			&product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost,
-			&product.UserId, &product.ProductImage,
+			&res.OrderDelID, &res.ProductAmount, &res.ProductID, &res.OrderDelDate,
+			&res.Product.ProductName, &res.Product.ProductHeight, &res.Product.ProductLength, &res.Product.ProductWidth,
+			&res.Product.ProductTime, &res.Product.ProductAmount, &res.Product.ProductWeight, &res.Product.ProductCost,
+			&res.Product.UserID, &res.Product.ProductImage,
 		); err != nil {
 			log.Println("Error scanning order row: ", err)
 			return nil, err
 		}
 
-		// ใส่ข้อมูล product เข้าไปใน OrderDetail
-		orderdel.Product = product
-		orderdels = append(orderdels, orderdel)
+		// Set the product ID in the nested product struct as well
+		res.Product.ProductID = res.ProductID
+		orderdels = append(orderdels, res)
 	}
 
 	return orderdels, nil

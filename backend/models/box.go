@@ -1,14 +1,14 @@
 package models
 
 type Box struct {
-	BoxID        int     `json:"box_id"`
-	BoxName      string  `json:"box_name"`
-	BoxHeight    float64 `json:"box_height"`
-	BoxLength    float64 `json:"box_length"`
-	BoxWidth     float64 `json:"box_width"`
-	BoxAmount    int     `json:"box_amount"`
+	BoxID        int     `gorm:"primaryKey;autoIncrement" json:"box_id"`
+	BoxName      string  `gorm:"type:varchar(10);unique;not null" json:"box_name"`
+	BoxHeight    float64 `gorm:"not null" json:"box_height"`
+	BoxLength    float64 `gorm:"not null" json:"box_length"`
+	BoxWidth     float64 `gorm:"not null" json:"box_width"`
+	BoxAmount    int     `gorm:"not null" json:"box_amount"`
 	BoxMaxWeight float64 `json:"box_maxweight"`
-	BoxCost      float64 `json:"box_cost"`
+	BoxCost      float64 `gorm:"not null" json:"box_cost"`
 	BoxMaterial  string  `json:"box_material"`
 }
 

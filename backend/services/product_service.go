@@ -28,7 +28,7 @@ func GetProducts(db *sql.DB) ([]models.Product, error) {
 	for rows.Next() {
 		var product models.Product
 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId, &product.ProductImage); err != nil {
+			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserID, &product.ProductImage); err != nil {
 			log.Println("Error scanning product row: ", err)
 			return nil, err
 		}
@@ -53,7 +53,7 @@ func GetProductsByID(db *sql.DB, productID string) ([]models.Product, error) {
 	for rows.Next() {
 		var product models.Product
 		if err := rows.Scan(&product.ProductID, &product.ProductName, &product.ProductHeight, &product.ProductLength, &product.ProductWidth,
-			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserId, &product.ProductImage); err != nil {
+			&product.ProductTime, &product.ProductAmount, &product.ProductWeight, &product.ProductCost, &product.UserID, &product.ProductImage); err != nil {
 			log.Println("Error scanning product row: ", err)
 			return nil, err
 		}
@@ -73,7 +73,7 @@ func CreateProduct(db *sql.DB, newProduct *models.Product) error {
               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
               RETURNING product_id`
 	err := db.QueryRow(query, newProduct.ProductName, newProduct.ProductHeight, newProduct.ProductLength, newProduct.ProductWidth, newProduct.ProductTime, newProduct.ProductAmount, newProduct.ProductWeight,
-		newProduct.ProductCost, newProduct.UserId, newProduct.ProductImage).Scan(&newProduct.ProductID)
+		newProduct.ProductCost, newProduct.UserID, newProduct.ProductImage).Scan(&newProduct.ProductID)
 
 	if err != nil {
 		log.Println("Error inserting product: ", err)
@@ -118,7 +118,7 @@ func UpdateProduct(db *sql.DB, updatedProduct *models.Product, productID string)
               SET product_name = $1, product_height = $2, product_length = $3, product_width = $4, product_time = $5, product_amount = $6, product_weight = $7, product_cost = $8, user_id = $9
               WHERE product_id = $10`
 	_, err := db.Exec(query, updatedProduct.ProductName, updatedProduct.ProductHeight, updatedProduct.ProductLength, updatedProduct.ProductWidth,
-		updatedProduct.ProductTime, updatedProduct.ProductAmount, updatedProduct.ProductWeight, updatedProduct.ProductCost, updatedProduct.UserId, productID)
+		updatedProduct.ProductTime, updatedProduct.ProductAmount, updatedProduct.ProductWeight, updatedProduct.ProductCost, updatedProduct.UserID, productID)
 	if err != nil {
 		log.Println("Error updating product: ", err)
 		return err

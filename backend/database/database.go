@@ -1,22 +1,20 @@
 package database
 
 import (
-	"database/sql"
+	"go-backend/config"
 	"log"
 
-	"go-backend/config"
-
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DB *sql.DB
+var DB *gorm.DB
 
-func InitDB() *sql.DB {
-	db, err := sql.Open("postgres", config.DatabaseURL)
+func InitDB() *gorm.DB {
+	var err error
+	DB, err = gorm.Open(postgres.Open(config.DatabaseURL), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect database:", err)
+		log.Fatal("Failed to connect to database:", err)
 	}
-
-	DB = db
-	return db
+	return DB
 }
