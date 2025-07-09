@@ -2,6 +2,7 @@ package database
 
 import (
 	"go-backend/config"
+	"go-backend/models"
 	"log"
 
 	"gorm.io/driver/postgres"
@@ -16,5 +17,9 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
+
+	// AutoMigrate the schema
+	DB.AutoMigrate(&models.User{})
+
 	return DB
 }
