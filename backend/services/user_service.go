@@ -18,7 +18,7 @@ func CreateUsers(db *sql.DB, newUser *models.User) error {
 	}
 
 	// เพิ่ม User ลง Database
-	_, err = db.Exec("INSERT INTO users (user_name, user_passwordhash, user_firstname, user_lastname, user_role) VALUES ($1, $2, $3, $4, $5)",
+	_, err = db.Exec("INSERT INTO users (user_name, user_password_hash, user_first_name, user_last_name, user_role) VALUES ($1, $2, $3, $4, $5)",
 		newUser.UserName, hashedPassword, newUser.UserFirstName, newUser.UserLastName, newUser.UserRole)
 
 	if err != nil {

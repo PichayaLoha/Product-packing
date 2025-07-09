@@ -7,7 +7,7 @@ import (
 )
 
 func GetCustomers(db *sql.DB) ([]models.Customer, error) {
-	rows, err := db.Query(`SELECT customer_id, customer_firstname, customer_lastname, customer_address, customer_phone, customer_postal FROM customers`)
+	rows, err := db.Query(`SELECT customer_id, customer_first_name, customer_last_name, customer_address, customer_phone, customer_postal FROM customers`)
 	if err != nil {
 		log.Println("Error querying customers: ", err)
 		return nil, err
@@ -29,7 +29,7 @@ func GetCustomers(db *sql.DB) ([]models.Customer, error) {
 }
 
 func GetCustomersByID(db *sql.DB, customerID string) ([]models.Customer, error) {
-	query := `SELECT customer_id, customer_firstname, customer_lastname, customer_address, customer_postal, customer_phone FROM customers WHERE customer_id = $1;`
+	query := `SELECT customer_id, customer_first_name, customer_last_name, customer_address, customer_postal, customer_phone FROM customers WHERE customer_id = $1;`
 	rows, err := db.Query(query, customerID)
 	if err != nil {
 		log.Println("Error querying customers: ", err)
@@ -53,7 +53,7 @@ func GetCustomersByID(db *sql.DB, customerID string) ([]models.Customer, error) 
 
 func CreateCustomers(db *sql.DB, newCustomer *models.Customer) (int, error) {
 	var customerID int
-	query := `INSERT INTO customers (customer_firstname, customer_lastname, customer_address, customer_phone, customer_postal) 
+	query := `INSERT INTO customers (customer_first_name, customer_last_name, customer_address, customer_phone, customer_postal) 
                VALUES ($1, $2, $3, $4, $5) 
                RETURNING customer_id`
 	err := db.QueryRow(query, newCustomer.CustomerFirstName, newCustomer.CustomerLastName, newCustomer.CustomerAddress, newCustomer.CustomerPhone, newCustomer.CustomerPostal).Scan(&customerID)
@@ -67,7 +67,7 @@ func CreateCustomers(db *sql.DB, newCustomer *models.Customer) (int, error) {
 func UpdateCustomers(db *sql.DB, updatedCustomers *models.Customer, customerID string) error {
 
 	query := `UPDATE customers
-			  SET customer_firstname = $1, customer_lastname = $2, customer_address = $3, customer_phone = $4, customer_postal = $5 
+			  SET customer_first_name = $1, customer_last_name = $2, customer_address = $3, customer_phone = $4, customer_postal = $5 
 			  WHERE customer_id = $6`
 
 	_, err := db.Exec(query, updatedCustomers.CustomerFirstName, updatedCustomers.CustomerLastName, updatedCustomers.CustomerAddress, updatedCustomers.CustomerPhone, updatedCustomers.CustomerPostal, customerID)

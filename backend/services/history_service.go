@@ -16,13 +16,13 @@ type HistoryResponse struct {
 	HistoryBoxCost     float64   `json:"package_box_cost"`
 	HistoryTotalCost   float64   `json:"package_total_cost"`
 	CustomerID         int       `json:"customer_id"`
-	CustomerFirstName  string    `json:"customer_firstname"`
-	CustomerLastName   string    `json:"customer_lastname"`
+	CustomerFirstName  string    `json:"customer_first_name"`
+	CustomerLastName   string    `json:"customer_last_name"`
 	CustomerAddress    string    `json:"customer_address"`
 	CustomerPostal     string    `json:"customer_postal"`
 	CustomerPhone      string    `json:"customer_phone"`
-	UserFirstName      string    `json:"user_firstname"`
-	UserLastName       string    `json:"user_lastname"`
+	UserFirstName      string    `json:"user_first_name"`
+	UserLastName       string    `json:"user_last_name"`
 	HistoryUserID      int       `json:"package_user_id"`
 }
 
@@ -55,8 +55,8 @@ func GetHistory(db *sql.DB) ([]HistoryResponse, error) {
         SELECT
             h.package_id, h.package_amount, h.package_time, h.package_status,
             h.package_product_cost, h.package_box_cost, h.package_total_cost,
-            c.customer_id, c.customer_firstname, c.customer_lastname, c.customer_address, c.customer_postal, c.customer_phone,
-            u.user_firstname, u.user_lastname, h.package_user_id
+            c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
+            u.user_first_name, u.user_last_name, h.package_user_id
         FROM packages_order h
         JOIN customers c ON h.customer_id = c.customer_id
         JOIN users u ON h.package_user_id = u.user_id
@@ -90,8 +90,8 @@ func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
         SELECT
             h.package_id, h.package_amount, h.package_time, h.package_status,
             h.package_product_cost, h.package_box_cost, h.package_total_cost,
-            c.customer_id, c.customer_firstname, c.customer_lastname, c.customer_address, c.customer_postal, c.customer_phone,
-            u.user_firstname, u.user_lastname, h.package_user_id
+            c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
+            u.user_first_name, u.user_last_name, h.package_user_id
         FROM packages_order h
         JOIN customers c ON h.customer_id = c.customer_id
         JOIN users u ON h.package_user_id = u.user_id
