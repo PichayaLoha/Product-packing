@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"go-backend/middleware"
 	"go-backend/models"
+
+	"github.com/gin-gonic/gin"
 )
 
 // ฟังก์ชัน Login
@@ -27,7 +28,7 @@ func Login(db *sql.DB) gin.HandlerFunc {
 		}
 
 		// ค้นหา user ใน database
-		err := db.QueryRow("SELECT user_id, user_name, user_passwordhash, user_role FROM users WHERE user_name = $1", req.Username).
+		err := db.QueryRow("SELECT user_id, user_name, user_password_hash, user_role FROM users WHERE user_name = $1", req.Username).
 			Scan(&user.UserID, &user.UserName, &user.UserPasswordHash, &user.UserRole)
 
 		fmt.Println(user.UserID, user.UserName, user.UserPasswordHash, user.UserRole)
