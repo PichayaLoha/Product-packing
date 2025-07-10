@@ -7,7 +7,7 @@ type Box struct {
 	BoxLength    float64 `gorm:"not null" json:"box_length"`
 	BoxWidth     float64 `gorm:"not null" json:"box_width"`
 	BoxAmount    int     `gorm:"not null" json:"box_amount"`
-	BoxMaxWeight float64 `json:"box_maxweight"`
+	BoxMaxWeight float64 `json:"box_max_weight"`
 	BoxCost      float64 `gorm:"not null" json:"box_cost"`
 	BoxMaterial  string  `json:"box_material"`
 }

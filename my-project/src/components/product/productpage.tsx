@@ -38,8 +38,10 @@ function Productpage() {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
                 const data = await response.json();
-                sortProductsByTime(data.products, sortOrder);
-                setSize(data.products ? data.products.length : 0);
+                console.log('Fetched data from API:', data);
+                const productsToProcess = Array.isArray(data) ? data : [];
+                sortProductsByTime(productsToProcess, sortOrder);
+                setSize(productsToProcess.length);
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
