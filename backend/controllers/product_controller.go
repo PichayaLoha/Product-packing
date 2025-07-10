@@ -1,17 +1,17 @@
 package controllers
 
 import (
+	"context"
 	"database/sql"
 	"go-backend/models"
 	"go-backend/services"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go"
+	"github.com/cloudinary/cloudinary-go/api/uploader"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 func GetProducts(c *gin.Context, db *sql.DB) {
@@ -33,14 +33,7 @@ func GetProductsByID(c *gin.Context, db *sql.DB) {
 	c.JSON(http.StatusOK, product)
 }
 
-func CreateProduct(c *gin.Context, db *sql.DB) {
-	// Ensure the upload directory exists
-	uploadDir := "public/images"
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create upload directory"})
-		return
-	}
-
+func CreateProduct(c *gin.Context, db *sql.DB, cld *cloudinary.Cloudinary) {
 	// Parse form values
 	productName := c.PostForm("product_name")
 	productHeightStr := c.PostForm("product_height")
@@ -53,7 +46,6 @@ func CreateProduct(c *gin.Context, db *sql.DB) {
 	// Use UserID from auth middleware if available, otherwise from form
 	var userID int
 	if id, exists := c.Get("userID"); exists {
-		// Type assertion to get the actual ID
 		var ok bool
 		userID, ok = id.(int)
 		if !ok {
@@ -61,7 +53,6 @@ func CreateProduct(c *gin.Context, db *sql.DB) {
 			return
 		}
 	} else {
-		// Fallback to form value if not in context
 		userIDStr := c.PostForm("user_id")
 		var err error
 		userID, err = strconv.Atoi(userIDStr)
@@ -71,58 +62,58 @@ func CreateProduct(c *gin.Context, db *sql.DB) {
 		}
 	}
 
-	// Handle file upload
+	// Handle file upload to Cloudinary
 	file, err := c.FormFile("product_image")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Product image is required"})
 		return
 	}
 
-	// Generate a unique filename
-	extension := filepath.Ext(file.Filename)
-	newFileName := uuid.New().String() + extension
-	filePath := filepath.Join(uploadDir, newFileName)
+	src, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open uploaded file"})
+		return
+	}
+	defer src.Close()
 
-	// Save the file
-	if err := c.SaveUploadedFile(file, filePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+	// Upload to Cloudinary
+	uploadParams := uploader.UploadParams{
+		Folder: "product-packing",
+	}
+	uploadResult, err := cld.Upload.Upload(context.Background(), src, uploadParams)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload file to Cloudinary"})
 		return
 	}
 
 	// Convert string values to appropriate types
 	productHeight, err := strconv.ParseFloat(productHeightStr, 64)
 	if err != nil {
-		os.Remove(filePath) // Clean up uploaded file on error
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product height: " + err.Error()})
 		return
 	}
 	productLength, err := strconv.ParseFloat(productLengthStr, 64)
 	if err != nil {
-		os.Remove(filePath) // Clean up uploaded file on error
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product length: " + err.Error()})
 		return
 	}
 	productWidth, err := strconv.ParseFloat(productWidthStr, 64)
 	if err != nil {
-		os.Remove(filePath) // Clean up uploaded file on error
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product width: " + err.Error()})
 		return
 	}
 	productAmount, err := strconv.Atoi(productAmountStr)
 	if err != nil {
-		os.Remove(filePath) // Clean up uploaded file on error
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product amount: " + err.Error()})
 		return
 	}
 	productWeight, err := strconv.ParseFloat(productWeightStr, 64)
 	if err != nil {
-		os.Remove(filePath) // Clean up uploaded file on error
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product weight: " + err.Error()})
 		return
 	}
 	productCost, err := strconv.ParseFloat(productCostStr, 64)
 	if err != nil {
-		os.Remove(filePath) // Clean up uploaded file on error
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product cost: " + err.Error()})
 		return
 	}
@@ -138,12 +129,11 @@ func CreateProduct(c *gin.Context, db *sql.DB) {
 		ProductWeight: productWeight,
 		ProductCost:   productCost,
 		UserID:        userID,
-		ProductImage:  filePath, // Save the file path
+		ProductImage:  uploadResult.SecureURL, // Save the Cloudinary URL
 	}
 
 	// Call the service to create the product in the database
 	if err := services.CreateProduct(db, &newProduct); err != nil {
-		os.Remove(filePath) // Clean up uploaded file on error
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create product: " + err.Error()})
 		return
 	}

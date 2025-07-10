@@ -7,6 +7,8 @@ import (
 	"go-backend/models"
 	"go-backend/routes"
 	"log"
+
+	"github.com/cloudinary/cloudinary-go"
 )
 
 func main() {
@@ -38,6 +40,15 @@ func main() {
 	}
 
 	// No need to defer db.Close() with GORM v2, it manages connections automatically
-	router := routes.Router(sqlDB)
+	cld, err := initCloudinary()
+	if err != nil {
+		log.Fatalf("Failed to initialize Cloudinary: %v", err)
+	}
+
+	router := routes.Router(sqlDB, cld)
 	router.Run(":8080")
+}
+
+func initCloudinary() (*cloudinary.Cloudinary, error) {
+	return cloudinary.NewFromURL(config.Config("CLOUDINARY_URL"))
 }
