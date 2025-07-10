@@ -4,7 +4,7 @@ import "time"
 
 type Order struct {
 	PackageID          int       `gorm:"primaryKey;autoIncrement" json:"package_id"`
-	PackageAmount      int       `gorm:"not null" json:"package_amount"`
+	PackageAmount      int       `gorm:"column:package_amount;not null" json:"package_amount"`
 	PackageStatus      string    `gorm:"type:history_status_enum;not null" json:"package_status"`
 	PackageTime        time.Time `gorm:"not null" json:"package_time"`
 	PackageUserID      int       `gorm:"not null" json:"package_user_id"`

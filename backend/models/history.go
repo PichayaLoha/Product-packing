@@ -13,7 +13,7 @@ const (
 
 type History struct {
 	HistoryID          int       `gorm:"primaryKey;autoIncrement" json:"package_id"`
-	HistoryAmount      int       `json:"package_amount"`
+	HistoryAmount      int       `gorm:"column:package_amount" json:"package_amount"`
 	HistoryTime        time.Time `json:"package_time"`
 	HistoryStatus      string    `gorm:"type:history_status_enum" json:"package_status"`
 	HistoryProductCost float64   `json:"package_product_cost"`
