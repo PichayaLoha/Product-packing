@@ -3,15 +3,15 @@ package models
 import "time"
 
 type Order struct {
-	PackageID          int       `gorm:"primaryKey;autoIncrement" json:"package_id"`
-	PackageAmount      int       `gorm:"column:package_amount;not null" json:"package_amount"`
-	PackageStatus      string    `gorm:"type:history_status_enum;not null" json:"package_status"`
-	PackageTime        time.Time `gorm:"not null" json:"package_time"`
-	PackageUserID      int       `gorm:"not null" json:"package_user_id"`
+	PackageID          int       `gorm:"primaryKey;autoIncrement" json:"history_id"`
+	PackageAmount      int       `gorm:"column:history_amount;not null" json:"history_amount"`
+	PackageStatus      string    `gorm:"column:history_status;type:history_status_enum;not null" json:"history_status"`
+	PackageTime        time.Time `gorm:"column:history_time;not null" json:"history_time"`
+	PackageUserID      int       `gorm:"column:history_user_id;not null" json:"history_user_id"`
 	CustomerID         int       `gorm:"not null" json:"customer_id"`
-	PackageProductCost float64   `gorm:"not null" json:"package_product_cost"`
-	PackageBoxCost     float64   `gorm:"not null" json:"package_box_cost"`
-	PackageTotalCost   float64   `gorm:"not null" json:"package_total_cost"`
+	PackageProductCost float64   `gorm:"column:history_product_cost;not null" json:"history_product_cost"`
+	PackageBoxCost     float64   `gorm:"column:history_box_cost;not null" json:"history_box_cost"`
+	PackageTotalCost   float64   `gorm:"column:history_total_cost;not null" json:"history_total_cost"`
 }
 
 func (o *Order) TableName() string {

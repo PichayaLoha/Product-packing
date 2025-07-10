@@ -54,14 +54,14 @@ type PackageBoxResponse struct {
 func GetHistory(db *sql.DB) ([]HistoryResponse, error) {
 	rows, err := db.Query(`
         SELECT
-            h.package_id, h.package_amount, h.package_time, h.package_status,
-            h.package_product_cost, h.package_box_cost, h.package_total_cost,
+            h.history_id, h.history_amount, h.history_time, h.history_status,
+            h.history_product_cost, h.history_box_cost, h.history_total_cost,
             c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
-            u.user_first_name, u.user_last_name, h.package_user_id
+            u.user_first_name, u.user_last_name, h.history_user_id
         FROM packages_order h
         JOIN customers c ON h.customer_id = c.customer_id
-        JOIN users u ON h.package_user_id = u.user_id
-        ORDER BY h.package_time DESC
+        JOIN users u ON h.history_user_id = u.user_id
+        ORDER BY h.history_time DESC
     `)
 	if err != nil {
 		return nil, err
@@ -89,14 +89,14 @@ func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
 	var h HistoryResponse
 	err := db.QueryRow(`
         SELECT
-            h.package_id, h.package_amount, h.package_time, h.package_status,
-            h.package_product_cost, h.package_box_cost, h.package_total_cost,
+            h.history_id, h.history_amount, h.history_time, h.history_status,
+            h.history_product_cost, h.history_box_cost, h.history_total_cost,
             c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
-            u.user_first_name, u.user_last_name, h.package_user_id
+            u.user_first_name, u.user_last_name, h.history_user_id
         FROM packages_order h
         JOIN customers c ON h.customer_id = c.customer_id
-        JOIN users u ON h.package_user_id = u.user_id
-        WHERE h.package_id = $1
+        JOIN users u ON h.history_user_id = u.user_id
+        WHERE h.history_id = $1
     `, historyID).Scan(
 		&h.HistoryID, &h.HistoryAmount, &h.HistoryTime, &h.HistoryStatus,
 		&h.HistoryProductCost, &h.HistoryBoxCost, &h.HistoryTotalCost,
@@ -140,7 +140,7 @@ func GetHistoryBoxDetail(db *sql.DB, historyBoxDelID string) ([]PackageBoxRespon
 
 // UpdateHistory updates the status of a history record.
 func UpdateHistory(db *sql.DB, historyID string, status string) error {
-	_, err := db.Exec("UPDATE packages_order SET package_status = $1 WHERE package_id = $2", status, historyID)
+	_, err := db.Exec("UPDATE packages_order SET history_status = $1 WHERE history_id = $2", status, historyID)
 	return err
 }
 
@@ -152,7 +152,7 @@ func DeleteHistory(db *sql.DB, historyID string) error {
 	}
 
 	// First, get all package_del_ids associated with the historyID
-	rows, err := tx.Query("SELECT package_del_id FROM package_dels WHERE package_id = $1", historyID)
+	rows, err := tx.Query("SELECT package_del_id FROM package_dels WHERE history_id = $1", historyID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -179,14 +179,14 @@ func DeleteHistory(db *sql.DB, historyID string) error {
 	}
 
 	// Delete from package_dels
-	_, err = tx.Exec("DELETE FROM package_dels WHERE package_id = $1", historyID)
+	_, err = tx.Exec("DELETE FROM package_dels WHERE history_id = $1", historyID)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// Finally, delete from packages_order
-	_, err = tx.Exec("DELETE FROM packages_order WHERE package_id = $1", historyID)
+	_, err = tx.Exec("DELETE FROM packages_order WHERE history_id = $1", historyID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -223,8 +223,8 @@ func CreateHistoryFromOrder(db *sql.DB, packingResult *PackingResult, userID int
 		history.HistoryProductCost += solution.TotalProductCost
 	}
 
-	insertHistoryQuery := `INSERT INTO packages_order (package_amount, package_time, package_status, package_product_cost, package_box_cost, package_total_cost, customer_id, package_user_id)
-                           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING package_id`
+	insertHistoryQuery := `INSERT INTO packages_order (history_amount, history_time, history_status, history_product_cost, history_box_cost, history_total_cost, customer_id, history_user_id)
+                           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING history_id`
 	err = tx.QueryRow(insertHistoryQuery,
 		history.HistoryAmount, history.HistoryTime, history.HistoryStatus,
 		history.HistoryProductCost, history.HistoryBoxCost, history.HistoryTotalCost,
