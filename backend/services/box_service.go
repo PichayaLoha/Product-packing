@@ -7,7 +7,7 @@ import (
 )
 
 func GetBoxes(db *sql.DB) ([]models.Box, error) {
-	rows, err := db.Query(`SELECT box_id, box_name, box_height, box_length, box_width, box_amount, box_maxweight, box_cost FROM boxes`)
+	rows, err := db.Query(`SELECT box_id, box_name, box_height, box_length, box_width, box_amount, box_max_weight, box_cost FROM boxes`)
 	if err != nil {
 		log.Println("Error querying boxes: ", err)
 		return nil, err
@@ -29,7 +29,7 @@ func GetBoxes(db *sql.DB) ([]models.Box, error) {
 }
 
 func GetBoxesByID(db *sql.DB, boxID string) ([]models.Box, error) {
-	query := `SELECT box_id, box_name, box_height, box_length, box_width, box_amount, box_maxweight, box_cost FROM boxes WHERE box_id = $1;`
+	query := `SELECT box_id, box_name, box_height, box_length, box_width, box_amount, box_max_weight, box_cost FROM boxes WHERE box_id = $1;`
 	rows, err := db.Query(query, boxID)
 	if err != nil {
 		log.Println("Error querying boxs: ", err)
@@ -53,7 +53,7 @@ func GetBoxesByID(db *sql.DB, boxID string) ([]models.Box, error) {
 
 func CreateBoxes(db *sql.DB, newBox *models.Box) error {
 
-	query := `INSERT INTO boxes (box_name, box_height, box_length, box_width, box_amount, box_maxweight, box_cost) 
+	query := `INSERT INTO boxes (box_name, box_height, box_length, box_width, box_amount, box_max_weight, box_cost) 
                VALUES ($1, $2, $3, $4, $5, $6, $7) 
                RETURNING box_id`
 	err := db.QueryRow(query, newBox.BoxName, newBox.BoxHeight, newBox.BoxLength, newBox.BoxWidth, newBox.BoxAmount, newBox.BoxMaxWeight, newBox.BoxCost).Scan(&newBox.BoxID)
@@ -69,7 +69,7 @@ func CreateBoxes(db *sql.DB, newBox *models.Box) error {
 func UpdateBoxes(db *sql.DB, updatedBoxes *models.Box, boxID string) error {
 
 	query := `UPDATE boxes 
-              SET box_name = $1, box_height = $2, box_length = $3, box_width = $4, box_amount = $5, box_maxweight = $6, box_cost = $7
+              SET box_name = $1, box_height = $2, box_length = $3, box_width = $4, box_amount = $5, box_max_weight = $6, box_cost = $7
 			  WHERE box_id = $8`
 
 	_, err := db.Exec(query, updatedBoxes.BoxName, updatedBoxes.BoxHeight, updatedBoxes.BoxLength, updatedBoxes.BoxWidth, updatedBoxes.BoxAmount, updatedBoxes.BoxMaxWeight, updatedBoxes.BoxCost, boxID)
