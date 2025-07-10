@@ -5,11 +5,12 @@ import (
 	"go-backend/controllers"
 	"go-backend/middleware"
 
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
-func Router(db *sql.DB) *gin.Engine {
+func Router(db *sql.DB, cld *cloudinary.Cloudinary) *gin.Engine {
 	router := gin.Default()
 	config := cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
@@ -58,7 +59,7 @@ func Router(db *sql.DB) *gin.Engine {
 		controllers.CreateBoxes(c, db)
 	})
 	router.POST("/api/products", func(c *gin.Context) {
-		controllers.CreateProduct(c, db)
+		controllers.CreateProduct(c, db, cld)
 	})
 	router.POST("/api/orderdels", func(c *gin.Context) {
 		controllers.CreateOrderdels(c, db)

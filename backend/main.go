@@ -7,8 +7,9 @@ import (
 	"go-backend/models"
 	"go-backend/routes"
 	"log"
+	"os"
 
-	"github.com/cloudinary/cloudinary-go"
+	"github.com/cloudinary/cloudinary-go/v2"
 )
 
 func main() {
@@ -50,5 +51,5 @@ func main() {
 }
 
 func initCloudinary() (*cloudinary.Cloudinary, error) {
-	return cloudinary.NewFromURL(config.Config("CLOUDINARY_URL"))
+	return cloudinary.NewFromURL(os.Getenv("CLOUDINARY_URL"))
 }

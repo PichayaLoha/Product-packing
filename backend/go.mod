@@ -3,7 +3,6 @@ module go-backend
 go 1.22.4
 
 require (
-	
 	github.com/cloudinary/cloudinary-go/v2 v2.10.1
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
@@ -12,8 +11,6 @@ require (
 	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.10
 )
-
-replace github.com/cloudinary/cloudinary-go => github.com/cloudinary/cloudinary-go/v2 v2.10.1
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect
