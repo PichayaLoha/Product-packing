@@ -12,15 +12,15 @@ const (
 )
 
 type History struct {
-	HistoryID          int       `gorm:"primaryKey;autoIncrement" json:"package_id"`
-	HistoryAmount      int       `gorm:"column:package_amount" json:"package_amount"`
-	HistoryTime        time.Time `json:"package_time"`
-	HistoryStatus      string    `gorm:"type:history_status_enum" json:"package_status"`
-	HistoryProductCost float64   `json:"package_product_cost"`
-	HistoryBoxCost     float64   `json:"package_box_cost"`
-	HistoryTotalCost   float64   `json:"package_total_cost"`
+	HistoryID          int       `gorm:"primaryKey;autoIncrement" json:"history_id"`
+	HistoryAmount      int       `gorm:"column:history_amount" json:"history_amount"`
+	HistoryTime        time.Time `json:"history_time"`
+	HistoryStatus      string    `gorm:"type:history_status_enum" json:"history_status"`
+	HistoryProductCost float64   `json:"history_product_cost"`
+	HistoryBoxCost     float64   `json:"history_box_cost"`
+	HistoryTotalCost   float64   `json:"history_total_cost"`
 	CustomerID         int       `json:"customer_id"`
-	HistoryUserID      int       `json:"package_user_id"`
+	HistoryUserID      int       `json:"history_user_id"`
 }
 
 func (h *History) TableName() string {
