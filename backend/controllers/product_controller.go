@@ -5,8 +5,13 @@ import (
 	"go-backend/models"
 	"go-backend/services"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func GetProducts(c *gin.Context, db *sql.DB) {
@@ -157,7 +162,8 @@ func UpdateProduct(c *gin.Context, db *sql.DB) {
 	err := services.UpdateProduct(db, &updatedProduct, productID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return	}
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
 }
 
