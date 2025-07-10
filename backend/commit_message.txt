@@ -1,0 +1,5 @@
+feat: Integrate Cloudinary for image uploads
+
+- Modify CreateProduct to upload images to Cloudinary instead of local storage.
+- Update main.go, routes.go, and product_controller.go to support Cloudinary integration.
+- Remove local file storage logic and static file serving.
