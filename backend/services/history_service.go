@@ -30,7 +30,7 @@ type HistoryResponse struct {
 // PackageDelResponse defines the structure for package delivery details.
 type PackageDelResponse struct {
 	PackageDelID      int                  `json:"package_del_id"`
-	PackageDelBoxSize string               `json:"package_del_boxsize"`
+	PackageDelBoxSize string               `json:"package_del_box_size"`
 	PackageID         int                  `json:"package_id"`
 	Products          []PackageBoxResponse `json:"products"`
 }
@@ -245,7 +245,7 @@ func CreateHistoryFromOrder(db *sql.DB, packingResult *PackingResult, userID int
 			PackageID:         history.HistoryID,
 		}
 		log.Printf("Attempting to insert package_del: %+v", packageDel)
-		insertPackageDelQuery := `INSERT INTO package_dels (package_del_boxsize, package_id)
+		insertPackageDelQuery := `INSERT INTO package_dels (package_del_box_size, package_id)
                                   VALUES ($1, $2) RETURNING package_del_id`
 		err = tx.QueryRow(insertPackageDelQuery, packageDel.PackageDelBoxSize, packageDel.PackageID).Scan(&packageDel.PackageDelID)
 		if err != nil {
