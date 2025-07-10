@@ -21,6 +21,9 @@ func Router(db *sql.DB) *gin.Engine {
 
 	router.Use(cors.New(config))
 
+	// Serve static files from the "public" directory
+	router.Static("/public", "./public")
+
 	// ================= GET =================
 	router.GET("/api/products", func(c *gin.Context) {
 		controllers.GetProducts(c, db)
