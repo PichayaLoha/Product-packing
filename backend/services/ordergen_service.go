@@ -140,13 +140,13 @@ func GeneratePackingSolution(db *sql.DB, req OrderGenRequest) (*PackingResult, e
 	// ใช้ `customer_id` ที่เพิ่งสร้างในการ INSERT `packages_order`
 	queryHistoryOrder := `INSERT INTO packages_order (history_time, history_amount, history_status, history_product_cost, history_box_cost, history_total_cost, customer_id, history_user_id)
                       VALUES (NOW(), $1, $2, $3, $4, $5, $6, $7)
-                      RETURNING package_id`
+                      RETURNING history_id`
 	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus, totalProductCost, totalBoxCost, totalCost, customerID, req.UserID).Scan(&historyID)
 	if err != nil {
 		log.Println("Error inserting into packages_order:", err)
 		return nil, err
 	}
-	fmt.Println("Created package_id:", historyID)
+	fmt.Println("Created history_id:", historyID)
 
 	for _, historyProduct := range solutions {
 		var genboxDelID int
