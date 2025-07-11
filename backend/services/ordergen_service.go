@@ -91,7 +91,7 @@ func GeneratePackingSolution(db *sql.DB, req OrderGenRequest) (*PackingResult, e
 	fmt.Println("boxs: ", boxSizes)
 	fmt.Println("products: ", products)
 	availableBoxes := filterAvailableBoxes(boxSizes, req.BlockedBoxes)
-	boxes, _, _, totalCost := packing(products, availableBoxes, mode) //อย่าลืมแก้กลับเป๋นเหมือนเดิม
+	boxes, totalProductCost, totalBoxCost, totalCost := packing(products, availableBoxes, mode) //อย่าลืมแก้กลับเป๋นเหมือนเดิม
 	fmt.Printf("จำนวนกล่องที่ใช้: %d\n", len(boxes))
 
 	var solutions []PackedBoxSolution
@@ -122,7 +122,74 @@ func GeneratePackingSolution(db *sql.DB, req OrderGenRequest) (*PackingResult, e
 			}
 		}
 	}
+	var historyID int
 
+	historyOrder := models.History{HistoryStatus: "Unpacked"}
+
+	// ดึง `customer_id` ล่าสุดจาก database
+	var customerID int
+	queryLastCustomer := `SELECT customer_id FROM customers ORDER BY customer_id DESC LIMIT 1`
+	err = db.QueryRow(queryLastCustomer).Scan(&customerID)
+	if err != nil {
+		log.Println("Error retrieving latest customer_id:", err)
+		return nil, err
+	}
+
+	fmt.Println("Latest customer_id:", customerID)
+
+	// ใช้ `customer_id` ที่เพิ่งสร้างในการ INSERT `packages_order`
+	queryHistoryOrder := `INSERT INTO packages_order (history_time, history_amount, history_status, history_product_cost, history_box_cost, history_total_cost, customer_id, history_user_id)
+                      VALUES (NOW(), $1, $2, $3, $4, $5, $6, $7)
+                      RETURNING package_id`
+	err = db.QueryRow(queryHistoryOrder, len(boxes), historyOrder.HistoryStatus, totalProductCost, totalBoxCost, totalCost, customerID, req.UserID).Scan(&historyID)
+	if err != nil {
+		log.Println("Error inserting into packages_order:", err)
+		return nil, err
+	}
+	fmt.Println("Created package_id:", historyID)
+
+	for _, historyProduct := range solutions {
+		var genboxDelID int
+		queryHistoryDel := `INSERT INTO package_dels (package_del_box_size, package_id) 
+							VALUES ($1, $2) 
+							RETURNING package_del_id`
+		err = db.QueryRow(queryHistoryDel, historyProduct.BoxName, historyID).Scan(&genboxDelID)
+		fmt.Println("package_dels_test:", historyProduct.BoxName, historyID)
+
+		if err != nil {
+			log.Println("Error inserting into package_dels:", err)
+			return nil, err
+		}
+
+		for _, historyProduct1 := range historyProduct.PackedProducts {
+			fmt.Println("ProductID: ", historyProduct1.ProductID)
+
+			// เตรียมคำสั่ง SQL สำหรับ Insert
+			query := `
+				INSERT INTO package_box_dels (package_box_x, package_box_y, package_box_z, package_del_id, product_id) 
+				VALUES ($1, $2, $3, $4, $5) 
+				RETURNING package_box_id` // เปลี่ยน "package_box_dels" เป็น primary key หรือ field ที่ต้องการ
+
+			var genBoxDelID int
+
+			// ดำเนินการ Query และตรวจสอบข้อผิดพลาด
+			err1 := db.QueryRow(query,
+				historyProduct1.X,
+				historyProduct1.Y,
+				historyProduct1.Z,
+				genboxDelID,
+				historyProduct1.ProductID,
+			).Scan(&genBoxDelID)
+
+			if err1 != nil {
+				log.Printf("Error inserting into package_box_dels (ProductID: %d): %v", historyProduct1.ProductID, err1)
+				return nil, err1
+			}
+
+			fmt.Printf("Inserted package_box_dels with ID: %d\n", genBoxDelID)
+		}
+
+	}
 	query := `DELETE FROM order_dels`
 	result, err := db.Exec(query)
 	if err != nil {
