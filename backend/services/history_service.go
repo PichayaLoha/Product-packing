@@ -17,13 +17,13 @@ type HistoryResponse struct {
 	HistoryBoxCost     float64   `json:"history_box_cost"`
 	HistoryTotalCost   float64   `json:"history_total_cost"`
 	CustomerID         int       `json:"customer_id"`
-	CustomerFirstName  string    `json:"customer_first_name"`
-	CustomerLastName   string    `json:"customer_last_name"`
-	CustomerAddress    string    `json:"customer_address"`
-	CustomerPostal     string    `json:"customer_postal"`
-	CustomerPhone      string    `json:"customer_phone"`
-	UserFirstName      string    `json:"user_first_name"`
-	UserLastName       string    `json:"user_last_name"`
+	CustomerFirstName  *string   `json:"customer_first_name"`
+	CustomerLastName   *string   `json:"customer_last_name"`
+	CustomerAddress    *string   `json:"customer_address"`
+	CustomerPostal     *string   `json:"customer_postal"`
+	CustomerPhone      *string   `json:"customer_phone"`
+	UserFirstName      *string   `json:"user_first_name"`
+	UserLastName       *string   `json:"user_last_name"`
 	HistoryUserID      int       `json:"history_user_id"`
 }
 
@@ -56,8 +56,8 @@ type PackageBoxResponse struct {
 	ProductHeight float64 `json:"product_height"`
 	ProductImage  string  `json:"product_image"`
 
-	UserFirstName string `json:"user_first_name"` // เพิ่ม
-	UserLastName  string `json:"user_last_name"`  // เพิ่ม
+	UserFirstName *string `json:"user_first_name"` // เพิ่ม
+	UserLastName  *string `json:"user_last_name"`  // เพิ่ม
 }
 
 // GetHistory retrieves a list of all history records with joined data.
@@ -69,8 +69,8 @@ func GetHistory(db *sql.DB) ([]HistoryResponse, error) {
             c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
             u.user_first_name, u.user_last_name, h.history_user_id
         FROM packages_order h
-        JOIN customers c ON h.customer_id = c.customer_id
-        JOIN users u ON h.history_user_id = u.user_id
+        LEFT JOIN customers c ON h.customer_id = c.customer_id
+        LEFT JOIN users u ON h.history_user_id = u.user_id
         ORDER BY h.history_time DESC
     `)
 	if err != nil {
@@ -104,8 +104,8 @@ func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
             c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
             u.user_first_name, u.user_last_name, h.history_user_id
         FROM packages_order h
-        JOIN customers c ON h.customer_id = c.customer_id
-        JOIN users u ON h.history_user_id = u.user_id
+        LEFT JOIN customers c ON h.customer_id = c.customer_id
+        LEFT JOIN users u ON h.history_user_id = u.user_id
         WHERE h.history_id = $1
     `, historyID).Scan(
 		&h.HistoryID, &h.HistoryAmount, &h.HistoryTime, &h.HistoryStatus,
@@ -127,13 +127,13 @@ func GetHistoryBoxDetail(db *sql.DB, historyBoxDelID string) ([]PackageBoxRespon
 		pd.package_del_id,
 		b.box_id, b.box_name, b.box_width, b.box_length, b.box_height,
 		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height, p.product_image,
-		u.user_firstname, u.user_lastname  -- ✅ เพิ่มชื่อผู้ใช้
+		u.user_first_name, u.user_last_name  -- ✅ เพิ่มชื่อผู้ใช้
 	FROM package_box_dels pbd
 	JOIN package_dels pd ON pbd.package_del_id = pd.package_del_id
 	JOIN boxes b ON pd.package_del_box_size = b.box_name
 	JOIN products p ON pbd.product_id = p.product_id
 	JOIN packages_order ho ON pd.package_id = ho.history_id  -- ✅ เพิ่มเพื่อดึง package_user_id
-	JOIN users u ON ho.history_user_id = u.user_id  -- ✅ เชื่อม users
+	LEFT JOIN users u ON ho.history_user_id = u.user_id  -- ✅ เชื่อม users
 	WHERE pd.package_del_id = $1;`, historyBoxDelID)
 	if err != nil {
 		return nil, err
