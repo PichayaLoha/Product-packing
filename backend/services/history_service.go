@@ -16,7 +16,7 @@ type HistoryResponse struct {
 	HistoryProductCost float64   `json:"history_product_cost"`
 	HistoryBoxCost     float64   `json:"history_box_cost"`
 	HistoryTotalCost   float64   `json:"history_total_cost"`
-	CustomerID         int       `json:"customer_id"`
+	CustomerID         *int      `json:"customer_id"`
 	CustomerFirstName  *string   `json:"customer_first_name"`
 	CustomerLastName   *string   `json:"customer_last_name"`
 	CustomerAddress    *string   `json:"customer_address"`
