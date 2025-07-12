@@ -9,13 +9,13 @@ import (
 
 // HistoryResponse defines the structure for history data returned to the client.
 type HistoryResponse struct {
-	HistoryID          int       `json:"package_id"`
-	HistoryAmount      int       `json:"package_amount"`
-	HistoryTime        time.Time `json:"package_time"`
-	HistoryStatus      string    `json:"package_status"`
-	HistoryProductCost float64   `json:"package_product_cost"`
-	HistoryBoxCost     float64   `json:"package_box_cost"`
-	HistoryTotalCost   float64   `json:"package_total_cost"`
+	HistoryID          int       `json:"history_id"`
+	HistoryAmount      int       `json:"history_amount"`
+	HistoryTime        time.Time `json:"history_time"`
+	HistoryStatus      string    `json:"history_status"`
+	HistoryProductCost float64   `json:"history_product_cost"`
+	HistoryBoxCost     float64   `json:"history_box_cost"`
+	HistoryTotalCost   float64   `json:"history_total_cost"`
 	CustomerID         int       `json:"customer_id"`
 	CustomerFirstName  string    `json:"customer_first_name"`
 	CustomerLastName   string    `json:"customer_last_name"`
@@ -24,7 +24,7 @@ type HistoryResponse struct {
 	CustomerPhone      string    `json:"customer_phone"`
 	UserFirstName      string    `json:"user_first_name"`
 	UserLastName       string    `json:"user_last_name"`
-	HistoryUserID      int       `json:"package_user_id"`
+	HistoryUserID      int       `json:"history_user_id"`
 }
 
 // PackageDelResponse defines the structure for package delivery details.
@@ -37,17 +37,27 @@ type PackageDelResponse struct {
 
 // PackageBoxResponse defines the structure for items within a package box.
 type PackageBoxResponse struct {
-	PackageBoxID  int     `json:"package_box_id"`
-	PackageBoxX   float64 `json:"package_box_x"`
-	PackageBoxY   float64 `json:"package_box_y"`
-	PackageBoxZ   float64 `json:"package_box_z"`
-	PackageDelID  int     `json:"package_del_id"`
+	PackageBoxID int     `json:"package_box_id"`
+	PackageBoxX  float64 `json:"package_box_x"`
+	PackageBoxY  float64 `json:"package_box_y"`
+	PackageBoxZ  float64 `json:"package_box_z"`
+	PackageDelID int     `json:"package_del_id"`
+
+	BoxID     int     `json:"box_id"`     // เพิ่ม
+	BoxName   string  `json:"box_name"`   // เพิ่ม
+	BoxWidth  float64 `json:"box_width"`  // เพิ่ม
+	BoxLength float64 `json:"box_length"` // เพิ่ม
+	BoxHeight float64 `json:"box_height"` // เพิ่ม
+
 	ProductID     int     `json:"product_id"`
 	ProductName   string  `json:"product_name"`
 	ProductWidth  float64 `json:"product_width"`
 	ProductLength float64 `json:"product_length"`
 	ProductHeight float64 `json:"product_height"`
 	ProductImage  string  `json:"product_image"`
+
+	UserFirstName string `json:"user_first_name"` // เพิ่ม
+	UserLastName  string `json:"user_last_name"`  // เพิ่ม
 }
 
 // GetHistory retrieves a list of all history records with joined data.
@@ -112,13 +122,19 @@ func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
 // GetHistoryBoxDetail retrieves the details of a specific box in a package delivery.
 func GetHistoryBoxDetail(db *sql.DB, historyBoxDelID string) ([]PackageBoxResponse, error) {
 	rows, err := db.Query(`
-        SELECT
-            pbd.package_box_id, pbd.package_box_x, pbd.package_box_y, pbd.package_box_z,
-            pbd.package_del_id, p.product_id, p.product_name, p.product_width, p.product_length, p.product_height, p.product_image
-        FROM package_box_dels pbd
-        JOIN products p ON pbd.product_id = p.product_id
-        WHERE pbd.package_del_id = $1
-    `, historyBoxDelID)
+       SELECT 
+		pbd.package_box_id, pbd.package_box_x, pbd.package_box_y, pbd.package_box_z,
+		pd.package_del_id,
+		b.box_id, b.box_name, b.box_width, b.box_length, b.box_height,
+		p.product_id, p.product_name, p.product_width, p.product_length, p.product_height, p.product_image,
+		u.user_firstname, u.user_lastname  -- ✅ เพิ่มชื่อผู้ใช้
+	FROM package_box_dels pbd
+	JOIN package_dels pd ON pbd.package_del_id = pd.package_del_id
+	JOIN boxes b ON pd.package_del_boxsize = b.box_name
+	JOIN products p ON pbd.product_id = p.product_id
+	JOIN packages_order ho ON pd.package_id = ho.package_id  -- ✅ เพิ่มเพื่อดึง package_user_id
+	JOIN users u ON ho.package_user_id = u.user_id  -- ✅ เชื่อม users
+	WHERE pd.package_del_id = $1;`, historyBoxDelID)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +145,10 @@ func GetHistoryBoxDetail(db *sql.DB, historyBoxDelID string) ([]PackageBoxRespon
 		var bd PackageBoxResponse
 		if err := rows.Scan(
 			&bd.PackageBoxID, &bd.PackageBoxX, &bd.PackageBoxY, &bd.PackageBoxZ,
-			&bd.PackageDelID, &bd.ProductID, &bd.ProductName, &bd.ProductWidth, &bd.ProductLength, &bd.ProductHeight, &bd.ProductImage,
+			&bd.PackageDelID,
+			&bd.BoxID, &bd.BoxName, &bd.BoxWidth, &bd.BoxLength, &bd.BoxHeight,
+			&bd.ProductID, &bd.ProductName, &bd.ProductWidth, &bd.ProductLength, &bd.ProductHeight, &bd.ProductImage,
+			&bd.UserFirstName, &bd.UserLastName, // ✅ อ่านค่าชื่อผู้ใช้
 		); err != nil {
 			return nil, err
 		}

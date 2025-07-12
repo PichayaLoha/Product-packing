@@ -33,11 +33,13 @@ function History_page() {
             const responseOrders = await fetch(`${import.meta.env.VITE_API_URL}/api/history`);
             const dataOrders = await responseOrders.json();
 
-            console.log("data is:", dataOrders.history);
+            console.log("data is:", dataOrders);
 
-            setHistory(dataOrders.history);
-            setFilteredOrder(dataOrders.history);
-            setSize(dataOrders.history ? dataOrders.history.length : 0);
+            const historyData = dataOrders.history || dataOrders;
+
+            setHistory(historyData);
+            setFilteredOrder(historyData);
+            setSize(historyData ? historyData.length : 0);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
