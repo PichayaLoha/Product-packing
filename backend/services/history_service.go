@@ -130,7 +130,7 @@ func GetHistoryBoxDetail(db *sql.DB, historyBoxDelID string) ([]PackageBoxRespon
 		u.user_firstname, u.user_lastname  -- ✅ เพิ่มชื่อผู้ใช้
 	FROM package_box_dels pbd
 	JOIN package_dels pd ON pbd.package_del_id = pd.package_del_id
-	JOIN boxes b ON pd.package_del_boxsize = b.box_name
+	JOIN boxes b ON pd.package_del_box_size = b.box_name
 	JOIN products p ON pbd.product_id = p.product_id
 	JOIN packages_order ho ON pd.package_id = ho.package_id  -- ✅ เพิ่มเพื่อดึง package_user_id
 	JOIN users u ON ho.package_user_id = u.user_id  -- ✅ เชื่อม users
