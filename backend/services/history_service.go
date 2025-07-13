@@ -230,9 +230,9 @@ func CreateHistoryFromOrder(db *sql.DB, packingResult *PackingResult, userID int
 	history := models.History{
 		HistoryAmount:      len(packingResult.Solutions), // Number of boxes packed
 		HistoryTime:        time.Now(),
-		HistoryStatus:      string(models.Packed),
-		HistoryProductCost: 0, // Will calculate from packed products
-		HistoryBoxCost:     0, // Will calculate from packed boxes
+		HistoryStatus:      "Unpacked", // Initial status),
+		HistoryProductCost: 0,          // Will calculate from packed products
+		HistoryBoxCost:     0,          // Will calculate from packed boxes
 		HistoryTotalCost:   packingResult.OverallTotalCost,
 		CustomerID:         customerID,
 		HistoryUserID:      userID,
