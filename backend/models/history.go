@@ -15,7 +15,7 @@ type History struct {
 	HistoryID          int       `gorm:"primaryKey;autoIncrement" json:"history_id"`
 	HistoryAmount      int       `gorm:"column:history_amount" json:"history_amount"`
 	HistoryTime        time.Time `gorm:"column:history_time" json:"history_time"`
-	HistoryStatus      string    `gorm:"column:history_status;type:history_status_enum" json:"history_status"`
+	HistoryStatus      string    `gorm:"column:history_status;type:history_status_enum;default:'Unpacked'" json:"history_status"`
 	HistoryProductCost float64   `gorm:"column:history_product_cost" json:"history_product_cost"`
 	HistoryBoxCost     float64   `gorm:"column:history_box_cost" json:"history_box_cost"`
 	HistoryTotalCost   float64   `gorm:"column:history_total_cost" json:"history_total_cost"`

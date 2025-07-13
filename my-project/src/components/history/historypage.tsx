@@ -22,7 +22,7 @@ function History_page() {
     const [history, setHistory] = useState<History[]>([]);
     const [filteredOrder, setFilteredOrder] = useState<History[]>([]);
     const [size, setSize] = useState(0);
-    const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'packed', 'unpacked'
+    const [statusFilter, setStatusFilter] = useState('unpacked'); // 'all', 'packed', 'unpacked'
 
     const auth = useContext(AuthContext);
     const userRole = auth?.userRole || localStorage.getItem("user_role");

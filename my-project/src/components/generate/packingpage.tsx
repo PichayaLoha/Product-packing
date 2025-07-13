@@ -41,6 +41,7 @@ function PackingPage() {
     const [mode, setMode] = useState("boxes"); // เก็บโหมดที่เลือก
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [userId, setUserId] = useState<string>(""); // สถานะสำหรับ userId
 
     const auth = useContext(AuthContext);
@@ -118,6 +119,9 @@ function PackingPage() {
     };
 
     const handleSubmit = async (data: { firstname: string; lastname: string; address: string; postal: string; phone: string; }) => {
+        if (isSubmitting) return; // ป้องกันการส่งซ้ำ
+        setIsSubmitting(true);
+
         console.log("ข้อมูลที่ส่ง:", data);
         const newItem = {
             customer_firstname: data.firstname,
@@ -141,13 +145,15 @@ function PackingPage() {
                 console.log("result is", newItem);
                 alert("Add customer success");
                 handleCloseModal(); // ปิด modal หลังจากส่งข้อมูล
-                handleGenerate()
+                await handleGenerate();
                 // แสดงผลลัพธ์จาก backend
             } else {
                 console.error('Error generating order:', response.statusText);
             }
         } catch (error) {
             console.error('Error:', error);
+        } finally {
+            setIsSubmitting(false); // คืนค่าเมื่อเสร็จสิ้น
         }
         // 
     };
@@ -364,7 +370,6 @@ function PackingPage() {
                     </div>
                 </div>
             </div>
-            <MyModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} />
         </div>
     );
 }
