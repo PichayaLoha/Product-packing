@@ -30,7 +30,7 @@ func (od *OrderDetail) TableName() string {
 }
 
 type RequestBody struct {
-	Mode         string `json:"mode"`
-	BlockedBoxes []int  `json:"blocked_boxes"`
-	UserId       int    `json:"user_id"`
+	Mode       string    `json:"mode"`
+	BlockedBoxes []string  `json:"blocked_boxes"`
+	UserId     int       `json:"user_id"`
 }

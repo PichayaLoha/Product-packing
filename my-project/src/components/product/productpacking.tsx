@@ -160,7 +160,7 @@ const Box = ({
         }
 
         const color = productColors[product.product_name];
-        console.log("Product",product.product_length);
+
         return (
           <Product
             key={product.package_box_id}
@@ -202,36 +202,20 @@ const ProductPacking = () => {
         console.log("API data:", data);
 
         if (Array.isArray(data) && data.length > 0) {
-          // Sanitize data to prevent NaN issues, without changing the logic.
-          const sanitizedData = data.map(p => ({
-            ...p,
-            box_length: parseFloat(String(p.box_length)),
-            box_height: parseFloat(String(p.box_height)),
-            box_width: parseFloat(String(p.box_width)),
-            product_length: parseFloat(String(p.product_length)),
-            product_height: parseFloat(String(p.product_height)),
-            product_width: parseFloat(String(p.product_width)),
-            package_box_x: parseFloat(String(p.package_box_x)),
-            package_box_y: parseFloat(String(p.package_box_y)),
-            package_box_z: parseFloat(String(p.package_box_z)),
-          }));
-
-          const box = sanitizedData[0];
+          const box = data[0];
           setBoxSize([box.box_length / 4, box.box_height / 4, box.box_width / 4]);
           setBoxName(box.box_name);
-          console.log("Box name:", box.box_name);
-          console.log("Box length:", box.box_length);
-          console.log("Box size:", boxSize);
+
           // Create unique product list for legend
-          const uniqueProducts = Array.from(new Set(sanitizedData.map(item => item.product_name)))
+          const uniqueProducts = Array.from(new Set(data.map(item => item.product_name)))
             .map(name => ({
               name,
               color: productColors[name] || "#999999",
             }));
 
           setProductNames(uniqueProducts);
-          setProducts(sanitizedData);
-          console.log("Products:", sanitizedData);
+          setProducts(data);
+          console.log("Products:", data);
         } else {
           console.error("Invalid data:", data);
         }

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"go-backend/models"
 	"go-backend/services"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -191,11 +190,11 @@ func GenerateProduct(c *gin.Context, db *sql.DB) {
 	}
 
 	// After generating, you might want to save this history. This is a placeholder.
-	_, err = services.CreateHistoryFromOrder(db, packingResult, req.UserID, req.CustomerID)
-	if err != nil {
-		log.Printf("Error saving history: %v", err)
-		// Decide how to handle this error - return it or just log and continue
-	}
+	// _, err = services.CreateHistoryFromOrder(db, packingResult, req.UserID, req.CustomerID)
+	// if err != nil {
+	// 	log.Printf("Error saving history: %v", err)
+	// 	// Decide how to handle this error - return it or just log and continue
+	// }
 
 	c.JSON(http.StatusOK, packingResult)
 }

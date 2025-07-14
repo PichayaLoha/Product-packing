@@ -41,7 +41,6 @@ function PackingPage() {
     const [mode, setMode] = useState("boxes"); // เก็บโหมดที่เลือก
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [userId, setUserId] = useState<string>(""); // สถานะสำหรับ userId
 
     const auth = useContext(AuthContext);
@@ -119,9 +118,6 @@ function PackingPage() {
     };
 
     const handleSubmit = async (data: { firstname: string; lastname: string; address: string; postal: string; phone: string; }) => {
-        if (isSubmitting) return; // ป้องกันการส่งซ้ำ
-        setIsSubmitting(true);
-
         console.log("ข้อมูลที่ส่ง:", data);
         const newItem = {
             customer_firstname: data.firstname,
@@ -145,15 +141,13 @@ function PackingPage() {
                 console.log("result is", newItem);
                 alert("Add customer success");
                 handleCloseModal(); // ปิด modal หลังจากส่งข้อมูล
-                await handleGenerate();
+                handleGenerate()
                 // แสดงผลลัพธ์จาก backend
             } else {
                 console.error('Error generating order:', response.statusText);
             }
         } catch (error) {
             console.error('Error:', error);
-        } finally {
-            setIsSubmitting(false); // คืนค่าเมื่อเสร็จสิ้น
         }
         // 
     };
@@ -162,56 +156,36 @@ function PackingPage() {
         console.log("Mode being sent:", mode, "Blocked boxes:", blockedBoxes);
 
         try {
-            // Step 1: Call the generate endpoint to trigger the calculation and save
-            const generateResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/generate`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mode, blocked_boxes: blockedBoxes, user_id: parseInt(userId) })
             });
 
-            if (!generateResponse.ok) {
-                console.error('Error generating order:', generateResponse.statusText);
-                alert("Failed to generate. Please try again.");
-                return; // Stop if generation failed
-            }
-            
-            console.log("Generation successful, now fetching latest history ID.");
-
-            // Step 2: Fetch the list of all history items to find the latest one
-            const historyResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/history`);
-            if (!historyResponse.ok) {
-                console.error('Error fetching history:', historyResponse.statusText);
-                alert("Could not fetch history to get package ID.");
-                navigate('/History');
-                return;
-            }
-
-            const historyData = await historyResponse.json();
-            console.log("Fetched history data:", historyData);
-
-            // The history data could be an array directly, or inside a .history property.
-            const historyList = historyData.history || historyData;
-
-            if (Array.isArray(historyList) && historyList.length > 0) {
-                // Assuming the last item in the list is the one we just created.
-                const latestPackage = historyList[historyList.length - 1];
-                const latestPackageId = latestPackage.package_id;
-
-                if (latestPackageId) {
-                    console.log(`Found latest package ID: ${latestPackageId}. Navigating to 3D view.`);
-                    navigate('/productpacking', { state: { package_dels_id: latestPackageId, message: "generate" } });
-                } else {
-                    alert("Found latest history entry, but it has no ID.");
-                    navigate('/History');
-                }
+            if (response.ok) {
+                const result = await response.json();
+                console.log("result is", result);
             } else {
-                alert("Could not find any history entries after generation.");
-                navigate('/History');
+                console.error('Error generating order:', response.statusText);
             }
+
+            const [customerRes, historyRes] = await Promise.all([
+                fetch(`${import.meta.env.VITE_API_URL}/api/customers`),
+                fetch(`${import.meta.env.VITE_API_URL}/api/history`)
+            ]);
+
+            const [customerData, historyData] = await Promise.all([
+                customerRes.json(),
+                historyRes.json()
+            ]);
+
+            const lastCustomerId = customerData.customer.at(-1)?.customer_id;
+            const lastHistoryId = historyData.history.at(-1)?.package_id;
+
+            navigate('/Generate', { state: { message: lastHistoryId, cus_id: lastCustomerId } });
 
         } catch (error) {
-            console.error('An error occurred during the generation process:', error);
-            alert("An error occurred. Please check the console for details.");
+            console.error('Error:', error);
         }
     };
 
@@ -370,6 +344,7 @@ function PackingPage() {
                     </div>
                 </div>
             </div>
+            <MyModal isOpen={isModalOpen} onClose={handleCloseModal} onSubmit={handleSubmit} />
         </div>
     );
 }

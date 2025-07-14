@@ -64,9 +64,7 @@ function AddProductPage() {
                 alert("Added successfully.");
                 navigate("/Product");
             } else {
-                const errorData = await response.json();
-                console.error("Error adding item:", errorData);
-                alert(`Error: ${errorData.message || response.statusText}`);
+                console.error("Error adding item:", response.statusText);
             }
         } catch (error) {
             console.error("Error:", error);

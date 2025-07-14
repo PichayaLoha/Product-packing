@@ -22,7 +22,7 @@ function History_page() {
     const [history, setHistory] = useState<History[]>([]);
     const [filteredOrder, setFilteredOrder] = useState<History[]>([]);
     const [size, setSize] = useState(0);
-    const [statusFilter, setStatusFilter] = useState('unpacked'); // 'all', 'packed', 'unpacked'
+    const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'packed', 'unpacked'
 
     const auth = useContext(AuthContext);
     const userRole = auth?.userRole || localStorage.getItem("user_role");
@@ -33,13 +33,11 @@ function History_page() {
             const responseOrders = await fetch(`${import.meta.env.VITE_API_URL}/api/history`);
             const dataOrders = await responseOrders.json();
 
-            console.log("data is:", dataOrders);
+            console.log("data is:", dataOrders.history);
 
-            const historyData = dataOrders.history || dataOrders;
-
-            setHistory(historyData);
-            setFilteredOrder(historyData);
-            setSize(historyData ? historyData.length : 0);
+            setHistory(dataOrders.history);
+            setFilteredOrder(dataOrders.history);
+            setSize(dataOrders.history ? dataOrders.history.length : 0);
         } catch (error) {
             console.error('Error fetching data:', error);
         }

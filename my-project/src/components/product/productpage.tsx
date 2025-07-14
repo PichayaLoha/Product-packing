@@ -29,7 +29,7 @@ function Productpage() {
     const canEditOrDelete = userRole === "admin" || userRole === "inventory manager";
 
     const authContext = useContext(AuthContext);
-
+// console.log("Api URL:", import.meta.env.VITE_API_URL);
     useEffect(() => {
         const userId = localStorage.getItem("userId");
         setUserId(userId || "");
@@ -38,10 +38,9 @@ function Productpage() {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
                 const data = await response.json();
-                console.log('Fetched data from API:', data);
-                const productsToProcess = Array.isArray(data) ? data : [];
-                sortProductsByTime(productsToProcess, sortOrder);
-                setSize(productsToProcess.length);
+                console.log("Products fetched:", data);
+                sortProductsByTime(data, sortOrder);
+                setSize(data ? data.length : 0);
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -49,7 +48,7 @@ function Productpage() {
 
         fetchProducts();
     }, [authContext, sortOrder]);
-
+    console.log("Products:", products);
     const sortProductsByTime = (products: Product[], order: 'newest' | 'oldest') => {
         const sortedProducts = [...products].sort((a, b) => {
             const timeA = new Date(a.product_time).getTime();

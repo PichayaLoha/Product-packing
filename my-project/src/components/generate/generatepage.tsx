@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 interface History {
     package_del_id: number;
-    package_del_box_size: string;
+    package_del_boxsize: string;
     package_id: any[];
     package_status: string;
     history_id: number;
@@ -89,7 +89,7 @@ function Generatepage() {
                                         <tr key={index} className='bg-stone-400'>
                                             <td>{index + 1}
                                             </td>
-                                            <th>{item.package_del_box_size}</th>
+                                            <th>{item.package_del_boxsize}</th>
                                             <td>{item.package_id.length}</td>
                                             <td>{client && (client.customer_firstname || client.customer_lastname
                                                 ? `${client.customer_firstname} ${client.customer_lastname}`.trim()

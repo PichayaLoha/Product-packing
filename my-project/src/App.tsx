@@ -35,30 +35,41 @@ function OrderTablePage() {
   // ดึงข้อมูล orders จาก backend เมื่อ component โหลด
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", "light");
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orderdels`);
-        const data = await response.json();
-        console.log(data.orderdels); // log ข้อมูลทั้งหมดที่ได้รับ
-        setOrder(data.orderdels); // เข้าถึง array orders จาก key 'orders'
-        setSize(data.orderdels ? data.orderdels.length : 0);
+    const fetchOrderDels = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orderdels`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setOrder(data.orderdels);
+            setSize(data.orderdels ? data.orderdels.length : 0);
 
-        const responseOrders = await fetch(`${import.meta.env.VITE_API_URL}/api/history`);
-        const dataOrders = await responseOrders.json();
+        } catch (error) {
+            console.error("Error fetching order dels:", error);
+        }
+    };
+
+    const fetchOrders = async () => {
+        try {
+            const responseOrders = await fetch(`${import.meta.env.VITE_API_URL}/api/history`);
+            if (!responseOrders.ok) {
+                throw new Error(`HTTP error! status: ${responseOrders.status}`);
+            }
+           const dataOrders = await responseOrders.json();
 
         console.log("history :", dataOrders.history);
 
         setHistory(dataOrders.history);
         setHissize(dataOrders.history ? dataOrders.history.length : 0);
-
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      }
-
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+        }
     };
+
     fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
 
-  }, []); // [] ทำให้ useEffect ทำงานเพียงครั้งเดียวเมื่อ component โหลด
+  }, []);
 
   return (
     <ProtectedRoute>
