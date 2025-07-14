@@ -2,8 +2,6 @@ package services
 
 import (
 	"database/sql"
-	"go-backend/models"
-	"log"
 	"time"
 )
 
@@ -217,84 +215,84 @@ func DeleteHistory(db *sql.DB, historyID string) error {
 // CreateHistoryFromOrder creates a new history record from a generated order.
 // NOTE: This function's signature and implementation depend on the `ordergen_service` which is also being refactored.
 // This is a placeholder implementation.
-func CreateHistoryFromOrder(db *sql.DB, packingResult *PackingResult, userID int, customerID int) (int, error) {
-	log.Printf("CreateHistoryFromOrder called for userID: %d, customerID: %d", userID, customerID)
-	tx, err := db.Begin()
-	if err != nil {
-		log.Printf("Error beginning transaction: %v", err)
-		return 0, err
-	}
-	defer tx.Rollback() // Rollback on error
+// func CreateHistoryFromOrder(db *sql.DB, packingResult *PackingResult, userID int, customerID int) (int, error) {
+// 	log.Printf("CreateHistoryFromOrder called for userID: %d, customerID: %d", userID, customerID)
+// 	tx, err := db.Begin()
+// 	if err != nil {
+// 		log.Printf("Error beginning transaction: %v", err)
+// 		return 0, err
+// 	}
+// 	defer tx.Rollback() // Rollback on error
 
-	// 1. Insert into packages_order
-	history := models.History{
-		HistoryAmount:      len(packingResult.Solutions), // Number of boxes packed
-		HistoryTime:        time.Now(),
-		HistoryStatus:      "Unpacked", // Initial status),
-		HistoryProductCost: 0,          // Will calculate from packed products
-		HistoryBoxCost:     0,          // Will calculate from packed boxes
-		HistoryTotalCost:   packingResult.OverallTotalCost,
-		CustomerID:         customerID,
-		HistoryUserID:      userID,
-	}
+// 	// 1. Insert into packages_order
+// 	history := models.History{
+// 		HistoryAmount:      len(packingResult.Solutions), // Number of boxes packed
+// 		HistoryTime:        time.Now(),
+// 		HistoryStatus:      "Unpacked", // Initial status),
+// 		HistoryProductCost: 0,          // Will calculate from packed products
+// 		HistoryBoxCost:     0,          // Will calculate from packed boxes
+// 		HistoryTotalCost:   packingResult.OverallTotalCost,
+// 		CustomerID:         customerID,
+// 		HistoryUserID:      userID,
+// 	}
 
-	// Calculate total product cost and box cost
-	for _, solution := range packingResult.Solutions {
-		history.HistoryBoxCost += solution.BoxCost
-		history.HistoryProductCost += solution.TotalProductCost
-	}
+// 	// Calculate total product cost and box cost
+// 	for _, solution := range packingResult.Solutions {
+// 		history.HistoryBoxCost += solution.BoxCost
+// 		history.HistoryProductCost += solution.TotalProductCost
+// 	}
 
-	log.Printf("Attempting to insert history record: %+v", history)
-	insertHistoryQuery := `INSERT INTO packages_order (history_amount, history_time, history_status, history_product_cost, history_box_cost, history_total_cost, customer_id, history_user_id)
-                           VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING history_id`
-	err = tx.QueryRow(insertHistoryQuery,
-		history.HistoryAmount, history.HistoryTime, history.HistoryStatus,
-		history.HistoryProductCost, history.HistoryBoxCost, history.HistoryTotalCost,
-		history.CustomerID, history.HistoryUserID).Scan(&history.HistoryID)
-	if err != nil {
-		log.Printf("Error inserting history: %v", err)
-		return 0, err
-	}
-	log.Printf("History record inserted with ID: %d", history.HistoryID)
+// 	log.Printf("Attempting to insert history record: %+v", history)
+// 	insertHistoryQuery := `INSERT INTO packages_order (history_amount, history_time, history_status, history_product_cost, history_box_cost, history_total_cost, customer_id, history_user_id)
+//                            VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING history_id`
+// 	err = tx.QueryRow(insertHistoryQuery,
+// 		history.HistoryAmount, history.HistoryTime, history.HistoryStatus,
+// 		history.HistoryProductCost, history.HistoryBoxCost, history.HistoryTotalCost,
+// 		history.CustomerID, history.HistoryUserID).Scan(&history.HistoryID)
+// 	if err != nil {
+// 		log.Printf("Error inserting history: %v", err)
+// 		return 0, err
+// 	}
+// 	log.Printf("History record inserted with ID: %d", history.HistoryID)
 
-	// 2. Insert into package_dels and package_box_dels
-	for _, solution := range packingResult.Solutions {
-		packageDel := models.PackageDel{
-			PackageDelBoxSize: solution.BoxName, // Assuming BoxName can be used as size description
-			PackageID:         history.HistoryID,
-		}
-		log.Printf("Attempting to insert package_del: %+v", packageDel)
-		insertPackageDelQuery := `INSERT INTO package_dels (package_del_box_size, package_id)
-                                  VALUES ($1, $2) RETURNING package_del_id`
-		err = tx.QueryRow(insertPackageDelQuery, packageDel.PackageDelBoxSize, packageDel.PackageID).Scan(&packageDel.PackageDelID)
-		if err != nil {
-			log.Printf("Error inserting package_del: %v", err)
-			return 0, err
-		}
-		log.Printf("PackageDel inserted with ID: %d", packageDel.PackageDelID)
+// 	// 2. Insert into package_dels and package_box_dels
+// 	for _, solution := range packingResult.Solutions {
+// 		packageDel := models.PackageDel{
+// 			PackageDelBoxSize: solution.BoxName, // Assuming BoxName can be used as size description
+// 			PackageID:         history.HistoryID,
+// 		}
+// 		log.Printf("Attempting to insert package_del: %+v", packageDel)
+// 		insertPackageDelQuery := `INSERT INTO package_dels (package_del_box_size, package_id)
+//                                   VALUES ($1, $2) RETURNING package_del_id`
+// 		err = tx.QueryRow(insertPackageDelQuery, packageDel.PackageDelBoxSize, packageDel.PackageID).Scan(&packageDel.PackageDelID)
+// 		if err != nil {
+// 			log.Printf("Error inserting package_del: %v", err)
+// 			return 0, err
+// 		}
+// 		log.Printf("PackageDel inserted with ID: %d", packageDel.PackageDelID)
 
-		for _, product := range solution.PackedProducts {
-			packageBoxDel := models.PackageBoxDel{
-				PackageBoxX:  0, // Placeholder, actual coordinates would come from packing algorithm
-				PackageBoxY:  0, // Placeholder
-				PackageBoxZ:  0, // Placeholder
-				PackageDelID: packageDel.PackageDelID,
-				ProductID:    product.ProductID,
-			}
-			log.Printf("Attempting to insert package_box_del: %+v", packageBoxDel)
-			insertPackageBoxDelQuery := `INSERT INTO package_box_dels (package_box_x, package_box_y, package_box_z, package_del_id, product_id)
-                                          VALUES ($1, $2, $3, $4, $5)`
-			_, err = tx.Exec(insertPackageBoxDelQuery,
-				packageBoxDel.PackageBoxX, packageBoxDel.PackageBoxY, packageBoxDel.PackageBoxZ,
-				packageBoxDel.PackageDelID, packageBoxDel.ProductID)
-			if err != nil {
-				log.Printf("Error inserting package_box_del: %v", err)
-				return 0, err
-			}
-			log.Printf("PackageBoxDel inserted for ProductID: %d", product.ProductID)
-		}
-	}
+// 		for _, product := range solution.PackedProducts {
+// 			packageBoxDel := models.PackageBoxDel{
+// 				PackageBoxX:  0, // Placeholder, actual coordinates would come from packing algorithm
+// 				PackageBoxY:  0, // Placeholder
+// 				PackageBoxZ:  0, // Placeholder
+// 				PackageDelID: packageDel.PackageDelID,
+// 				ProductID:    product.ProductID,
+// 			}
+// 			log.Printf("Attempting to insert package_box_del: %+v", packageBoxDel)
+// 			insertPackageBoxDelQuery := `INSERT INTO package_box_dels (package_box_x, package_box_y, package_box_z, package_del_id, product_id)
+//                                           VALUES ($1, $2, $3, $4, $5)`
+// 			_, err = tx.Exec(insertPackageBoxDelQuery,
+// 				packageBoxDel.PackageBoxX, packageBoxDel.PackageBoxY, packageBoxDel.PackageBoxZ,
+// 				packageBoxDel.PackageDelID, packageBoxDel.ProductID)
+// 			if err != nil {
+// 				log.Printf("Error inserting package_box_del: %v", err)
+// 				return 0, err
+// 			}
+// 			log.Printf("PackageBoxDel inserted for ProductID: %d", product.ProductID)
+// 		}
+// 	}
 
-	log.Println("Committing transaction.")
-	return history.HistoryID, tx.Commit()
-}
+// 	log.Println("Committing transaction.")
+// 	return history.HistoryID, tx.Commit()
+// }
