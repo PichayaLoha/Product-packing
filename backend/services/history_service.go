@@ -207,8 +207,8 @@ func GetHistoryDetail(db *sql.DB, historyID string) (History, error) {
         ho.history_box_cost,
         ho.history_total_cost,
         ho.history_user_id,  -- เพิ่ม user_id
-        u.user_firstname,
-        u.user_lastname,
+        u.user_first_name,
+        u.user_last_name,
         hd.package_del_id,
         hd.package_del_box_size,
         bd.package_box_id,
