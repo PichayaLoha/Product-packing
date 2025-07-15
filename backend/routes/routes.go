@@ -13,7 +13,8 @@ import (
 func Router(db *sql.DB, cld *cloudinary.Cloudinary) *gin.Engine {
 	router := gin.Default()
 	config := cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins: []string{"http://localhost:5173",
+			"https://product-packing.vercel.app"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length", "Authorization"},
