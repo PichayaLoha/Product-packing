@@ -14,15 +14,28 @@ type HistoryResponse struct {
 	HistoryProductCost float64   `json:"history_product_cost"`
 	HistoryBoxCost     float64   `json:"history_box_cost"`
 	HistoryTotalCost   float64   `json:"history_total_cost"`
-	CustomerID         *int      `json:"customer_id"`
-	CustomerFirstName  *string   `json:"customer_first_name"`
-	CustomerLastName   *string   `json:"customer_last_name"`
-	CustomerAddress    *string   `json:"customer_address"`
-	CustomerPostal     *string   `json:"customer_postal"`
-	CustomerPhone      *string   `json:"customer_phone"`
-	UserFirstName      *string   `json:"user_first_name"`
-	UserLastName       *string   `json:"user_last_name"`
-	HistoryUserID      int       `json:"history_user_id"`
+
+	CustomerID        *int    `json:"customer_id"`
+	CustomerFirstName *string `json:"customer_first_name"`
+	CustomerLastName  *string `json:"customer_last_name"`
+	CustomerAddress   *string `json:"customer_address"`
+	CustomerPostal    *string `json:"customer_postal"`
+	CustomerPhone     *string `json:"customer_phone"`
+
+	UserFirstName *string `json:"user_first_name"`
+	UserLastName  *string `json:"user_last_name"`
+	HistoryUserID int     `json:"history_user_id"`
+
+	// เพิ่มข้อมูลจาก package_dels
+	PackageDelID      *int    `json:"package_del_id"`
+	PackageDelBoxSize *string `json:"package_del_boxsize"`
+
+	// เพิ่มข้อมูลจาก package_box_dels
+	PackageBoxID *int     `json:"package_box_id"`
+	PackageBoxX  *float64 `json:"package_box_x"`
+	PackageBoxY  *float64 `json:"package_box_y"`
+	PackageBoxZ  *float64 `json:"package_box_z"`
+	ProductID    *int     `json:"product_id"`
 }
 
 // PackageDelResponse defines the structure for package delivery details.
@@ -96,20 +109,28 @@ func GetHistory(db *sql.DB) ([]HistoryResponse, error) {
 func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
 	var h HistoryResponse
 	err := db.QueryRow(`
-        SELECT
-            h.history_id, h.history_amount, h.history_time, h.history_status,
-            h.history_product_cost, h.history_box_cost, h.history_total_cost,
-            c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
-            u.user_first_name, u.user_last_name, h.history_user_id
-        FROM packages_order h
-        LEFT JOIN customers c ON h.customer_id = c.customer_id
-        LEFT JOIN users u ON h.history_user_id = u.user_id
-        WHERE h.history_id = $1
-    `, historyID).Scan(
+    SELECT
+        h.history_id, h.history_amount, h.history_time, h.history_status,
+        h.history_product_cost, h.history_box_cost, h.history_total_cost,
+        c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
+        u.user_first_name, u.user_last_name, h.history_user_id,
+        hd.package_del_id, hd.package_del_boxsize,
+        bd.package_box_id, bd.package_box_x, bd.package_box_y, bd.package_box_z,
+        bd.product_id
+    FROM packages_order h
+    LEFT JOIN customers c ON h.customer_id = c.customer_id
+    LEFT JOIN users u ON h.history_user_id = u.user_id
+    LEFT JOIN package_dels hd ON h.history_id = hd.package_id
+    LEFT JOIN package_box_dels bd ON hd.package_del_id = bd.package_del_id
+    WHERE h.history_id = $1
+`, historyID).Scan(
 		&h.HistoryID, &h.HistoryAmount, &h.HistoryTime, &h.HistoryStatus,
 		&h.HistoryProductCost, &h.HistoryBoxCost, &h.HistoryTotalCost,
 		&h.CustomerID, &h.CustomerFirstName, &h.CustomerLastName, &h.CustomerAddress, &h.CustomerPostal, &h.CustomerPhone,
 		&h.UserFirstName, &h.UserLastName, &h.HistoryUserID,
+		&h.PackageDelID, &h.PackageDelBoxSize,
+		&h.PackageBoxID, &h.PackageBoxX, &h.PackageBoxY, &h.PackageBoxZ,
+		&h.ProductID,
 	)
 	if err != nil {
 		return nil, err

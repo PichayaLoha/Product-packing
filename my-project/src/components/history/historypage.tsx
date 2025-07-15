@@ -4,16 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
 
 interface History {
-    package_id: number;
-    package_amount: number;
-    customer_firstname: string;
-    customer_lastname: string;
-    package_status: string;
-    history_id: number;
-    package_product_id: number;
-    package_product_name: string;
-    package_product_amount: number;
-    package_product_cost: number;
+   history_id: number;
+    history_amount: number;
+    customer_first_name: string;
+    customer_last_name: string;
+    history_status: string;
+    history_product_id: number;
+    history_product_name: string;
+    history_product_amount: number;
+    history_product_cost: number;
 }
 
 
@@ -33,11 +32,11 @@ function History_page() {
             const responseOrders = await fetch(`${import.meta.env.VITE_API_URL}/api/history`);
             const dataOrders = await responseOrders.json();
 
-            console.log("data is:", dataOrders.history);
+            console.log("data is:", dataOrders);
 
-            setHistory(dataOrders.history);
-            setFilteredOrder(dataOrders.history);
-            setSize(dataOrders.history ? dataOrders.history.length : 0);
+            setHistory(dataOrders);
+            setFilteredOrder(dataOrders);
+            setSize(dataOrders ? dataOrders.length : 0);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -52,7 +51,7 @@ function History_page() {
             setFilteredOrder(history);
         } else {
             const filtered = history.filter(item =>
-                item.package_status.toLowerCase() === statusFilter.toLowerCase()
+                item.history_status.toLowerCase() === statusFilter.toLowerCase()
             );
             setFilteredOrder(filtered);
         }
@@ -129,34 +128,34 @@ function History_page() {
                                     {size > 0 ? (
                                         <tbody className='text-white text-base'>
                                             {filteredOrder.map((item: History, index: number) => (
-                                                <tr key={item.package_id}>
+                                                <tr key={item.history_id}>
                                                     <td>{index + 1}</td>
-                                                    <td>{item.package_amount}</td>
-                                                    <td>{item.customer_firstname} {item.customer_lastname}</td>
+                                                    <td>{item.history_amount}</td>
+                                                    <td>{item.customer_first_name} {item.customer_last_name}</td>
                                                     <td>
-                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.package_status.toLowerCase() === 'packed'
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.history_status.toLowerCase() === 'packed'
                                                             ? 'bg-green-600 text-white'
                                                             : 'bg-yellow-500 text-white'
                                                             }`}>
-                                                            {item.package_status}
+                                                            {item.history_status}
                                                         </span>
                                                     </td>
                                                     <td>
                                                         <span className={`px-2 py-1 rounded-full font-medium text-md`}>
-                                                            {item.package_product_cost} บาท
+                                                            {item.history_product_cost} บาท
                                                         </span>
                                                     </td>
                                                    { canEditOrDelete && (
                                                     <td>
                                                         <button
                                                             className='btn btn-sm bg-green-500 border-green-500 hover:bg-green-600'
-                                                            onClick={() => { historyhandle(item.package_id, item.customer_firstname, item.customer_lastname) }}
+                                                            onClick={() => { historyhandle(item.history_id, item.customer_first_name, item.customer_last_name) }}
                                                         >
                                                             Detail
                                                         </button>
                                                         <button
                                                             className='btn btn-sm ml-2 bg-red-400 border-red-400 hover:bg-red-500'
-                                                            onClick={() => { historyDeletehandle(item.package_id) }}
+                                                            onClick={() => { historyDeletehandle(item.history_id) }}
                                                         >
                                                             Delete
                                                         </button>

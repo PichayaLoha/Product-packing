@@ -36,8 +36,8 @@ function Historydetailpage() {
                 const data = await response.json();
                 console.log("test", data);
 
-                setCreateFirstname(data.user_firstname);
-                setCreateLastname(data.user_lastname);
+                setCreateFirstname(data.user_first_name);
+                setCreateLastname(data.user_last_name);
 
                 setCheck(data.package_status);
                 setOrder(data.history_dels || []);
