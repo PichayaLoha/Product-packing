@@ -2,7 +2,15 @@ package services
 
 import (
 	"database/sql"
+	"log"
 	"time"
+)
+
+type HistoryStatusEnum string
+
+const (
+	Packed   HistoryStatusEnum = "Packed"
+	Unpacked HistoryStatusEnum = "Unpacked"
 )
 
 // HistoryResponse defines the structure for history data returned to the client.
@@ -45,8 +53,24 @@ type PackageDelResponse struct {
 	PackageID         int                  `json:"package_id"`
 	Products          []PackageBoxResponse `json:"products"`
 }
-
-// PackageBoxResponse defines the structure for items within a package box.
+type HistoryDel struct {
+	HistoryDelID      int         `json:"package_del_id"`
+	HistoryDelBoxSize string      `json:"package_del_box_size"`
+	GenBoxDels        []GenBoxDel `json:"package_id"`
+}
+type GenBoxDel struct {
+	GenBoxDelID     int      `json:"package_box_id"`
+	GenBoxDelName   string   `json:"product_name"`
+	GenBoxDelHeight float64  `json:"product_height"`
+	GenBoxDelLength float64  `json:"product_length"`
+	GenBoxDelWidth  float64  `json:"product_width"`
+	GenBoxDelWeight float64  `json:"product_weight"`
+	GenBoxDelX      float64  `json:"package_box_x"`
+	GenBoxDelY      float64  `json:"package_box_y"`
+	GenBoxDelZ      float64  `json:"package_box_z"`
+	GenBlockedBoxes []string `json:"blockedBoxes"`
+	GenBoxDelImage  string   `json:"product_image"`
+}
 type PackageBoxResponse struct {
 	PackageBoxID int     `json:"package_box_id"`
 	PackageBoxX  float64 `json:"package_box_x"`
@@ -69,6 +93,25 @@ type PackageBoxResponse struct {
 
 	UserFirstName *string `json:"user_first_name"` // เพิ่ม
 	UserLastName  *string `json:"user_last_name"`  // เพิ่ม
+}
+type History struct {
+	HistoryID          int               `json:"history_id"`
+	HistoryAmount      int               `json:"history_amount"`
+	HistoryTime        time.Time         `json:"history_time"`
+	HistoryStatus      HistoryStatusEnum `json:"history_status"`
+	HistoryDels        []HistoryDel      `json:"history_dels"`
+	HistoryProductCost float64           `json:"history_product_cost"`
+	HistoryBoxCost     float64           `json:"history_box_cost"`
+	HistoryTotalCost   float64           `json:"history_total_cost"`
+	CustomerID         int               `json:"customer_id"`
+	CustomerFirstName  string            `json:"customer_first_name"`
+	CustomerLastName   string            `json:"customer_last_name"`
+	CustomerAddress    string            `json:"customer_address"`
+	CustomerPostal     string            `json:"customer_postal"`
+	CustomerPhone      string            `json:"customer_phone"`
+	UserFirstName      string            `json:"user_first_name"`
+	UserLastName       string            `json:"user_last_name"`
+	HistoryUserID      int               `json:"history_user_id"`
 }
 
 // GetHistory retrieves a list of all history records with joined data.
@@ -106,36 +149,179 @@ func GetHistory(db *sql.DB) ([]HistoryResponse, error) {
 }
 
 // GetHistoryDetail retrieves a single history record and its associated details.
-func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
-	var h HistoryResponse
-	err := db.QueryRow(`
+// func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
+// 	var h HistoryResponse
+// 	err := db.QueryRow(query := `SELECT ho.history_id,
+// 		ho.history_amount,
+// 		ho.history_time,
+// 		ho.history_status,
+// 		ho.history_product_cost,
+// 		ho.history_box_cost,
+// 		ho.history_total_cost,
+// 		ho.history_user_id,
+// 		u.user_firstname,
+// 		u.user_lastname,
+// 		c.customer_id,
+// 		c.customer_first_name,
+// 		c.customer_last_name,
+// 		c.customer_address,
+// 		c.customer_postal,
+// 		c.customer_phone,
+// 		hd.package_del_id,
+// 		hd.package_del_boxsize,
+// 		bd.package_box_id,
+// 		bd.package_box_x,
+// 		bd.package_box_y,
+// 		bd.package_box_z,
+// 		bd.product_id
+// 	FROM packages_order ho
+// 	LEFT JOIN users u ON ho.history_user_id = u.user_id
+// 	LEFT JOIN customers c ON ho.customer_id = c.customer_id
+// 	LEFT JOIN package_dels hd ON ho.history_id = hd.package_id
+// 	LEFT JOIN package_box_dels bd ON hd.package_del_id = bd.package_del_id
+// 	WHERE ho.history_id = $1;
+// `
+// , historyID).Scan(
+// 		&h.HistoryID, &h.HistoryAmount, &h.HistoryTime, &h.HistoryStatus,
+// 		&h.HistoryProductCost, &h.HistoryBoxCost, &h.HistoryTotalCost,
+// 		&h.CustomerID, &h.CustomerFirstName, &h.CustomerLastName, &h.CustomerAddress, &h.CustomerPostal, &h.CustomerPhone,
+// 		&h.UserFirstName, &h.UserLastName, &h.HistoryUserID,
+// 		&h.PackageDelID, &h.PackageDelBoxSize,
+// 		&h.PackageBoxID, &h.PackageBoxX, &h.PackageBoxY, &h.PackageBoxZ,
+// 		&h.ProductID,
+// 	)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return &h, nil
+// }
+
+func GetHistoryDetail(db *sql.DB, historyID string) (History, error) {
+	query := `
     SELECT
-        h.history_id, h.history_amount, h.history_time, h.history_status,
-        h.history_product_cost, h.history_box_cost, h.history_total_cost,
-        c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
-        u.user_first_name, u.user_last_name, h.history_user_id,
-        hd.package_del_id, hd.package_del_box_size,
-        bd.package_box_id, bd.package_box_x, bd.package_box_y, bd.package_box_z,
+        ho.history_id,
+        ho.history_amount,
+        ho.history_time,
+        ho.history_status,
+        ho.history_product_cost,
+        ho.history_box_cost,
+        ho.history_total_cost,
+        ho.history_user_id,  -- เพิ่ม user_id
+        u.user_firstname,
+        u.user_lastname,
+        hd.package_del_id,
+        hd.package_del_box_size,
+        bd.package_box_id,
+        bd.package_box_x,
+        bd.package_box_y,
+        bd.package_box_z,
         bd.product_id
-    FROM packages_order h
-    LEFT JOIN customers c ON h.customer_id = c.customer_id
-    LEFT JOIN users u ON h.history_user_id = u.user_id
-    LEFT JOIN package_dels hd ON h.history_id = hd.package_id
-    LEFT JOIN package_box_dels bd ON hd.package_del_id = bd.package_del_id
-    WHERE h.history_id = $1
-`, historyID).Scan(
-		&h.HistoryID, &h.HistoryAmount, &h.HistoryTime, &h.HistoryStatus,
-		&h.HistoryProductCost, &h.HistoryBoxCost, &h.HistoryTotalCost,
-		&h.CustomerID, &h.CustomerFirstName, &h.CustomerLastName, &h.CustomerAddress, &h.CustomerPostal, &h.CustomerPhone,
-		&h.UserFirstName, &h.UserLastName, &h.HistoryUserID,
-		&h.PackageDelID, &h.PackageDelBoxSize,
-		&h.PackageBoxID, &h.PackageBoxX, &h.PackageBoxY, &h.PackageBoxZ,
-		&h.ProductID,
-	)
+    FROM
+        packages_order ho
+    LEFT JOIN
+        package_dels hd ON ho.package_id = hd.package_id
+    LEFT JOIN
+        package_box_dels bd ON hd.package_del_id = bd.package_del_id
+    LEFT JOIN
+        users u ON ho.package_user_id = u.user_id  -- เชื่อม users ด้วย package_user_id
+    WHERE
+        ho.package_id = $1;
+`
+
+	rows, err := db.Query(query, historyID)
+
 	if err != nil {
-		return nil, err
+		log.Println("Error querying history: ", err)
+		return History{}, err
 	}
-	return &h, nil
+	defer rows.Close()
+
+	history := History{}
+	historyDelsMap := make(map[int]*HistoryDel)
+
+	for rows.Next() {
+		var (
+			historyDelID      int
+			historyDelBoxSize string
+			genBoxDelID       sql.NullInt64
+			genBoxDelX        sql.NullFloat64
+			genBoxDelY        sql.NullFloat64
+			genBoxDelZ        sql.NullFloat64
+			productID         sql.NullString
+			// userFirstname     sql.NullString
+			// userLastname      sql.NullString
+		)
+
+		err := rows.Scan(
+			&history.HistoryID,
+			&history.HistoryAmount,
+			&history.HistoryTime,
+			&history.HistoryStatus,
+			&history.HistoryProductCost,
+			&history.HistoryBoxCost,
+			&history.HistoryTotalCost,
+			&history.HistoryUserID,
+			&history.UserFirstName,
+			&history.UserLastName,
+			&historyDelID,
+			&historyDelBoxSize,
+			&genBoxDelID,
+			&genBoxDelX,
+			&genBoxDelY,
+			&genBoxDelZ,
+			&productID,
+		)
+		if err != nil {
+			log.Println("Error scanning history detail: ", err)
+			return History{}, err
+		}
+
+		// ตรวจสอบว่า productID เป็น NULL หรือไม่
+		if productID.Valid {
+			// เรียกฟังก์ชัน GetProductsByID เพื่อดึงข้อมูลสินค้า
+			hisroryboxdels, err := GetProductsByID(db, productID.String)
+			if err != nil {
+				log.Println("Error fetching hisroryboxdels: ", err)
+				return History{}, err
+			}
+
+			// ตรวจสอบว่ามีสินค้าใน hisroryboxdels หรือไม่
+			if len(hisroryboxdels) > 0 {
+				hisroryboxdel := hisroryboxdels[0] // ใช้สินค้าแรกในรายการ (ถ้ามี)
+				if _, exists := historyDelsMap[historyDelID]; !exists {
+					historyDelsMap[historyDelID] = &HistoryDel{
+						HistoryDelID:      historyDelID,
+						HistoryDelBoxSize: historyDelBoxSize,
+						GenBoxDels:        []GenBoxDel{},
+					}
+				}
+
+				if genBoxDelID.Valid {
+					genBoxDel := GenBoxDel{
+						GenBoxDelID:     int(genBoxDelID.Int64),
+						GenBoxDelX:      genBoxDelX.Float64,
+						GenBoxDelY:      genBoxDelY.Float64,
+						GenBoxDelZ:      genBoxDelZ.Float64,
+						GenBoxDelName:   hisroryboxdel.ProductName,
+						GenBoxDelHeight: hisroryboxdel.ProductHeight,
+						GenBoxDelLength: hisroryboxdel.ProductLength,
+						GenBoxDelWidth:  hisroryboxdel.ProductWidth,
+						GenBoxDelWeight: hisroryboxdel.ProductWeight,
+						GenBoxDelImage:  hisroryboxdel.ProductImage,
+					}
+
+					historyDelsMap[historyDelID].GenBoxDels = append(historyDelsMap[historyDelID].GenBoxDels, genBoxDel)
+				}
+			}
+		}
+	}
+
+	// เพิ่ม HistoryDel เข้าไปใน History
+	for _, historyDel := range historyDelsMap {
+		history.HistoryDels = append(history.HistoryDels, *historyDel)
+	}
+
+	return history, nil
 }
 
 // GetHistoryBoxDetail retrieves the details of a specific box in a package delivery.
