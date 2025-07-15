@@ -219,13 +219,13 @@ func GetHistoryDetail(db *sql.DB, historyID string) (History, error) {
     FROM
         packages_order ho
     LEFT JOIN
-        package_dels hd ON ho.package_id = hd.package_id
+        package_dels hd ON ho.history_id = hd.package_id
     LEFT JOIN
         package_box_dels bd ON hd.package_del_id = bd.package_del_id
     LEFT JOIN
-        users u ON ho.package_user_id = u.user_id  -- เชื่อม users ด้วย package_user_id
+        users u ON ho.history_user_id = u.user_id  -- เชื่อม users ด้วย package_user_id
     WHERE
-        ho.package_id = $1;
+        ho.history_id = $1;
 `
 
 	rows, err := db.Query(query, historyID)
