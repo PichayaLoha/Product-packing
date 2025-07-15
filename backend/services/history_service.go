@@ -28,7 +28,7 @@ type HistoryResponse struct {
 
 	// เพิ่มข้อมูลจาก package_dels
 	PackageDelID      *int    `json:"package_del_id"`
-	PackageDelBoxSize *string `json:"package_del_boxsize"`
+	PackageDelBoxSize *string `json:"package_del_box_size"`
 
 	// เพิ่มข้อมูลจาก package_box_dels
 	PackageBoxID *int     `json:"package_box_id"`
@@ -114,7 +114,7 @@ func GetHistoryDetail(db *sql.DB, historyID string) (*HistoryResponse, error) {
         h.history_product_cost, h.history_box_cost, h.history_total_cost,
         c.customer_id, c.customer_first_name, c.customer_last_name, c.customer_address, c.customer_postal, c.customer_phone,
         u.user_first_name, u.user_last_name, h.history_user_id,
-        hd.package_del_id, hd.package_del_boxsize,
+        hd.package_del_id, hd.package_del_box_size,
         bd.package_box_id, bd.package_box_x, bd.package_box_y, bd.package_box_z,
         bd.product_id
     FROM packages_order h
