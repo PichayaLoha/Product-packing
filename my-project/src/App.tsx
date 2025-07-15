@@ -67,6 +67,7 @@ function OrderTablePage() {
         }
     };
 
+    fetchOrderDels();
     fetchOrders(); // เรียกใช้ฟังก์ชันเมื่อ component โหลด
 
   }, []);
