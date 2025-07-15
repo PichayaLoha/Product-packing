@@ -216,6 +216,13 @@ func calculateProductCost(products []models.Product) float64 {
 	}
 	return totalCost
 }
+func calculateBoxWeight(products []models.Product) float64 {
+	totalWeight := 0.0
+	for _, product := range products {
+		totalWeight += product.ProductWeight
+	}
+	return totalWeight
+}
 func filterAvailableBoxes(allBoxes []models.Box, blockedBoxes []int) []models.Box {
 	available := []models.Box{}
 	blockedSet := make(map[int]bool)
@@ -312,9 +319,9 @@ func packing(products []models.Product, boxSizes []models.Box, mode string) ([]m
 	// ✅ คำนวณ `totalCost`
 	totalCost = totalProductCost + totalBoxCost
 
-	fmt.Printf(" ราคารวมของสินค้าทั้งหมด: %.2f\n", totalProductCost)
-	fmt.Printf(" ราคารวมของกล่องที่ใช้: %.2f\n", totalBoxCost)
-	fmt.Printf(" ราคารวมทั้งหมด: %.2f\n", totalCost)
+	fmt.Printf("📦 ราคารวมของสินค้าทั้งหมด: %.2f\n", totalProductCost)
+	fmt.Printf("📦 ราคารวมของกล่องที่ใช้: %.2f\n", totalBoxCost)
+	fmt.Printf("📦 ราคารวมทั้งหมด: %.2f\n", totalCost)
 
 	return boxes, totalProductCost, totalBoxCost, totalCost
 }
@@ -403,13 +410,7 @@ func findSuitableBoxSize(product models.Product, boxSizes []models.Box, products
 
 	return selectedBox, found
 }
-func calculateBoxWeight(products []models.Product) float64 {
-	totalWeight := 0.0
-	for _, product := range products {
-		totalWeight += product.ProductWeight
-	}
-	return totalWeight
-}
+
 func areProductsSameSize(products []models.Product) bool {
 	if len(products) == 0 {
 		return true
