@@ -39,8 +39,8 @@ const Register: React.FC = () => {
                         body: JSON.stringify({
                             user_name: username,
                             user_password: password,
-                            user_firstname: firstname,
-                            user_lastname: lastname,
+                            user_first_name: firstname,
+                            user_last_name: lastname,
                             user_role: role
                         }),
                     });
@@ -70,8 +70,8 @@ const Register: React.FC = () => {
                     body: JSON.stringify({
                         user_name: username,
                         user_password: password,
-                        user_firstname: firstname,
-                        user_lastname: lastname,
+                        user_first_name: firstname,
+                        user_last_name: lastname,
                         user_role: role
                     }),
                 });
